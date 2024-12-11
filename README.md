@@ -26,10 +26,10 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 
 ## 🗂️ Estrutura Organizacional
 - src/: Código-fonte do projeto.
-- docs/: Documentação detalhada e diagramas.
-- tests/: Scripts de teste automatizado.
-- diagrams/: Diagramas C4 e ER para entendimento do sistema.
-
+- src/client: Parte de cliente do projeto
+- src/server: Parte de servidores do projeto
+- docs/: Documentações e diagramas.
+  
 ## ⚙️ Como Configurar o Ambiente Local
 1. Clone o repositório: git clone <URL do Repositório>.
 2. Instale as dependências: npm install.
