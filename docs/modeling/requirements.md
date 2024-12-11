@@ -18,9 +18,12 @@ O projeto busca resolver a necessidade de facilitar a geração e agendamento de
 - Login com o Instagram  
 - Geração automática de imagens e legendas usando IA  
 - Permitir escolha entre opções geradas  
-- Agendamento de posts e visualização do status  
+- Agendamento de posts e visualização do status
+- Visualizar histórico de agendamentos 
 
 ### **Não-funcionais**
-- Capacidade para suportar múltiplos usuários simultâneos sem perda de desempenho 
+- Capacidade para suportar múltiplos usuários simultâneos sem perda de desempenho
+- Responsividade 
 - Tempo de resposta rápido para consultas  
-- Segurança contra SQL Injection e proteção de dados sensíveis  
+- Segurança contra SQL Injection e proteção de dados sensíveis
+- Compatibilidade com navegadores modernos (Chrome, Firefox, Safari, Edge) 
