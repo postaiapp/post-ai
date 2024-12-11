@@ -31,7 +31,22 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 - *Versionamento*: Git.
 
 ## 🗂️ Estrutura Organizacional
-- src/: Código-fonte do projeto.
+-Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Files
+Go to file
+t
+src
+.gitignore
+BUILD.md
+CONTRIBUTING.m src/: Código-fonte do projeto.
 - src/client: Parte de cliente do projeto
 - src/server: Parte de servidores do projeto
 - docs/: Documentações e diagramas.
@@ -50,3 +65,9 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 ## ✅ Tarefas Iniciais
 - Configurar ambiente de desenvolvimento local.
 - Familiarizar-se as tecnologias que serão utilizadas.
+
+<br />
+
+[Como contribuir?](https://github.com/lucasmorais286/Projeto-engenharia-de-software-4periodo/blob/main/CONTRIBUTING.md)
+
+[Instruções para BUILD?](https://github.com/lucasmorais286/Projeto-engenharia-de-software-4periodo/blob/main/BUILD.md)
