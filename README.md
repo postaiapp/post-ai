@@ -6,6 +6,12 @@
 
 <br />
 
+## 👥 Membros
+* [Antonio Robério](https://www.linkedin.com/in/roberiof/): Desenvolvedor (foco front-end) e Designer
+* [Eric Londres](https://www.linkedin.com/in/ericlbarreto/): Desenvolvedor (foco back-end) e Designer 
+* [Lucas Morais](https://www.linkedin.com/in/lucasmorais28/): Desenvolvedor (foco front-end e QA)
+* [Mateus Ataide](https://www.linkedin.com/in/mateus-ataide/): Desenvolvedor (foco back-end e DevOps)
+
 ## 📝 Descrição Geral
 Este projeto visa facilitar a criação e o agendamento de posts no Instagram por meio de ferramentas de inteligência artificial. O sistema oferece:
 - *Geração automática* de imagens e legendas personalizadas.
@@ -19,8 +25,8 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 3. Garantir integração segura com as contas do Instagram.
 
 ## 💻 Tecnologias Utilizadas
-- *Frontend*: React, Next JS, Tailwind CSS, Typescript.
-- *Backend*: Node JS, Prisma, Nest JS, MongoDB, Typescript.
+- *Front-end*: React, Next JS, Tailwind CSS, Typescript.
+- *Back-end*: Node JS, Prisma, Nest JS, MongoDB, Typescript.
 - *Monorepo*: tRPC.
 - *Versionamento*: Git.
 
