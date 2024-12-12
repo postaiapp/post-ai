@@ -25,9 +25,9 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 3. Garantir integração segura com as contas do Instagram.
 
 ## 💻 Tecnologias Utilizadas
-- *Front-end*: React, Next JS, Tailwind CSS, Typescript.
+- *Front-end*: React, Next JS, Tailwind CSS, Typescript, Zustand.
 - *Back-end*: Node JS, Prisma, Nest JS, MongoDB, Typescript.
-- *Monorepo*: tRPC.
+- *Monorepo*.
 - *Versionamento*: Git.
 
 ## 🗂️ Estrutura Organizacional
