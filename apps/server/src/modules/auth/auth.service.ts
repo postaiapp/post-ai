@@ -1,0 +1,64 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from '@schemas/user.schema';
+import * as bcrypt from 'bcrypt';
+import { Model } from 'mongoose';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async authenticate({ email, password }: LoginDto) {
+    const user = await this.userModel.findOne({ email }).lean(true);
+
+    if (!user) {
+      const FAKE_PASSWORD =
+        '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
+      await bcrypt.compare(password, FAKE_PASSWORD);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const doesPasswordMatch = await bcrypt.compare(
+      password,
+      user.password_hash,
+    );
+
+    if (!doesPasswordMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const token = await this.generateToken({ user });
+
+    return { user, token };
+  }
+
+  async register({ name, email, password }: RegisterDto) {
+    console.log('register', name, email, password);
+    const alreadyUser = await this.userModel.findOne({ email });
+
+    if (alreadyUser) {
+      const FAKE_PASSWORD =
+        '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
+      await bcrypt.compare(password, FAKE_PASSWORD);
+      throw new UnauthorizedException('User already exists');
+    }
+
+    const password_hash = await bcrypt.hash(password, 12);
+
+    const user = new this.userModel({ name, email, password_hash });
+
+    return (await user.save()).toJSON();
+  }
+
+  async generateToken({ user }) {
+    const payload = { sub: user._id, email: user.email };
+
+    return this.jwtService.sign(payload);
+  }
+}
