@@ -26,10 +26,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const doesPasswordMatch = await bcrypt.compare(
-      password,
-      user.password_hash,
-    );
+    const doesPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!doesPasswordMatch) {
       throw new UnauthorizedException('Invalid credentials');
@@ -49,13 +46,17 @@ export class AuthService {
 
     const password_hash = await bcrypt.hash(password, 12);
 
-    const user = new this.userModel({ name, email, password_hash });
+    const user = await this.userModel.create({
+      name,
+      email,
+      password: password_hash,
+    });
 
-    return (await user.save()).toJSON();
+    return user.toJSON();
   }
 
   async generateToken({ user }) {
-    const payload = { sub: user._id, email: user.email };
+    const payload = { id: user._id, email: user.email };
 
     return this.jwtService.signAsync(payload, {
       secret: this.config.get('JWT_SECRET'),
