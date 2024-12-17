@@ -41,14 +41,10 @@ export class AuthService {
   }
 
   async register({ name, email, password }: RegisterDto) {
-    console.log('register', name, email, password);
     const alreadyUser = await this.userModel.findOne({ email });
 
     if (alreadyUser) {
-      const FAKE_PASSWORD =
-        '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
-      await bcrypt.compare(password, FAKE_PASSWORD);
-      throw new UnauthorizedException('User already exists');
+      throw new UnauthorizedException('Registration failed');
     }
 
     const password_hash = await bcrypt.hash(password, 12);
