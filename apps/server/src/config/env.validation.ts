@@ -30,6 +30,10 @@ class EnvironmentVariables {
   @Max(65535)
   @IsOptional()
   PORT: number = 3000;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {
