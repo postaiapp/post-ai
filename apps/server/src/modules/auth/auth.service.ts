@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async authenticate({ email, password }: LoginDto) {
-    const user = await this.userModel.findOne({ email }).lean(true);
+    const user = await this.userModel.findOne({ email }, { _id: 0 }).lean(true);
 
     if (!user) {
       const FAKE_PASSWORD =
@@ -46,13 +46,15 @@ export class AuthService {
 
     const password_hash = await bcrypt.hash(password, 12);
 
-    const user = await this.userModel.create({
+    await this.userModel.create({
       name,
       email,
       password: password_hash,
     });
 
-    return user.toJSON();
+    return {
+      message: 'User created successfully',
+    };
   }
 
   async generateToken({ user }) {
