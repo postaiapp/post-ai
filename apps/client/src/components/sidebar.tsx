@@ -1,4 +1,10 @@
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@components/ui/dropdown-menu";
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -10,18 +16,12 @@ import {
   SidebarMenuItem
 } from "@components/ui/sidebar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@radix-ui/react-dropdown-menu";
-import {
   Calendar,
   ChevronUp,
   Cog,
   DoorOpen,
+  History,
   Home,
-  Inbox,
   Search,
   User2
 } from "lucide-react";
@@ -33,9 +33,9 @@ const items = [
     icon: Home
   },
   {
-    title: "Inbox",
+    title: "History Posts",
     url: "#",
-    icon: Inbox
+    icon: History
   },
   {
     title: "Calendar",
@@ -54,7 +54,7 @@ export default function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Post-ai</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

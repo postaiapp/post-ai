@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description:
     "Crie posts incríveis para Instagram com IA, de forma automática e criativa. Simples, rápido e eficiente!",
   icons: {
-    icon: "/logo.png"
+    icon: "/logo.ico"
   }
 };
 
