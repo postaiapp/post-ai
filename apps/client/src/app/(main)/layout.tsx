@@ -1,4 +1,6 @@
 import Header from "@components/header";
+import { Sidebar } from "@components/index";
+import { SidebarProvider } from "@components/ui/sidebar";
 
 export default function MainLayout({
   children
@@ -6,9 +8,13 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <Header />
-      {children}
-    </div>
+    <SidebarProvider defaultOpen={true}>
+      <Sidebar />
+
+      <div className="flex flex-col w-full h-full">
+        <Header />
+        {children}
+      </div>
+    </SidebarProvider>
   );
 }
