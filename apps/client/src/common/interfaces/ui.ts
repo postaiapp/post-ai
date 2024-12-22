@@ -11,4 +11,6 @@ export interface TextAreaProps
   maxLength?: number;
   containerClassName?: string;
   showCount?: boolean;
+  numberOfLines?: number;
+  maxNumberOfLines?: number;
 }

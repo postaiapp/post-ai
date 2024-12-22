@@ -20,7 +20,7 @@ export default function Header() {
       <div className="flex items-center space-x-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <CircleUserRound size={24} />
+            <CircleUserRound size={24} className="cursor-pointer" />
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" className="mr-5">
             <DropdownMenuItem className="flex items-center gap-4">

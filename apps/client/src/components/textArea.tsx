@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useState, useCallback } from "react";
+import React, { forwardRef, useState, useCallback, useRef } from "react";
 
 import { TextAreaProps } from "@common/interfaces/ui";
 import { cn } from "@lib/utils";
@@ -20,6 +20,8 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       disabled = false,
       required,
       maxLength,
+      numberOfLines = 2,
+      maxNumberOfLines = 5,
       containerClassName,
       showCount = false,
       className,
@@ -31,13 +33,23 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const [length, setLength] = useState(value?.toString().length || 0);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+          textarea.style.height = "auto";
+          textarea.style.height = `${Math.min(
+            textarea.scrollHeight,
+            maxNumberOfLines * 1.5 * 16
+          )}px`;
+        }
+
         setLength(e.target.value.length);
         onChange?.(e);
       },
-      [onChange]
+      [onChange, maxNumberOfLines]
     );
 
     const inputClasses = cn(
@@ -65,7 +77,16 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           )}
         >
           <textarea
-            ref={ref}
+            ref={(el) => {
+              textareaRef.current = el;
+              if (typeof ref === "function") ref(el);
+              else if (ref) ref.current = el;
+            }}
+            style={{
+              overflowY: "scroll",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#c89bf2 #F3F4F6"
+            }}
             className={inputClasses}
             value={value}
             onChange={handleChange}
@@ -73,6 +94,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             onBlur={() => setIsFocused(false)}
             maxLength={maxLength}
             disabled={disabled}
+            rows={numberOfLines}
             {...props}
           />
           {iconRight && (
