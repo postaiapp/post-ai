@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger
 } from "@components/ui/dropdown-menu";
 import {
-  Sidebar,
+  Sidebar as UiSideBar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -15,49 +15,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@components/ui/sidebar";
-import {
-  Calendar,
-  ChevronUp,
-  Cog,
-  DoorOpen,
-  History,
-  Home,
-  Search,
-  User2
-} from "lucide-react";
+import { itemsSideBar } from "@constants/home";
+import { ChevronUp, Cog, DoorOpen, User2 } from "lucide-react";
 
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home
-  },
-  {
-    title: "History Posts",
-    url: "#",
-    icon: History
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search
-  }
-];
-
-export default function AppSidebar() {
+export default function Sidebar() {
   return (
-    <Sidebar collapsible="icon">
+    <UiSideBar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Post-ai</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {itemsSideBar.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={true}>
                     <a href={item.url}>
@@ -99,6 +68,6 @@ export default function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-    </Sidebar>
+    </UiSideBar>
   );
 }

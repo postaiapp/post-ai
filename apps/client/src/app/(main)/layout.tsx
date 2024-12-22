@@ -10,8 +10,7 @@ export default function MainLayout({
   return (
     <SidebarProvider defaultOpen={true}>
       <Sidebar />
-
-      <div className="flex flex-col w-full h-full">
+      <div className="flex flex-col w-full h-screen">
         <Header />
         {children}
       </div>
