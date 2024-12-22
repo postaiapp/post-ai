@@ -4,6 +4,7 @@ import React, { forwardRef, useState, useCallback } from "react";
 
 import { TextAreaProps } from "@common/interfaces/ui";
 import { cn } from "@lib/utils";
+import clsx from "clsx";
 
 import { Button } from "./ui/button";
 
@@ -19,6 +20,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       disabled = false,
       required,
       maxLength,
+      containerClassName,
       showCount = false,
       className,
       value,
@@ -39,7 +41,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     );
 
     const inputClasses = cn(
-      "resize-none p-3 rounded-md transition-colors text-gray-800 outline-none focus:outline-none",
+      "resize-none p-3 rounded-md transition-colors text-gray-800 outline-none focus:outline-none w-full",
       size === "small" ? "text-sm" : "text-base",
       isFocused ? "border-none" : "border-gray-300",
       error ? "border-red-500" : "",
@@ -56,7 +58,12 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           </p>
         )}
 
-        <div className="border border-gray-300 rounded-md flex items-center">
+        <div
+          className={clsx(
+            "border border-gray-300 rounded-md flex items-center",
+            containerClassName
+          )}
+        >
           <textarea
             ref={ref}
             className={inputClasses}

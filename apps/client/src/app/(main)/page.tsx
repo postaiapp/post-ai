@@ -32,7 +32,6 @@ export default function Home() {
       <div className="my-4 w-[70%]">
         <TextArea
           placeholder="Descreva seu post aqui..."
-          className="w-full"
           iconRight={<Send size={20} color="purple" />}
           showCount
           maxLength={200}

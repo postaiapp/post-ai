@@ -9,5 +9,6 @@ export interface TextAreaProps
   disabled?: boolean;
   required?: boolean;
   maxLength?: number;
+  containerClassName?: string;
   showCount?: boolean;
 }
