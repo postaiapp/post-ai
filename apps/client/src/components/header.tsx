@@ -23,11 +23,11 @@ export default function Header() {
             <CircleUserRound size={24} />
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" className="mr-5">
-            <DropdownMenuItem className="flex items-center gap-4 mb-2">
+            <DropdownMenuItem className="flex items-center gap-4">
               <User2 size={20} />
               <span className="text-sm">Profile data</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-4 mb-2">
+            <DropdownMenuItem className="flex items-center gap-4">
               <Instagram size={20} color="purple" />
               <span className="text-purple-800 text-sm">
                 Add your Instagram

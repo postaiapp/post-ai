@@ -1,6 +1,7 @@
+import { defaultPrompts } from "@common/constants/home";
+import TextArea from "@components/textArea";
 import { Button } from "@components/ui/button";
-import { Input } from "@components/ui/input";
-import { defaultPrompts } from "@constants/home";
+import { Send } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
@@ -28,10 +29,13 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="my-4">
-        <Input
-          className="w-96 focus-visible:border-purple-400"
-          placeholder="Escreva seu texto aqui..."
+      <div className="my-4 w-[70%]">
+        <TextArea
+          placeholder="Descreva seu post aqui..."
+          className="w-full"
+          iconRight={<Send size={20} color="purple" />}
+          showCount
+          maxLength={200}
         />
       </div>
     </div>

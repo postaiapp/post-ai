@@ -1,3 +1,4 @@
+import { itemsSideBar } from "@common/constants/home";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@components/ui/sidebar";
-import { itemsSideBar } from "@constants/home";
 import { ChevronUp, Cog, DoorOpen, User2 } from "lucide-react";
 
 export default function Sidebar() {
@@ -55,11 +55,11 @@ export default function Sidebar() {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem className="flex items-center gap-4 mb-2">
+                <DropdownMenuItem className="flex items-center gap-4">
                   <User2 size={20} />
                   <span className="text-sm">Change your account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-4 mb-2">
+                <DropdownMenuItem className="flex items-center gap-4 ">
                   <DoorOpen size={20} color="red" />
                   <span className="text-red-500 text-sm">Logout</span>
                 </DropdownMenuItem>
