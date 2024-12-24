@@ -5,20 +5,26 @@ import WhiteLogo from "@assets/white-logo.png";
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Label } from "@components/ui/label";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, LoaderCircle } from "lucide-react";
 import { Separator } from "@components/ui/separator";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { AuthForm } from "@common/interfaces/auth";
 
 export default function Authentication() {
 	const [showPassword, setShowPassword] = useState(false);
-	const [isSignup, setIsSignup] = useState(false);
+	const [isRegister, setIsRegister] = useState(false);
 
 	const togglePasswordVisibility = () => {
 		setShowPassword(prevState => !prevState);
 	};
 
 	const toggleAuthMode = () => {
-		setIsSignup(prevState => !prevState);
+		setIsRegister(prevState => !prevState);
 	};
+
+	const { register, handleSubmit, formState: { errors } } = useForm<AuthForm>();
+
+	const onSubmit: SubmitHandler<AuthForm> = data => console.log(data)
 
 	return (
 		<div className="flex h-screen w-full bg-[#f5f2f7]">
@@ -33,21 +39,23 @@ export default function Authentication() {
 			</div>
 
 			<div className="w-[40%] p-8 flex flex-col justify-center">
-				{isSignup && (
+				{isRegister && (
 					<div className="flex flex-col bg-white rounded-2xl w-full p-8 gap-6 shadow-xl">
 						<p className="text-5xl text-left font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text">
 							Crie uma conta
 						</p>
 
-						<div className="flex flex-col gap-3">
+						<form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
 							<div className="flex flex-col w-full gap-1.5">
 								<Label htmlFor="name" required>Nome</Label>
-								<Input type="text" id="name" placeholder="Digite seu nome completo" />
+								<Input type="text" id="name" placeholder="Digite seu nome completo" {...register("name", { required: true })} />
+								{errors.name && <span className="text-red-500 text-xs">O nome é obrigatório</span>}
 							</div>
 
 							<div className="flex flex-col w-full gap-1.5">
 								<Label htmlFor="email" required>Email</Label>
-								<Input type="email" id="email" placeholder="Digite seu email" />
+								<Input type="email" id="email" placeholder="Digite seu email" {...register("email", { required: true })}/>
+								{errors.email && <span className="text-red-500 text-xs">O email é obrigatório</span>}
 							</div>
 
 
@@ -59,6 +67,7 @@ export default function Authentication() {
 										placeholder="Digite sua senha"
 										id="password"
 										className="pr-10"
+										{...register("password", { required: true }	)}
 									/>
 									<button
 										type="button"
@@ -68,13 +77,15 @@ export default function Authentication() {
 										{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
 									</button>
 								</div>
+								{errors.password && <span className="text-red-500 text-xs">A senha é obrigatória é obrigatória</span>}
 							</div>
-						</div>
 
-						<Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">
-							Criar conta
-							<LogIn size={20} />
-						</Button>
+							<Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">
+								<LoaderCircle className="animate-spin"/>
+								Criar conta
+								<LogIn size={20} />
+							</Button>
+						</form>
 
 						<Separator className="mt-2"/>
 
@@ -87,16 +98,17 @@ export default function Authentication() {
 					</div>
 				)}
 
-				{!isSignup && (
+				{!isRegister && (
 					<div className="flex flex-col bg-white rounded-2xl w-full p-8 gap-6 shadow-xl">
 						<p className="text-4xl text-left font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text">
 							Seja bem-vindo de volta!
 						</p>
 
-						<div className="flex flex-col gap-3">
+						<form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
 							<div className="flex flex-col w-full gap-1.5">
 								<Label htmlFor="email" required>Email</Label>
-								<Input type="email" id="email" placeholder="Digite seu email" required />
+								<Input type="text" id="email" placeholder="Digite seu email" {...register("email", { required: true })} />
+								{errors.email && <span className="text-red-500 text-xs">O email é obrigatório</span>}
 							</div>
 
 
@@ -108,6 +120,7 @@ export default function Authentication() {
 										placeholder="Digite sua senha"
 										id="password"
 										className="pr-10"
+										{...register("password", { required: true }	)}
 									/>
 									<button
 										type="button"
@@ -117,13 +130,15 @@ export default function Authentication() {
 										{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
 									</button>
 								</div>
+								{errors.password && <span className="text-red-500 text-xs">A senha é obrigatória é obrigatória</span>}
 							</div>
-						</div>
 
-						<Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">
-							Entrar
-							<LogIn size={20} />
-						</Button>
+							<Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">
+								Entrar
+								<LogIn size={20} />
+							</Button>
+						</form>
+
 
 						<Separator className="mt-2"/>
 
