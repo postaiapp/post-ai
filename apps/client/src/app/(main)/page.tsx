@@ -11,7 +11,7 @@ export default function Home() {
         <div className="p-3 mx-auto rounded-md border-[1.5px] border-gray-200 w-fit mb-4 shadow-sm">
           <Image src="/logo.png" alt="Logo" width={48} height={48} />
         </div>
-        <p className="text-2xl text-center font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text mb-2">
+        <p className="text-2xl text-center font-semibold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-transparent bg-clip-text mb-2">
           Gere posts com o POST-AI
         </p>
         <p className="text-sm font-thin text-center mx-auto text-gray-400 w-96">

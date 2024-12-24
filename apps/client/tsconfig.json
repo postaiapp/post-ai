@@ -23,6 +23,7 @@
       "@config/*": ["./src/config/*"],
       "@common/*": ["./src/common/*"],
       "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"],
       "@utils/*": ["./src/utils/*"],
       "@lib/*": ["./src/lib/*"],
       "@constants/*": ["./src/common/constants/*"]
