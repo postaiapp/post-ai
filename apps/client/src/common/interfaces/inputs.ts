@@ -1,8 +1,8 @@
 import { UseFormRegister, Path } from "react-hook-form"
 
-interface TextInputPasswordProps<T extends object> {
+interface PasswordInputProps<T extends object> {
     textValue: Path<T>;
     register: UseFormRegister<T>;
 }
 
-export type { TextInputPasswordProps }
+export type { PasswordInputProps }

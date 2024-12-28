@@ -2,9 +2,9 @@
 import { Input } from "@components/ui/input"
 import { useState } from "react";
 import { EyeOff, Eye } from "lucide-react";
-import { TextInputPasswordProps } from "@common/interfaces/inputs";
+import { PasswordInputProps } from "@common/interfaces/inputs";
 
-export function TextInputPassword<T extends object>({ register, textValue }: TextInputPasswordProps<T>) {
+export function PasswordInput<T extends object>({ register, textValue }: PasswordInputProps<T>) {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {

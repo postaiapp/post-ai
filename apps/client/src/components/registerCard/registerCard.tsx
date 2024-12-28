@@ -4,7 +4,7 @@ import { Label } from "@components/ui/label";
 import { Separator } from "@components/ui/separator";
 import { LogIn, LoaderCircle } from "lucide-react";
 import { RegisterCardProps } from "@common/interfaces/auth";
-import { TextInputPassword } from "@components/textInputPassword/textInputPassword";
+import { PasswordInput } from "@components/passwordInput/passwordInput";
 
 
 export default function RegisterCard({ register, handleSubmit, errors, onSubmit, toggleAuthMode }: RegisterCardProps) {
@@ -30,11 +30,11 @@ export default function RegisterCard({ register, handleSubmit, errors, onSubmit,
 
                 <div className="flex flex-col w-full gap-1.5">
                     <Label htmlFor="password" required>Senha</Label>
-                    <TextInputPassword
+                    <PasswordInput
                         register={register}
                         textValue="password"
                     />
-                    {errors.password && <span className="text-red-500 text-xs">A senha é obrigatória</span>}
+                    {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                 </div>
 
                 <Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">

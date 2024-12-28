@@ -4,7 +4,7 @@ import { Label } from "@components/ui/label";
 import { Separator } from "@components/ui/separator";
 import { LogIn } from "lucide-react";
 import { LoginCardProps } from "@common/interfaces/auth";
-import { TextInputPassword } from "@components/textInputPassword/textInputPassword";
+import { PasswordInput } from "@components/passwordInput/passwordInput";
 import { AuthLoginType } from "@common/interfaces/auth";
 
 
@@ -19,17 +19,17 @@ export default function LoginCard({ register, handleSubmit, errors, onSubmit, to
             <div className="flex flex-col w-full gap-1.5">
                 <Label htmlFor="email" required>Email</Label>
                 <Input type="text" id="email" placeholder="Digite seu email" {...register("email")} />
-                {errors.email && <span className="text-red-500 text-xs">O email é obrigatório</span>}
+                {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
             </div>
 
 
             <div className="flex flex-col w-full gap-1.5">
                 <Label htmlFor="password" required>Senha</Label>
-                <TextInputPassword<AuthLoginType>
+                <PasswordInput<AuthLoginType>
                     register={register}
                     textValue="password"
                 />
-                {errors.password && <span className="text-red-500 text-xs">A senha é obrigatória</span>}
+                {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
             </div>
 
             <Button type="submit" variant="default" className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500">

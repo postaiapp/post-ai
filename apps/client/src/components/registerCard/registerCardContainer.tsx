@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthRegisterType, AuthContainerProps } from "@common/interfaces/auth";
 import { RegisterSchema } from "@common/schemas/auth";
 
-export default function RegisterCardContainer({ toggleAuthMode }: AuthContainerProps) {
+const RegisterCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
     const { register, handleSubmit, formState: { errors } } = useForm<AuthRegisterType>({
         resolver: zodResolver(RegisterSchema)
     });
@@ -21,3 +21,5 @@ export default function RegisterCardContainer({ toggleAuthMode }: AuthContainerP
         />
     );
 }
+
+export default RegisterCardContainer
