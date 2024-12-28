@@ -1,3 +1,4 @@
+"use client";
 import { itemsSideBar } from "@common/constants/home";
 import {
   DropdownMenu,
@@ -17,18 +18,21 @@ import {
   SidebarMenuItem
 } from "@components/ui/sidebar";
 import { ChevronUp, Cog, DoorOpen, User2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <UiSideBar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Post-ai</SidebarGroupLabel>
+          <SidebarGroupLabel>Post-AI</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {itemsSideBar.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={true}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <a href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
