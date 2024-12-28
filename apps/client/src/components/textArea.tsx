@@ -83,7 +83,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
               else if (ref) ref.current = el;
             }}
             style={{
-              overflowY: "scroll",
+              overflowY: "auto",
               scrollbarWidth: "thin",
               scrollbarColor: "#c89bf2 #F3F4F6"
             }}
