@@ -1,10 +1,15 @@
-import React from "react";
+"use client";
+import React, { useRef } from "react";
 
 import { Button } from "@components/ui/button";
+import { motion, useInView } from "motion/react";
 import Image from "next/image";
 import "./styles.css";
 
 const Hero = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref);
+
   return (
     <section className="py-16">
       <div className="flex justify-center flex-col items-center w-full  space-y-10">
@@ -34,9 +39,24 @@ const Hero = () => {
       </div>
       <div className="w-full py-8 bg-purple-light ">
         <div className="w-fit mx-auto">
-          <p className="typing-animation text-purple-dark font-bold letter-spacing-[0.1em]">
+          <motion.p
+            ref={ref}
+            className="text-purple-dark font-bold tracking-[0.1em]"
+            initial={{ width: 0 }}
+            animate={{ width: isInView ? "100%" : 0 }}
+            transition={{
+              duration: 3,
+              ease: "easeInOut"
+            }}
+            style={{
+              display: "inline-block",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              borderRight: "4px solid #9b4dca"
+            }}
+          >
             Impulsionando Negócios. Hoje e Amanhã.
-          </p>
+          </motion.p>
         </div>
       </div>
     </section>
