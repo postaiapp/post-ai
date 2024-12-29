@@ -27,7 +27,7 @@ export default function Sidebar() {
     <UiSideBar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Post-AI</SidebarGroupLabel>
+          <SidebarGroupLabel>Post AI</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {itemsSideBar.map((item) => (
