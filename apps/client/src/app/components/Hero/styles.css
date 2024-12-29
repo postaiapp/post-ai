@@ -1,0 +1,41 @@
+@keyframes highlight {
+  0% {
+    background-position: 0%;
+  }
+  100% {
+    background-position: -100%;
+  }
+}
+
+.highlight {
+  display: inline-block;
+  position: relative;
+  background-image: linear-gradient(90deg, transparent 50%, #C9B9FF 50%);
+  background-size: 200% 100%;
+  animation: highlight 1s linear forwards; 
+}
+
+
+@keyframes typing {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.typing-animation {
+  display: inline-block;
+  white-space: nowrap; 
+  overflow: hidden; 
+  border-right: 4px solid #9b4dca;
+  animation: typing 3s steps(40) 1s forwards, blink 0.75s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
