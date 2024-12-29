@@ -91,3 +91,20 @@ body {
   background-color: #c084fc;
   color: #ffffff;
 }
+
+::-webkit-scrollbar {
+  width: 12px; /* Largura da barra de rolagem */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #190041; /* Cor do "negócio" que mexe */
+  border-radius: 2px; /* Borda arredondada */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Fundo transparente */
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: #190041;
+}
