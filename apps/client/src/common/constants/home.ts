@@ -36,27 +36,27 @@ export const itemsSideBar = [
 
 export const defaultPrompts = [
   {
-    content: "Post motivacional.",
+    content: "Post motivacional",
     icon: Lightbulb
   },
   {
-    content: "Carrossel de marketing.",
+    content: "Carrossel de marketing",
     icon: BarChart
   },
   {
-    content: "Foco em nutrição.",
+    content: "Foco em nutrição",
     icon: Salad
   },
   {
-    content: "Publicação promocional.",
+    content: "Publicação promocional",
     icon: Tag
   },
   {
-    content: "Posts ao bem-estar.",
+    content: "Posts ao bem-estar",
     icon: Leaf
   },
   {
-    content: "Aumentar engajamento.",
+    content: "Aumentar engajamento",
     icon: TrendingUp
   }
 ];
