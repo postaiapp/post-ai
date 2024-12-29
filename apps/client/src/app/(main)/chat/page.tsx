@@ -11,15 +11,15 @@ export default function Home() {
         <div className="p-3 mx-auto rounded-md border-[1.5px] border-gray-200 w-fit mb-4 shadow-sm">
           <Image src="/logo.png" alt="Logo" width={48} height={48} />
         </div>
-        <p className="text-2xl text-center font-semibold bg-gradient-to-r    text-transparent bg-clip-text mb-2">
+        <p className="text-3xl text-center font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text mb-2">
           Gere posts com o POST-AI
         </p>
-        <p className="text-sm font-thin text-center mx-auto text-gray-400 w-96">
+        <p className="text-[12px] font-thin text-center mx-auto text-gray-400">
           Escolha seu prompt abaixo ou escreva seu próprio texto para gerar um
           post incrível!
         </p>
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-8">
+        <div className="grid grid-cols-3 lg:px-28 gap-4 w-full mt-8">
           {defaultPrompts.map((prompt, index) => (
             <Button key={index} className="rounded-2xl" variant="outline">
               <prompt.icon className="mr-2" />
