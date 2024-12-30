@@ -11,6 +11,7 @@ interface AuthContainerProps {
 }
 
 interface LoginCardProps {
+    loading: boolean;
     register: UseFormRegister<AuthLoginType>;
     handleSubmit: UseFormHandleSubmit<AuthLoginType>;
     errors: FieldErrors<AuthLoginType>;
@@ -18,6 +19,7 @@ interface LoginCardProps {
     toggleAuthMode: () => void;
 }
 interface RegisterCardProps {
+    loading: boolean;
     register: UseFormRegister<AuthRegisterType>;
     handleSubmit: UseFormHandleSubmit<AuthRegisterType>;
     errors: FieldErrors<AuthRegisterType>;

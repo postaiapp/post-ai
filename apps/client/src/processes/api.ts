@@ -2,11 +2,11 @@ import { warningToast } from "@utils/toast";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { redirect } from "next/navigation";
 
-const client = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL });
+const client = axios.create({ baseURL: "http://localhost:3333" });
 
 const TokenInterceptor = (config: any) => {
 	const token = localStorage.getItem("token");
-	console.log(token , 'token interceptor')
+
 	if (token) {
 		config.headers.Authorization = `Bearer ${token}`;
 	}
@@ -17,7 +17,7 @@ const TokenInterceptor = (config: any) => {
 
 const ResponseInterceptor = async (response: AxiosResponse) => {
 	const newToken = response.data?.token;
-	console.log(newToken, 'newToken')
+
 	if (newToken) {
 		localStorage.setItem("token", newToken);
 	}
@@ -41,14 +41,14 @@ const ErrorInterceptor = (error: AxiosError) => {
 	  	warningToast("Sem conexão com a internet.");
 	}
 
-	if ([401, 403].includes(statusCode) && !url?.includes("/auth/login")) {
+	if ([401, 403].includes(statusCode) && !url?.includes("/auth")) {
 	  	localStorage.clear();
-	  	redirect("/login");
+	  	redirect("/auth");
 	}
 
 	return Promise.resolve({
-	  	data: null,
-	  	error: error.response ? error.response.data : error.message
+		data: null,
+		error: error.response.data || error.message
 	});
   };
 

@@ -27,7 +27,8 @@
       "@utils/*": ["./src/utils/*"],
       "@lib/*": ["./src/lib/*"],
       "@constants/*": ["./src/common/constants/*"],
-      "@processes/*": ["./src/common/processes/*"]
+      "@processes/*": ["./src/processes/*"],
+      "@stores/*": ["./src/stores/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
