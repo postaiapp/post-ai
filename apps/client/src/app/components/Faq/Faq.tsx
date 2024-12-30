@@ -59,6 +59,7 @@ const Faq = () => {
 
   return (
     <section
+      id="faq"
       className={cn(
         wrapper,
         "flex flex-col gap-y-8 justify-center items-center my-16"

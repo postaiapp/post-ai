@@ -11,7 +11,7 @@ const Hero = () => {
   const isInView = useInView(ref);
 
   return (
-    <section className="py-16">
+    <section className="py-16" id="home">
       <div className="flex justify-center flex-col items-center w-full  space-y-10">
         <div className="text-center space-y-4">
           <h1 className="text-[80px] font-extrabold text-blue-dark leading-tight h-fit">

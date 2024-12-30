@@ -28,14 +28,15 @@ const Features = () => {
   ];
 
   return (
-    <motion.div
+    <motion.section
       className={cn("space-y-16", wrapper)}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      id="features"
     >
       {items.map((item, index) => (
-        <motion.div
+        <motion.span
           className="flex items-center gap-16 justify-center"
           key={item.title}
           initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
@@ -50,7 +51,7 @@ const Features = () => {
             alt={`Imagem da plataforma ${item.title}`}
             className={cn(index % 2 === 0 ? "order-2" : "order-1")}
           />
-          <motion.div
+          <motion.span
             className={cn(
               "flex flex-col gap-4",
               index % 2 === 0 ? "order-1" : "order-2"
@@ -64,10 +65,10 @@ const Features = () => {
               {item.title}{" "}
             </h3>
             <p>{item.description}</p>
-          </motion.div>
-        </motion.div>
+          </motion.span>
+        </motion.span>
       ))}
-    </motion.div>
+    </motion.section>
   );
 };
 
