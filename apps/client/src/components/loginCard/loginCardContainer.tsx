@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthLoginType, AuthContainerProps } from "@common/interfaces/auth";
 import { LoginSchema } from "@common/schemas/auth";
-import { login } from "../../processes/auth";
+import { login } from "@processes/auth";
 import { useCallback, useState } from "react";
 import { userStore } from "@stores/index";
 import { errorToast, successToast } from "@utils/toast";
@@ -27,7 +27,7 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
 
 		if (error) {
 			setLoading(false);
-			errorToast(mappedErrors[error.message] || 'Algo de errado aconteceu, tenta novamente mais tarde.');
+			errorToast(mappedErrors[error.message] || 'Algo de errado aconteceu, tente novamente.');
 			return;
 		}
 
@@ -35,7 +35,7 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
 
 		setTimeout(() => {
 			successToast('Login efetuado com sucesso!');
-		}, 1000);
+		}, 700);
 
 		setLoading(false);
 		redirect("/");
