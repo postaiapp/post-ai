@@ -1,7 +1,7 @@
 import LoginCard from "./loginCard";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthLoginType, AuthContainerProps } from "@common/interfaces/auth";
+import { AuthLoginType, AuthCardProps } from "@common/interfaces/auth";
 import { LoginSchema } from "@common/schemas/auth";
 import { login } from "@processes/auth";
 import { useCallback, useState } from "react";
@@ -9,7 +9,7 @@ import { userStore } from "@stores/index";
 import { errorToast, successToast } from "@utils/toast";
 import { redirect } from "next/navigation";
 
-const LoginCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
+const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 	const setUser = userStore((state) => state.setUser);
 	const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,7 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
 
 		setTimeout(() => {
 			successToast('Login efetuado com sucesso!');
-		}, 700);
+		}, 1000);
 
 		setLoading(false);
 		redirect("/");

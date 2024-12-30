@@ -1,13 +1,13 @@
 import RegisterCard from "./registerCard";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthRegisterType, AuthContainerProps } from "@common/interfaces/auth";
+import { AuthRegisterType, AuthCardProps } from "@common/interfaces/auth";
 import { RegisterSchema } from "@common/schemas/auth";
 import { register as registerUser } from "@processes/auth";
 import { useCallback, useState } from "react";
 import { errorToast, successToast } from "@utils/toast";
 
-const RegisterCardContainer = ({ toggleAuthMode }: AuthContainerProps) => {
+const RegisterCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 	const [loading, setLoading] = useState(false);
 
 	const { register, handleSubmit, formState: { errors } } = useForm<AuthRegisterType>({

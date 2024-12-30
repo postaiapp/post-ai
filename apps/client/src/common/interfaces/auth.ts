@@ -6,8 +6,13 @@ type AuthLoginType = z.infer<typeof LoginSchema>;
 
 type AuthRegisterType = z.infer<typeof RegisterSchema>;
 
+interface AuthCardProps {
+    toggleAuthMode: () => void;
+}
+
 interface AuthContainerProps {
     toggleAuthMode: () => void;
+    isRegister: boolean;
 }
 
 interface LoginCardProps {
@@ -27,4 +32,4 @@ interface RegisterCardProps {
     toggleAuthMode: () => void;
 }
 
-export type { AuthLoginType, AuthRegisterType, AuthContainerProps, LoginCardProps, RegisterCardProps };
+export type { AuthContainerProps, AuthLoginType, AuthRegisterType, AuthCardProps, LoginCardProps, RegisterCardProps };

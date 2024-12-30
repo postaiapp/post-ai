@@ -2,7 +2,7 @@ import { warningToast } from "@utils/toast";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { redirect } from "next/navigation";
 
-const client = axios.create({ baseURL: "http://localhost:3333" });
+const client = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL });
 
 const TokenInterceptor = (config: any) => {
 	const token = localStorage.getItem("token");
