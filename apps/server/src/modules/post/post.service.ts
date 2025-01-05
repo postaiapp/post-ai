@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
+import { User } from 'src/schema/user.schema';
 import { CreatePost } from './dto/post.dto';
 
 @Injectable()

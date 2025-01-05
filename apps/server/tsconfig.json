@@ -20,7 +20,7 @@
     "paths": {
       "@config/*": ["./src/config/*"],
       "@database/*": ["./src/database/*"],
-      "@schemas/*": ["./src/schema/*"],
+      "@schemas/*": ["src/schema/*"],
       "@utils/*": ["./src/utils/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@common/*": ["./src/common/*"],
