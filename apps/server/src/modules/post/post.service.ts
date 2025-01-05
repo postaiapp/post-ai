@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { User } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
-import { User } from 'src/schema/user.schema';
 import { CreatePost } from './dto/post.dto';
 
 @Injectable()
@@ -22,9 +22,9 @@ export class PostService {
         try {
             const user = await this.ig.account.login(username, password);
 
+            //ONLY FOR TESTS
             console.log(user);
 
-            //ONLY FOR TESTS
             const imageBuffer = await get({
                 url: 'https://i.imgur.com/BZBHsauh.jpg',
                 encoding: null,

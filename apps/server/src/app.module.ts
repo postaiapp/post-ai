@@ -1,5 +1,6 @@
 import { ConfigModule as AppConfigModule } from '@config/config.module';
 import { DatabaseModule } from '@database/database.module';
+import { AuthGuard } from '@guards/auth.guard';
 import { AuthModule } from '@modules/auth/auth.module';
 import { PostModule } from '@modules/post/post.module';
 import { Module } from '@nestjs/common';
@@ -21,11 +22,12 @@ import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.mod
                 signOptions: { expiresIn: '1d' },
             }),
             inject: [ConfigService],
+            global: true,
         }),
         PostModule,
         InstagramAuthModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, AuthGuard],
 })
 export class AppModule {}
