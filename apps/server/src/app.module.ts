@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
             inject: [ConfigService],
         }),
         PostModule,
+        InstagramAuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
