@@ -1,3 +1,4 @@
+import { ConfigModule as AppConfigModule } from '@config/config.module';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { PostModule } from '@modules/post/post.module';
@@ -11,6 +12,7 @@ import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.mod
 @Module({
     imports: [
         DatabaseModule,
+        AppConfigModule,
         AuthModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],

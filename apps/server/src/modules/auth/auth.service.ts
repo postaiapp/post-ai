@@ -9,60 +9,59 @@ import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectModel(User.name)
-    private readonly userModel: Model<User>,
-    private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
-  ) {}
+    constructor(
+        @InjectModel(User.name)
+        private readonly userModel: Model<User>,
+        private readonly jwtService: JwtService,
+        private readonly config: ConfigService
+    ) {}
 
-  async authenticate({ email, password }: LoginDto) {
-    const user = await this.userModel.findOne({ email }, { _id: 0 }).lean(true);
+    async authenticate({ email, password }: LoginDto) {
+        const user = await this.userModel.findOne({ email }, { _id: 0 }).lean(true);
 
-    if (!user) {
-      const FAKE_PASSWORD =
-        '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
-      await bcrypt.compare(password, FAKE_PASSWORD);
-      throw new UnauthorizedException('Invalid credentials');
+        if (!user) {
+            const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
+            await bcrypt.compare(password, FAKE_PASSWORD);
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const doesPasswordMatch = await bcrypt.compare(password, user.password);
+
+        if (!doesPasswordMatch) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const token = await this.generateToken({ user });
+
+        return { user, token };
     }
 
-    const doesPasswordMatch = await bcrypt.compare(password, user.password);
+    async register({ name, email, password }: RegisterDto) {
+        const alreadyUser = await this.userModel.findOne({ email });
 
-    if (!doesPasswordMatch) {
-      throw new UnauthorizedException('Invalid credentials');
+        if (alreadyUser) {
+            throw new UnauthorizedException('Registration failed');
+        }
+
+        const password_hash = await bcrypt.hash(password, 12);
+
+        await this.userModel.create({
+            name,
+            email,
+            password: password_hash,
+        });
+
+        return {
+            message: 'User created successfully',
+        };
     }
 
-    const token = await this.generateToken({ user });
+    async generateToken({ user }) {
+        const payload = { id: user._id, email: user.email };
 
-    return { user, token };
-  }
-
-  async register({ name, email, password }: RegisterDto) {
-    const alreadyUser = await this.userModel.findOne({ email });
-
-    if (alreadyUser) {
-      throw new UnauthorizedException('Registration failed');
+        return this.jwtService.signAsync(payload, {
+            secret: this.config.get('JWT_SECRET'),
+            expiresIn: '1d',
+        });
     }
-
-    const password_hash = await bcrypt.hash(password, 12);
-
-    await this.userModel.create({
-      name,
-      email,
-      password: password_hash,
-    });
-
-    return {
-      message: 'User created successfully',
-    };
-  }
-
-  async generateToken({ user }) {
-    const payload = { id: user._id, email: user.email };
-
-    return this.jwtService.signAsync(payload, {
-      secret: this.config.get('JWT_SECRET'),
-      expiresIn: '1d',
-    });
-  }
 }

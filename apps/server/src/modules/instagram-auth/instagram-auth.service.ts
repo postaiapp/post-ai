@@ -10,7 +10,7 @@ export class InstagramAuthService {
     private readonly clientSecret = this.configService.get('INSTAGRAM_CLIENT_SECRET');
     private readonly redirectUri = this.configService.get('INSTAGRAM_REDIRECT_URI');
 
-    async exchangeCodeForToken(code: string): Promise<any> {
+    async exchangeCodeForToken(code: string) {
         const response = await axios.post('https://api.instagram.com/oauth/access_token', null, {
             params: {
                 client_id: this.clientId,
@@ -20,16 +20,18 @@ export class InstagramAuthService {
                 code,
             },
         });
+
         return response.data;
     }
 
-    async getUserProfile(accessToken: string): Promise<any> {
+    async getUserProfile(accessToken: string) {
         const response = await axios.get('https://graph.instagram.com/me', {
             params: {
                 fields: 'id,username',
                 access_token: accessToken,
             },
         });
+
         return response.data;
     }
 }

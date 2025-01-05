@@ -5,12 +5,11 @@ export class InstagramAccount {
     @Prop({ required: true, type: String })
     username: string;
 
-    @Prop({ type: String })
+    @Prop({ required: true, type: String })
     instagramId: string;
 
-    @Prop({ type: Date })
-    linkedAt?: Date;
+    @Prop({ required: true, type: String })
+    profile_pic_url: string;
 }
 
-export const InstagramAccountSchema =
-    SchemaFactory.createForClass(InstagramAccount);
+export const InstagramAccountSchema = SchemaFactory.createForClass(InstagramAccount);

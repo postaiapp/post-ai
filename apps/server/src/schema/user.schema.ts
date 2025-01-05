@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { SchemaTypes, Types } from 'mongoose';
-import { InstagramAccount, InstagramAccountSchema } from './instagramAccount';
+import { InstagramAccount, InstagramAccountSchema } from './instagramAccount.schema';
 
 @Schema({ versionKey: false })
 export class User {

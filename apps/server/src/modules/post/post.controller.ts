@@ -1,15 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { AuthGuard } from '@guards/auth.guard';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CreatePost } from './dto/post.dto';
 import { PostService } from './post.service';
 
+@UseGuards(AuthGuard)
 @Controller('post')
 export class PostController {
     constructor(private readonly postService: PostService) {}
-
-    // @Post('account')
-    // createAccount(@Body() verifyBody: VerifyAccountDto) {
-    //     return this.postService.createAccount(verifyBody);
-    // }
 
     @Post()
     create(@Body() createPostBody: CreatePost) {

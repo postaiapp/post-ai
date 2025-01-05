@@ -13,6 +13,10 @@ export class VerifyAccountDto {
 export class CreatePost {
     @IsNotEmpty()
     @IsString()
+    username: string;
+
+    @IsNotEmpty()
+    @IsString()
     caption: string;
 
     @IsOptional()
