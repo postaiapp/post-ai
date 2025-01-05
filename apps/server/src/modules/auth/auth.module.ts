@@ -6,10 +6,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [
-    DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtService],
+    imports: [DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+    controllers: [AuthController],
+    providers: [AuthService, JwtService],
 })
 export class AuthModule {}

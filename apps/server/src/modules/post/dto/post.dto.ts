@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl, Min } from 'class-validator';
 
 export class VerifyAccountDto {
     @IsNotEmpty()
@@ -8,5 +8,19 @@ export class VerifyAccountDto {
     @IsNotEmpty()
     @IsString()
     @Min(8)
+    password: string;
+}
+export class CreatePost {
+    @IsNotEmpty()
+    @IsString()
+    caption: string;
+
+    @IsOptional()
+    @IsString()
+    @IsUrl()
+    img: string;
+
+    @IsNotEmpty()
+    @IsString()
     password: string;
 }
