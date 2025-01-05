@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { IgApiClient } from 'instagram-private-api';
 import { get } from 'request-promise';
 import { CreatePost } from './dto/post.dto';
@@ -11,22 +11,24 @@ export class PostService {
 
     async create({ caption, password }: CreatePost) {
         this.ig.state.generateDevice('ata1de');
+        console.log('body', { caption, password });
 
-        const user = await this.ig.account.login('ata1de', password);
+        try {
+            await this.ig.account.login('ata1de', password);
 
-        console.log(user);
+            //ONLY FOR TESTS
+            const imageBuffer = await get({
+                url: 'https://i.imgur.com/BZBHsauh.jpg',
+                encoding: null,
+            });
 
-        //ONLY FOR TESTS
-        const imageBuffer = await get({
-            url: 'https://i.imgur.com/BZBHsauh.jpg',
-            encoding: null,
-        });
-
-        console.log(imageBuffer);
-
-        this.ig.publish.photo({
-            file: imageBuffer,
-            caption,
-        });
+            this.ig.publish.photo({
+                file: imageBuffer,
+                caption,
+            });
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            throw new BadRequestException('Invalid Credentials');
+        }
     }
 }
