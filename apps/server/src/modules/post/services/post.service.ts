@@ -86,6 +86,8 @@ export class PostService {
                 caption,
             });
 
+            this.logger.debug(`Post created successfully`);
+
             return { message: 'Post created successfully' };
         } catch {
             throw new BadRequestException('Invalid Credentials');

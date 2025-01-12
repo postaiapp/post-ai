@@ -1,6 +1,6 @@
 import { AuthGuard } from '@guards/auth.guard';
 import { Controller, Get, Query, Redirect, UseGuards } from '@nestjs/common';
-import { InstagramAuthService } from './instagram-auth.service';
+import { InstagramAuthService } from '../services/instagram-auth.service';
 
 @UseGuards(AuthGuard)
 @Controller('instagram')

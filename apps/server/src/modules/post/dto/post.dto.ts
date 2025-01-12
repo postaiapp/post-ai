@@ -28,7 +28,6 @@ export class CreatePost {
     @IsOptional()
     @Transform((obj) => new Date(obj.value))
     @IsDate()
-    // @Min(new Date().getTime(), { message: 'Invalid post date' })
     post_date: Date;
 
     @IsNotEmpty()
