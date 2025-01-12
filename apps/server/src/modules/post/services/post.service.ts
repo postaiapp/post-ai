@@ -35,7 +35,7 @@ export class PostService {
         const date = new Date(post_date);
 
         if (date < new Date()) {
-            return new BadRequestException('Invalid post date');
+            throw new BadRequestException('Invalid post date');
         }
 
         const jobId = `post_${username}_${date.getTime()}`;

@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { BaseSchema } from './base.schema';
 
 @Schema({ versionKey: false })
-export class InstagramAccount {
+export class InstagramAccount extends BaseSchema {
     @Prop({ required: true, type: String })
     username: string;
 

@@ -1,12 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SchemaTypes, Types } from 'mongoose';
+import { BaseSchema } from './base.schema';
 import { InstagramAccount, InstagramAccountSchema } from './instagramAccount.schema';
 
 @Schema({ versionKey: false })
-export class User {
-    @Prop({ type: SchemaTypes.ObjectId, default: new Types.ObjectId() })
-    _id: Types.ObjectId;
-
+export class User extends BaseSchema {
     @Prop({ required: true, type: String })
     name: string;
 

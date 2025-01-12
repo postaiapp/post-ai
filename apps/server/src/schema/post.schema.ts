@@ -1,7 +1,8 @@
 import { Prop, Schema } from '@nestjs/mongoose';
+import { BaseSchema } from './base.schema';
 
 @Schema({ versionKey: false })
-export class Post {
+export class Post extends BaseSchema {
     @Prop({ required: true, type: String })
     caption: string;
 
