@@ -1,7 +1,7 @@
 import { AuthGuard } from '@guards/auth.guard';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { CreatePost } from './dto/post.dto';
-import { PostService } from './post.service';
+import { CreatePost } from '../dto/post.dto';
+import { PostService } from '../services/post.service';
 
 @UseGuards(AuthGuard)
 @Controller('post')

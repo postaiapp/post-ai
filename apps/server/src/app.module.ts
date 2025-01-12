@@ -6,12 +6,14 @@ import { PostModule } from '@modules/post/post.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         DatabaseModule,
         AppConfigModule,
         AuthModule,

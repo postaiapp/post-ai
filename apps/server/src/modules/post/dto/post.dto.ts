@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString, IsUrl, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, Min } from 'class-validator';
 
 export class VerifyAccountDto {
     @IsNotEmpty()
@@ -23,6 +24,12 @@ export class CreatePost {
     @IsString()
     @IsUrl()
     img: string;
+
+    @IsOptional()
+    @Transform((obj) => new Date(obj.value))
+    @IsDate()
+    // @Min(new Date().getTime(), { message: 'Invalid post date' })
+    post_date: Date;
 
     @IsNotEmpty()
     @IsString()
