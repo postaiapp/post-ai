@@ -26,7 +26,8 @@
       "@auth/*": ["src/modules/auth*"],
       "@modules/*": ["./src/modules/*"],
       "@guards/*": ["./src/guards/*"],
-      "@schemas/*": ["./src/schema/*"]
+      "@schemas/*": ["./src/schema/*"],
+      "@constants/*": ["./src/constants/*"]
     }
   }
 }

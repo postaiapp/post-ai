@@ -1,3 +1,4 @@
+import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -7,9 +8,6 @@ import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
 import { CreatePost } from '../dto/post.dto';
-
-const TIME_ZONE = 'America/Sao_Paulo';
-const IMAGE_URL = 'https://i.imgur.com/BZBHsauh.jpg';
 
 @Injectable()
 export class PostService {
@@ -26,17 +24,15 @@ export class PostService {
         const { post_date } = createPostData;
 
         if (post_date) {
-            console.log('Scheduling post');
             return this.schedulePost(createPostData);
         }
 
         return this.publishPost(createPostData);
     }
 
-    private async schedulePost(postData: CreatePost) {
+    async schedulePost(postData: CreatePost) {
         const { username, post_date } = postData;
         const date = new Date(post_date);
-        console.log('DATE', date);
 
         if (date < new Date()) {
             return new BadRequestException('Invalid post date');
@@ -81,7 +77,7 @@ export class PostService {
             await this.ig.account.login(username, password);
 
             const imageBuffer = await get({
-                url: IMAGE_URL,
+                url: IMAGE_TEST_URL,
                 encoding: null,
             });
 
@@ -98,10 +94,12 @@ export class PostService {
 
     async cancelScheduledPost(jobId: string) {
         const job = this.scheduledPosts.get(jobId);
+
         if (job) {
             job.stop();
             this.schedulerRegistry.deleteCronJob(jobId);
             this.scheduledPosts.delete(jobId);
+
             this.logger.debug(`Cancelled scheduled post ${jobId}`);
             return { message: 'Scheduled post cancelled successfully' };
         }
