@@ -17,9 +17,7 @@ export class AuthService {
     ) {}
 
     async authenticate({ email, password }: LoginDto) {
-        const user = await this.userModel
-            .findOne({ email }, { email: 1, password: 1, name: 1, id: 1, _id: 0 })
-            .lean(true);
+        const user = await this.userModel.findOne({ email }, { email: 1, password: 1, name: 1, _id: 1 }).lean(true);
 
         if (!user) {
             const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
@@ -35,7 +33,13 @@ export class AuthService {
 
         const token = await this.generateToken({ user });
 
-        return { user, token };
+        return {
+            user: {
+                name: user.name,
+                email: user.email,
+            },
+            token,
+        };
     }
 
     async register({ name, email, password }: RegisterDto) {
@@ -59,7 +63,7 @@ export class AuthService {
     }
 
     async generateToken({ user }) {
-        const payload = { userId: user.id, email: user.email };
+        const payload = { userId: user._id, email: user.email };
 
         return this.jwtService.signAsync(payload, {
             secret: this.config.get('JWT_SECRET'),

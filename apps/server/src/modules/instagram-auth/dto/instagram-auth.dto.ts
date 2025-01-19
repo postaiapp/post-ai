@@ -18,3 +18,10 @@ export class InstagramAuthDto {
     @Escape()
     username: string;
 }
+export class DeleteInstagramAuthDto {
+    @IsString()
+    @IsNotEmpty()
+    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+    @Escape()
+    username: string;
+}

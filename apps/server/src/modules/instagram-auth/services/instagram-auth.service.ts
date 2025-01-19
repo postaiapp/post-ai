@@ -1,65 +1,120 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
+import { InstagramAccount } from '@type/instagram-account';
+import { Meta } from '@type/meta';
+import * as crypto from 'crypto';
+import { scrypt } from 'crypto';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
-import { InstagramAuthDto } from '../dto/instagram-auth.dto';
+import { promisify } from 'util';
+import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
+
+const scryptAsync = promisify(scrypt);
 
 @Injectable()
 export class InstagramAuthService {
     private readonly logger = new Logger(InstagramAuthService.name);
 
     constructor(
-        private readonly configService: ConfigService,
         private readonly ig: IgApiClient,
         @InjectModel(User.name) private readonly userModel: Model<User>
     ) {}
 
-    async login({ username, password }: InstagramAuthDto) {
+    async hasInstagramAccount(meta: Meta, username: string) {
+        const existingAccount = await this.userModel.findOne({
+            email: meta.email,
+            'InstagramAccounts.username': username,
+        });
+
+        if (existingAccount) {
+            throw new BadRequestException('Instagram account already exists for this user');
+        }
+    }
+
+    async login(body: InstagramAuthDto, meta: Meta) {
+        const { username, password } = body;
+
+        await this.hasInstagramAccount(meta, username);
+
         this.ig.state.generateDevice(username);
 
         try {
             const user = await this.ig.account.login(username, password);
-            const token = await this.ig.state.serialize();
 
-            console.log('User:', user);
-            console.log('Token:', token);
-
-            // Fetch additional user info
             const userInfo = await this.ig.user.info(user.pk);
 
-            console.log('userInfo:', userInfo);
+            const hashedPassword = await this.generatePasswordHash(password);
 
-            // // Prepare user data for database
-            // const userData: InstagramUser = {
-            //     userId: user.pk.toString(),
-            //     username: user.username,
-            //     fullName: userInfo.full_name,
-            //     biography: userInfo.biography,
-            //     followerCount: userInfo.follower_count,
-            //     followingCount: userInfo.following_count,
-            //     postCount: userInfo.media_count,
-            //     profilePicUrl: userInfo.profile_pic_url,
-            //     token: JSON.stringify(token),
-            //     lastLogin: new Date(),
-            // };
+            const userData: InstagramAccount = {
+                userId: user.pk.toString(),
+                username: user.username,
+                fullName: userInfo.full_name,
+                biography: userInfo.biography,
+                followerCount: userInfo.follower_count,
+                followingCount: userInfo.following_count,
+                postCount: userInfo.media_count,
+                profilePicUrl: userInfo.profile_pic_url,
+                lastLogin: new Date(),
+                password: hashedPassword,
+            };
 
-            // // Update or create user in database
-            // await this.userModel.findOneAndUpdate({ userId: userData.userId }, userData, { upsert: true, new: true });
+            const newUser = await this.userModel
+                .findOneAndUpdate(
+                    { email: meta.email },
+                    { $push: { InstagramAccounts: userData } },
+                    {
+                        _id: 0,
+                        new: true,
+                        select: 'email InstagramAccounts.username InstagramAccounts.userId',
+                    }
+                )
+                .lean();
 
-            // return {
-            //     message: 'Login successful',
-            //     userData: {
-            //         username: userData.username,
-            //         fullName: userData.fullName,
-            //         followerCount: userData.followerCount,
-            //         postCount: userData.postCount,
-            //     },
-            // };
+            if (!newUser) {
+                throw new BadRequestException('User not found');
+            }
+
+            return {
+                message: 'Login successful',
+                newUser,
+            };
         } catch (error) {
             this.logger.error(`Login failed for user ${username}:`, error);
             throw new BadRequestException('Invalid Credentials');
         }
+    }
+
+    async generatePasswordHash(password: string) {
+        const salt = crypto.randomBytes(8).toString('hex');
+        const hash = (await scryptAsync(password, salt, 32)) as Buffer;
+
+        return `${hash.toString('hex')}-%-${salt}`;
+    }
+
+    async delete(body: DeleteInstagramAuthDto, meta: Meta) {
+        const { username } = body;
+
+        const newUser = await this.userModel
+            .findOneAndUpdate(
+                { email: meta.email },
+                {
+                    _id: 0,
+                    $pull: {
+                        InstagramAccounts: { username: username },
+                    },
+                },
+                { new: true }
+            )
+            .lean();
+
+        if (!newUser) {
+            throw new BadRequestException('User not found');
+        }
+
+        return {
+            message: 'Account deleted successfully',
+            newUser,
+        };
     }
 }

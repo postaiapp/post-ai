@@ -1,14 +1,18 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
-import { TokenValidationService } from '@modules/instagram-auth/services/token-validation.service';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
 import { User } from '@schemas/user.schema';
+import { Meta } from '@type/meta';
+import { PostCreate } from '@type/post';
+import { scrypt } from 'crypto';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
-import { PostCreate } from 'src/type/post';
+import { promisify } from 'util';
+
+const scryptAsync = promisify(scrypt);
 
 @Injectable()
 export class PostService {
@@ -18,8 +22,7 @@ export class PostService {
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<User>,
         private readonly ig: IgApiClient,
-        private schedulerRegistry: SchedulerRegistry,
-        private readonly tokenValidationService: TokenValidationService
+        private schedulerRegistry: SchedulerRegistry
     ) {}
 
     async create({ body, meta }: PostCreate) {
@@ -33,7 +36,7 @@ export class PostService {
     }
 
     async schedulePost({ body, meta }: PostCreate) {
-        const { username, post_date } = body;
+        const { username, post_date, password } = body;
         const date = new Date(post_date);
 
         if (date < new Date()) {
@@ -42,6 +45,8 @@ export class PostService {
 
         const jobId = `post_${username}_${date.getTime()}`;
         const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
+
+        await this.validatePassword(password, meta, username);
 
         const job = new CronJob(
             cronExpression,
@@ -73,14 +78,20 @@ export class PostService {
     }
 
     async publishPost({ body, meta }: PostCreate) {
-        const { username, caption } = body;
+        const { username, caption, password } = body;
 
         const user = await this.userModel.findOne({
             userId: meta.userId,
         });
 
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        this.ig.state.generateDevice(username);
+
         try {
-            await this.tokenValidationService.checkTokenValidity(user.id);
+            await this.ig.account.login(username, password);
 
             const imageBuffer = await get({
                 url: IMAGE_TEST_URL,
@@ -114,55 +125,28 @@ export class PostService {
         throw new BadRequestException('Scheduled post not found');
     }
 
-    // async publishCarousel(userId: string, options: PostOptions) {
-    //     try {
-    //         const user = await this.userModel.findOne({ userId });
+    async validatePassword(password: string, meta: Meta, username: string) {
+        const instagramAccount = await this.userModel
+            .findById({
+                _id: meta.userId,
+                InstagramAccounts: {
+                    $elemMatch: {
+                        username: username,
+                    },
+                },
+            })
+            .lean();
 
-    //         if (!user) {
-    //             throw new BadRequestException('User not found');
-    //         }
+        if (!instagramAccount) {
+            throw new NotFoundException('Instagram account not found');
+        }
 
-    //         // Restore session
-    //         await this.ig.state.deserialize(JSON.parse(user.token));
+        const [hashedPassword, salt] = instagramAccount.password.split('-%-');
 
-    //         // Prepare media items
-    //         const mediaItems = await Promise.all(
-    //             options.images.map(async (image) => {
-    //                 return {
-    //                     file: Readable.from(image),
-    //                     width: 1080,
-    //                     height: 1080,
-    //                 };
-    //             })
-    //         );
+        const hash = (await scryptAsync(password, salt, 32)) as Buffer;
 
-    //         // Prepare caption with hashtags
-    //         const caption = options.hashtags?.length
-    //             ? `${options.caption}\n\n${options.hashtags.map((tag) => `#${tag}`).join(' ')}`
-    //             : options.caption;
-
-    //         // Upload carousel
-    //         const published = await this.ig.publish.album({
-    //             items: mediaItems,
-    //             caption,
-    //             location: options.location
-    //                 ? {
-    //                       name: options.location.name,
-    //                       lat: options.location.lat,
-    //                       lng: options.location.lng,
-    //                   }
-    //                 : undefined,
-    //         });
-
-    //         return {
-    //             status: 'success',
-    //             postId: published.media.id,
-    //             caption: caption,
-    //             imageCount: mediaItems.length,
-    //         };
-    //     } catch (error) {
-    //         this.logger.error(`Failed to publish carousel for user ${userId}:`, error);
-    //         throw new BadRequestException('Failed to publish carousel');
-    //     }
-    // }
+        if (hashedPassword !== hash.toString('hex')) {
+            throw new BadRequestException('Invalid credentials');
+        }
+    }
 }
