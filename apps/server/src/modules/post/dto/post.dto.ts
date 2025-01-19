@@ -11,7 +11,7 @@ export class VerifyAccountDto {
     @Min(8)
     password: string;
 }
-export class CreatePost {
+export class CreatePostDto {
     @IsNotEmpty()
     @IsString()
     username: string;

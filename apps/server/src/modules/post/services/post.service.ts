@@ -1,4 +1,5 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
+import { TokenValidationService } from '@modules/instagram-auth/services/token-validation.service';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -7,7 +8,7 @@ import { User } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
-import { CreatePost } from '../dto/post.dto';
+import { PostCreate } from 'src/type/post';
 
 @Injectable()
 export class PostService {
@@ -17,21 +18,22 @@ export class PostService {
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<User>,
         private readonly ig: IgApiClient,
-        private schedulerRegistry: SchedulerRegistry
+        private schedulerRegistry: SchedulerRegistry,
+        private readonly tokenValidationService: TokenValidationService
     ) {}
 
-    async create(createPostData: CreatePost) {
-        const { post_date } = createPostData;
+    async create({ body, meta }: PostCreate) {
+        const { post_date } = body;
 
         if (post_date) {
-            return this.schedulePost(createPostData);
+            return this.schedulePost({ body, meta });
         }
 
-        return this.publishPost(createPostData);
+        return this.publishPost({ body, meta });
     }
 
-    async schedulePost(postData: CreatePost) {
-        const { username, post_date } = postData;
+    async schedulePost({ body, meta }: PostCreate) {
+        const { username, post_date } = body;
         const date = new Date(post_date);
 
         if (date < new Date()) {
@@ -47,7 +49,7 @@ export class PostService {
                 this.logger.debug(`Executing scheduled post for ${username}`);
 
                 try {
-                    await this.publishPost(postData);
+                    await this.publishPost({ body, meta });
                 } catch (err) {
                     this.logger.error(`Error publishing scheduled post for ${username}`, err);
                 }
@@ -70,11 +72,15 @@ export class PostService {
         };
     }
 
-    async publishPost({ username, caption, password }: CreatePost) {
-        this.ig.state.generateDevice(username);
+    async publishPost({ body, meta }: PostCreate) {
+        const { username, caption } = body;
+
+        const user = await this.userModel.findOne({
+            userId: meta.userId,
+        });
 
         try {
-            await this.ig.account.login(username, password);
+            await this.tokenValidationService.checkTokenValidity(user.id);
 
             const imageBuffer = await get({
                 url: IMAGE_TEST_URL,
@@ -86,7 +92,7 @@ export class PostService {
                 caption,
             });
 
-            this.logger.debug(`Post created successfully`);
+            this.logger.debug(`Post created successfully by user ${username}`);
 
             return { message: 'Post created successfully' };
         } catch {
@@ -107,4 +113,56 @@ export class PostService {
         }
         throw new BadRequestException('Scheduled post not found');
     }
+
+    // async publishCarousel(userId: string, options: PostOptions) {
+    //     try {
+    //         const user = await this.userModel.findOne({ userId });
+
+    //         if (!user) {
+    //             throw new BadRequestException('User not found');
+    //         }
+
+    //         // Restore session
+    //         await this.ig.state.deserialize(JSON.parse(user.token));
+
+    //         // Prepare media items
+    //         const mediaItems = await Promise.all(
+    //             options.images.map(async (image) => {
+    //                 return {
+    //                     file: Readable.from(image),
+    //                     width: 1080,
+    //                     height: 1080,
+    //                 };
+    //             })
+    //         );
+
+    //         // Prepare caption with hashtags
+    //         const caption = options.hashtags?.length
+    //             ? `${options.caption}\n\n${options.hashtags.map((tag) => `#${tag}`).join(' ')}`
+    //             : options.caption;
+
+    //         // Upload carousel
+    //         const published = await this.ig.publish.album({
+    //             items: mediaItems,
+    //             caption,
+    //             location: options.location
+    //                 ? {
+    //                       name: options.location.name,
+    //                       lat: options.location.lat,
+    //                       lng: options.location.lng,
+    //                   }
+    //                 : undefined,
+    //         });
+
+    //         return {
+    //             status: 'success',
+    //             postId: published.media.id,
+    //             caption: caption,
+    //             imageCount: mediaItems.length,
+    //         };
+    //     } catch (error) {
+    //         this.logger.error(`Failed to publish carousel for user ${userId}:`, error);
+    //         throw new BadRequestException('Failed to publish carousel');
+    //     }
+    // }
 }
