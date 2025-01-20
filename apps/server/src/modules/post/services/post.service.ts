@@ -141,7 +141,7 @@ export class PostService {
             throw new NotFoundException('Instagram account not found');
         }
 
-        const [hashedPassword, salt] = instagramAccount.password.split('-%-');
+        const [hashedPassword, salt] = instagramAccount.password.split('.');
 
         const hash = (await scryptAsync(password, salt, 32)) as Buffer;
 

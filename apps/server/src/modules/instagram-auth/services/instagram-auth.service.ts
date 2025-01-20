@@ -22,12 +22,12 @@ export class InstagramAuthService {
     ) {}
 
     async hasInstagramAccount(meta: Meta, username: string) {
-        const existingAccount = await this.userModel.findOne({
-            email: meta.email,
+        const existingAccount = await this.userModel.countDocuments({
+            _id: meta.userId,
             'InstagramAccounts.username': username,
         });
 
-        if (existingAccount) {
+        if (existingAccount === 0) {
             throw new BadRequestException('Instagram account already exists for this user');
         }
     }
@@ -89,7 +89,7 @@ export class InstagramAuthService {
         const salt = crypto.randomBytes(8).toString('hex');
         const hash = (await scryptAsync(password, salt, 32)) as Buffer;
 
-        return `${hash.toString('hex')}-%-${salt}`;
+        return `${hash.toString('hex')}.${salt}`;
     }
 
     async delete(body: DeleteInstagramAuthDto, meta: Meta) {
@@ -97,9 +97,8 @@ export class InstagramAuthService {
 
         const newUser = await this.userModel
             .findOneAndUpdate(
-                { email: meta.email },
+                { _id: meta.userId },
                 {
-                    _id: 0,
                     $pull: {
                         InstagramAccounts: { username: username },
                     },
@@ -114,7 +113,7 @@ export class InstagramAuthService {
 
         return {
             message: 'Account deleted successfully',
-            newUser,
+            instagramAccounts: newUser.InstagramAccounts,
         };
     }
 }
