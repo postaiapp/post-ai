@@ -61,9 +61,9 @@ export class PostService {
 
                 this.scheduledPosts.delete(jobId);
             },
-            null,
-            true,
-            TIME_ZONE
+            null, // onComplete
+            true, // start
+            TIME_ZONE // timezone
         );
 
         this.schedulerRegistry.addCronJob(jobId, job);
@@ -81,7 +81,7 @@ export class PostService {
         const { username, caption, password } = body;
 
         const user = await this.userModel.findOne({
-            userId: meta.userId,
+            _id: meta.userId,
         });
 
         if (!user) {
@@ -127,21 +127,27 @@ export class PostService {
 
     async validatePassword(password: string, meta: Meta, username: string) {
         const instagramAccount = await this.userModel
-            .findById({
-                _id: meta.userId,
-                InstagramAccounts: {
-                    $elemMatch: {
-                        username: username,
+            .findOne(
+                {
+                    _id: meta.userId,
+                    InstagramAccounts: {
+                        $elemMatch: {
+                            username: username,
+                        },
                     },
                 },
-            })
+                {
+                    InstagramAccounts: 1,
+                    _id: 0,
+                }
+            )
             .lean();
 
         if (!instagramAccount) {
             throw new NotFoundException('Instagram account not found');
         }
 
-        const [hashedPassword, salt] = instagramAccount.password.split('.');
+        const [hashedPassword, salt] = instagramAccount?.InstagramAccounts[0]?.password.split('.');
 
         const hash = (await scryptAsync(password, salt, 32)) as Buffer;
 

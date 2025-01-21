@@ -27,7 +27,7 @@ export class InstagramAuthService {
             'InstagramAccounts.username': username,
         });
 
-        if (existingAccount === 0) {
+        if (existingAccount > 0) {
             throw new BadRequestException('Instagram account already exists for this user');
         }
     }
