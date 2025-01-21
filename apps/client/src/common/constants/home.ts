@@ -14,22 +14,22 @@ import {
 export const itemsSideBar = [
   {
     title: "Home",
-    url: "/",
+    url: "/chat",
     icon: Home
   },
   {
     title: "History Posts",
-    url: "#",
+    url: "/history",
     icon: History
   },
   {
     title: "Calendar",
-    url: "#",
+    url: "/calendar",
     icon: Calendar
   },
   {
     title: "Search",
-    url: "#",
+    url: "/search",
     icon: Search
   }
 ];
