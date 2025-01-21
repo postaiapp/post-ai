@@ -23,9 +23,12 @@
       "@config/*": ["./src/config/*"],
       "@common/*": ["./src/common/*"],
       "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"],
       "@utils/*": ["./src/utils/*"],
       "@lib/*": ["./src/lib/*"],
-      "@constants/*": ["./src/common/constants/*"]
+      "@constants/*": ["./src/common/constants/*"],
+      "@processes/*": ["./src/processes/*"],
+      "@stores/*": ["./src/stores/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
