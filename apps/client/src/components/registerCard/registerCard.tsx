@@ -10,7 +10,7 @@ import { PasswordInput } from "@components/passwordInput/passwordInput";
 export default function RegisterCard({ loading, register, handleSubmit, errors, onSubmit, toggleAuthMode }: RegisterCardProps) {
     return (
         <div className="flex flex-col bg-white rounded-2xl w-full p-8 gap-6 shadow-xl">
-            <p className="text-5xl text-left font-semibold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-transparent bg-clip-text">
+            <p className="text-4xl text-left font-semibold bg-gradient-to-r from-purple-500 to-fuchsia-500 text-transparent bg-clip-text">
                 Crie uma conta
             </p>
 
