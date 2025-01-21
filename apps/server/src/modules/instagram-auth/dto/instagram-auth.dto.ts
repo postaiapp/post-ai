@@ -21,7 +21,5 @@ export class InstagramAuthDto {
 export class DeleteInstagramAuthDto {
     @IsString()
     @IsNotEmpty()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
     username: string;
 }
