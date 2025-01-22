@@ -1,18 +1,15 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
+import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
+import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
-import { Meta } from '@type/meta';
-import { PostCreate } from '@type/post';
-import { scrypt } from 'crypto';
+import { PostBodyCreate, PostCreate } from '@type/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
-import { promisify } from 'util';
-
-const scryptAsync = promisify(scrypt);
 
 @Injectable()
 export class PostService {
@@ -21,7 +18,9 @@ export class PostService {
 
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<User>,
+        @InjectModel(Post.name) private readonly postModel: Model<Post>,
         private readonly ig: IgApiClient,
+        private readonly instagramAuthService: InstagramAuthService,
         private schedulerRegistry: SchedulerRegistry
     ) {}
 
@@ -36,7 +35,7 @@ export class PostService {
     }
 
     async schedulePost({ body, meta }: PostCreate) {
-        const { username, post_date, password } = body;
+        const { username, post_date } = body;
         const date = new Date(post_date);
 
         if (date < new Date()) {
@@ -46,7 +45,7 @@ export class PostService {
         const jobId = `post_${username}_${date.getTime()}`;
         const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
 
-        await this.validatePassword(password, meta, username);
+        await this.instagramAuthService.verifyAccount(body, meta);
 
         const job = new CronJob(
             cronExpression,
@@ -78,11 +77,9 @@ export class PostService {
     }
 
     async publishPost({ body, meta }: PostCreate) {
-        const { username, caption, password } = body;
+        const { username, caption, password, post_date } = body;
 
-        const user = await this.userModel.findOne({
-            _id: meta.userId,
-        });
+        const user = await this.userModel.findOne({ _id: meta.userId });
 
         if (!user) {
             throw new NotFoundException('User not found');
@@ -92,22 +89,68 @@ export class PostService {
 
         try {
             await this.ig.account.login(username, password);
+        } catch (error) {
+            this.logger.error('Erro ao realizar login no Instagram', { username, error });
+            throw new BadRequestException('Invalid Instagram credentials');
+        }
 
+        await this.publishPhotoOnInstagram(caption);
+
+        const newPost = await this.createPostRecord({
+            caption,
+            imageUrl: IMAGE_TEST_URL,
+            userId: meta.userId.toString(),
+            publishedAt: post_date || new Date(),
+        });
+
+        this.logger.debug(`Post criado com sucesso para o usuário: ${username}`);
+
+        return {
+            message: 'Post created successfully',
+            post: {
+                caption: newPost.caption,
+                imageUrl: newPost.imageUrl,
+                publishedAt: newPost.publishedAt,
+                id: newPost._id.toHexString(),
+            },
+        };
+    }
+
+    async publishPhotoOnInstagram(caption: string): Promise<boolean> {
+        try {
             const imageBuffer = await get({
                 url: IMAGE_TEST_URL,
                 encoding: null,
             });
 
-            this.ig.publish.photo({
+            const postPublished = await this.ig.publish.photo({
                 file: imageBuffer,
                 caption,
             });
 
-            this.logger.debug(`Post created successfully by user ${username}`);
+            if (!postPublished) {
+                throw new Error('Post publication failed');
+            }
 
-            return { message: 'Post created successfully' };
-        } catch {
-            throw new BadRequestException('Invalid Credentials');
+            return true;
+        } catch (error) {
+            this.logger.error('Erro ao publicar a foto no Instagram', { caption, error });
+            throw new BadRequestException('Error publishing post');
+        }
+    }
+
+    async createPostRecord(postBody: PostBodyCreate) {
+        try {
+            const newPost = await this.postModel.create(postBody);
+
+            if (!newPost) {
+                throw new Error('Error saving post to the database');
+            }
+
+            return newPost;
+        } catch (error) {
+            this.logger.error('Erro ao salvar o post no banco de dados', { postBody, error });
+            throw new BadRequestException('Error creating post');
         }
     }
 
@@ -123,36 +166,5 @@ export class PostService {
             return { message: 'Scheduled post cancelled successfully' };
         }
         throw new BadRequestException('Scheduled post not found');
-    }
-
-    async validatePassword(password: string, meta: Meta, username: string) {
-        const instagramAccount = await this.userModel
-            .findOne(
-                {
-                    _id: meta.userId,
-                    InstagramAccounts: {
-                        $elemMatch: {
-                            username: username,
-                        },
-                    },
-                },
-                {
-                    InstagramAccounts: 1,
-                    _id: 0,
-                }
-            )
-            .lean();
-
-        if (!instagramAccount) {
-            throw new NotFoundException('Instagram account not found');
-        }
-
-        const [hashedPassword, salt] = instagramAccount?.InstagramAccounts[0]?.password.split('.');
-
-        const hash = (await scryptAsync(password, salt, 32)) as Buffer;
-
-        if (hashedPassword !== hash.toString('hex')) {
-            throw new BadRequestException('Invalid credentials');
-        }
     }
 }

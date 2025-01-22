@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
@@ -22,20 +22,73 @@ export class InstagramAuthService {
     ) {}
 
     async hasInstagramAccount(meta: Meta, username: string) {
+        const user = await this.userModel.findOne({
+            _id: meta?.userId,
+        });
+
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+
         const existingAccount = await this.userModel.countDocuments({
-            _id: meta.userId,
+            _id: user?._id,
             'InstagramAccounts.username': username,
         });
 
         if (existingAccount > 0) {
-            throw new BadRequestException('Instagram account already exists for this user');
+            return true;
         }
+
+        return false;
     }
 
     async login(body: InstagramAuthDto, meta: Meta) {
-        const { username, password } = body;
+        const { username } = body;
 
-        await this.hasInstagramAccount(meta, username);
+        const existingThisAccount = await this.hasInstagramAccount(meta, username);
+
+        if (!existingThisAccount) {
+            return this.addAccount(body, meta);
+        }
+
+        return this.verifyAccount(body, meta);
+    }
+
+    async verifyAccount(body: InstagramAuthDto, meta: Meta) {
+        const { password, username } = body;
+
+        const instagramAccount = await this.userModel
+            .findOne(
+                {
+                    _id: meta?.userId,
+                    InstagramAccounts: {
+                        $elemMatch: {
+                            username: username,
+                        },
+                    },
+                },
+                {
+                    InstagramAccounts: 1,
+                    _id: 0,
+                }
+            )
+            .lean();
+
+        if (!instagramAccount) {
+            throw new NotFoundException('Instagram account not found');
+        }
+
+        const [hashedPassword, salt] = instagramAccount?.InstagramAccounts[0]?.password.split('.');
+
+        const hash = (await scryptAsync(password, salt, 32)) as Buffer;
+
+        if (hashedPassword !== hash.toString('hex')) {
+            throw new BadRequestException('Invalid credentials');
+        }
+    }
+
+    async addAccount(body: InstagramAuthDto, meta: Meta) {
+        const { username, password } = body;
 
         this.ig.state.generateDevice(username);
 
@@ -57,6 +110,7 @@ export class InstagramAuthService {
                 profilePicUrl: userInfo.profile_pic_url,
                 lastLogin: new Date(),
                 password: hashedPassword,
+                isPrivate: userInfo.is_private,
             };
 
             const newUser = await this.userModel
@@ -72,7 +126,7 @@ export class InstagramAuthService {
                 .lean();
 
             if (!newUser) {
-                throw new BadRequestException('User not found');
+                throw new BadRequestException('Error adding account');
             }
 
             return {

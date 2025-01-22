@@ -5,3 +5,10 @@ export type PostCreate = {
     body: CreatePostDto;
     meta: Meta;
 };
+
+export type PostBodyCreate = {
+    caption: string;
+    imageUrl: Buffer | string;
+    userId: string;
+    publishedAt: Date;
+};

@@ -31,6 +31,9 @@ export class InstagramAccount {
 
     @Prop({ required: true, type: String })
     password: string;
+
+    @Prop({ required: false, type: Boolean, default: false })
+    isPrivate?: boolean;
 }
 
 export const InstagramAccountSchema = SchemaFactory.createForClass(InstagramAccount);

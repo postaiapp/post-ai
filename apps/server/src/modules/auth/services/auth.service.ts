@@ -51,7 +51,7 @@ export class AuthService {
 
         const password_hash = await bcrypt.hash(password, 12);
 
-        await this.userModel.create({
+        const newUser = await this.userModel.create({
             name,
             email,
             password: password_hash,
@@ -59,6 +59,11 @@ export class AuthService {
 
         return {
             message: 'User created successfully',
+            user: {
+                name: newUser?.name,
+                email: newUser?.email,
+                id: newUser?._id.toHexString(),
+            },
         };
     }
 
