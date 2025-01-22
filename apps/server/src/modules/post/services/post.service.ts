@@ -94,7 +94,7 @@ export class PostService {
             throw new BadRequestException('Invalid Instagram credentials');
         }
 
-        await this.publishPhotoOnInstagram(caption);
+        await this.publishPhotoOnInstagram(caption, username);
 
         const newPost = await this.createPostRecord({
             caption,
@@ -116,21 +116,19 @@ export class PostService {
         };
     }
 
-    async publishPhotoOnInstagram(caption: string): Promise<boolean> {
+    async publishPhotoOnInstagram(caption: string, username: string): Promise<boolean> {
+        this.ig.state.generateDevice(username);
+
         try {
             const imageBuffer = await get({
                 url: IMAGE_TEST_URL,
                 encoding: null,
             });
 
-            const postPublished = await this.ig.publish.photo({
+            await this.ig.publish.photo({
                 file: imageBuffer,
                 caption,
             });
-
-            if (!postPublished) {
-                throw new Error('Post publication failed');
-            }
 
             return true;
         } catch (error) {
