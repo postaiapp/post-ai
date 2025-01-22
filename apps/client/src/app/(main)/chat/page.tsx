@@ -12,7 +12,7 @@ export default function Home() {
           <Image src="/logo.png" alt="Logo" width={48} height={48} />
         </div>
         <p className="text-3xl text-center font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text mb-2">
-          Gere posts com o POST-AI
+          Gere posts com o Post AI
         </p>
         <p className="text-[12px] font-thin text-center mx-auto text-gray-400">
           Escolha seu prompt abaixo ou escreva seu próprio texto para gerar um
@@ -21,7 +21,11 @@ export default function Home() {
 
         <div className="grid grid-cols-3 lg:px-28 gap-4 w-full mt-8">
           {defaultPrompts.map((prompt, index) => (
-            <Button key={index} className="rounded-2xl" variant="outline">
+            <Button
+              key={index}
+              className="rounded-2xl text-gray-500 border-gray-300 font-regular"
+              variant="outline"
+            >
               <prompt.icon className="mr-2" />
               {prompt.content}
             </Button>
