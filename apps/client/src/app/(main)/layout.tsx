@@ -1,5 +1,4 @@
-import Header from '@components/header/header';
-import { Sidebar } from '@components/index';
+import { Sidebar, Header } from '@components/index';
 import { SidebarProvider } from '@components/ui/sidebar';
 import { ToastContainer } from 'react-toastify';
 

@@ -1,3 +1,4 @@
+import { Modal } from '@components/modal';
 import { CircleUserRound, Instagram, User2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -24,7 +25,7 @@ export default function Header() {
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-4">
                             <Instagram size={20} color="purple" />
-                            <span className="text-purple-800 text-sm">Add your Instagram</span>
+                            <Modal Button={<span className="text-purple-800 text-sm">Add your Instagram</span>} />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
