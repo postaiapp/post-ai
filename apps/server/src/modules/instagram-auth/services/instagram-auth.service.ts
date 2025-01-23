@@ -9,6 +9,7 @@ import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { promisify } from 'util';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
+import { InstagramAccountDocument } from '@schemas/instagram-account.schema';
 
 const scryptAsync = promisify(scrypt);
 
@@ -78,13 +79,27 @@ export class InstagramAuthService {
             throw new NotFoundException('Instagram account not found');
         }
 
-        const [hashedPassword, salt] = instagramAccount?.InstagramAccounts[0]?.password.split('.');
+        const account: InstagramAccountDocument = instagramAccount?.InstagramAccounts[0] as InstagramAccountDocument;
+
+        const [hashedPassword, salt] = account.password.split('.');
 
         const hash = (await scryptAsync(password, salt, 32)) as Buffer;
 
         if (hashedPassword !== hash.toString('hex')) {
             throw new BadRequestException('Invalid credentials');
         }
+
+        return {
+            username: account.username,
+            fullName: account.fullName,
+            biography: account.biography,
+            followerCount: account.followerCount,
+            followingCount: account.followingCount,
+            postCount: account.postCount,
+            profilePicUrl: account.profilePicUrl,
+            lastLogin: account.lastLogin,
+            id: account?._id.toString(),
+        };
     }
 
     async addAccount(body: InstagramAuthDto, meta: Meta) {

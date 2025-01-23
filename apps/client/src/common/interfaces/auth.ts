@@ -1,6 +1,6 @@
-import { LoginSchema, RegisterSchema } from "@common/schemas/auth";
-import { UseFormRegister, FieldErrors, UseFormHandleSubmit, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
+import { LoginSchema, RegisterSchema } from '@common/schemas/auth';
+import { UseFormRegister, FieldErrors, UseFormHandleSubmit, SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 
 type AuthLoginType = z.infer<typeof LoginSchema>;
 
