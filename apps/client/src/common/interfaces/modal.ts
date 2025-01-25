@@ -1,3 +1,8 @@
 export interface ModalType {
-    Button: React.ReactNode;
+    trigger: React.ReactNode;
+    title: string;
+    description?: string;
+    children: React.ReactNode;
+    onSave?: () => void;
+    saveLabel?: string;
 }

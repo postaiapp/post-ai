@@ -1,4 +1,8 @@
-import { Modal } from '@components/modal';
+import { Button } from '@components/ui/button';
+import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, DialogFooter } from '@components/ui/dialog';
+import { Input } from '@components/ui/input';
+import { Label } from '@components/ui/label';
+import { DialogDescription } from '@radix-ui/react-dialog';
 import { CircleUserRound, Instagram, User2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -14,21 +18,46 @@ export default function Header() {
             </div>
 
             <div className="flex items-center space-x-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <CircleUserRound size={24} className="cursor-pointer" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="top" className="mr-5">
-                        <DropdownMenuItem className="flex items-center gap-4">
-                            <User2 size={20} />
-                            <span className="text-sm">Profile data</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-4">
-                            <Instagram size={20} color="purple" />
-                            <Modal Button={<span className="text-purple-800 text-sm">Add your Instagram</span>} />
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Dialog>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <CircleUserRound size={24} className="cursor-pointer" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="top" className="mr-5">
+                            <DropdownMenuItem className="flex items-center gap-4">
+                                <User2 size={20} />
+                                <span className="text-sm">Profile data</span>
+                            </DropdownMenuItem>
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem className="flex items-center gap-4">
+                                    <Instagram size={20} color="purple" />
+                                    <span className="text-sm">Add instagram account</span>
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+                        </DropdownMenuContent>
+                        <DialogContent className="sm:max-w-[425px] bg-slate-50">
+                            <DialogHeader>
+                                <DialogTitle>Instagram Account</DialogTitle>
+                                <DialogDescription>
+                                    Add your Instagram account to get more followers and likes.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label className="text-right">Username</Label>
+                                    <Input className="col-span-3" />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label className="text-right">Password</Label>
+                                    <Input className="col-span-3" />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit">Save changes</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </DropdownMenu>
+                </Dialog>
             </div>
         </div>
     );
