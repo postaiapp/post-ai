@@ -1,5 +1,8 @@
-import Header from "./header";
-import Sidebar from "./sidebar";
-import AuthFormCard from "./loginCard/loginCard";
+import { Button } from './button';
+import { Header } from './header';
+import { Login } from './loginCard';
+import { Modal } from './modal';
+import { Sidebar } from './sidebar';
+import { TextArea } from './textArea';
 
-export { Header, Sidebar, AuthFormCard };
+export { Header, Sidebar, Login, Modal, TextArea, Button };

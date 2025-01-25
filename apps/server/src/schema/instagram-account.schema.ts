@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ObjectId } from 'mongoose';
 
 @Schema({ versionKey: false })
 export class InstagramAccount {
@@ -35,5 +36,7 @@ export class InstagramAccount {
     @Prop({ required: false, type: Boolean, default: false })
     isPrivate?: boolean;
 }
+
+export type InstagramAccountDocument = InstagramAccount & { _id: ObjectId };
 
 export const InstagramAccountSchema = SchemaFactory.createForClass(InstagramAccount);

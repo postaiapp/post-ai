@@ -1,7 +1,7 @@
-import { AxiosResponse } from "axios";
+import { AxiosResponse } from 'axios';
 
 interface ClientResponse extends AxiosResponse {
-	error: any;
+    error: any;
 }
 
 export type { ClientResponse };
