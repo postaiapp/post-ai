@@ -1,15 +1,15 @@
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 
 const errorToast = (message: string) => {
-  toast.error(message, { type: "error" });
+    toast.error(message, { type: 'error' });
 };
 
 const successToast = (message: string) => {
-  toast.success(message, { type: "success" });
+    toast.success(message, { type: 'success' });
 };
 
 const warningToast = (message: string) => {
-  toast.warning(message, { type: "warning" });
+    toast.warning(message, { type: 'warning' });
 };
 
 export { errorToast, successToast, warningToast };
