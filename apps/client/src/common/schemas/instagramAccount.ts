@@ -6,7 +6,7 @@ const usernameOrEmailSchema = z.union([
 ]);
 
 const InstagramAccountSchema = z.object({
-    userName: usernameOrEmailSchema,
+    username: usernameOrEmailSchema,
     password: z.string().min(4, { message: 'A senha deve ter no mínimo 4 caracteres.' }),
 });
 

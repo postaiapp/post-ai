@@ -1,15 +1,25 @@
-import { Button } from '@components/ui/button';
+import { InstagramAccountType } from '@common/interfaces/instagramAccount';
+import { Button } from '@components/button';
 import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, DialogFooter } from '@components/ui/dialog';
 import { Input } from '@components/ui/input';
 import { Label } from '@components/ui/label';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { CircleUserRound, Instagram, User2 } from 'lucide-react';
 import Image from 'next/image';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SidebarTrigger } from '../ui/sidebar';
 
-export default function Header() {
+type HeaderProps = {
+    onSubmit: SubmitHandler<InstagramAccountType>;
+    handleSubmit: (callback: SubmitHandler<InstagramAccountType>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+    register: ReturnType<typeof useForm>['register'];
+    errors: ReturnType<typeof useForm>['formState']['errors'];
+    isLoading: boolean;
+};
+
+export default function Header({ onSubmit, handleSubmit, register, errors, isLoading }: HeaderProps) {
     return (
         <div className="flex justify-between items-center w-full px-5 pt-3 border-b-2">
             <div className="flex items-center space-x-4">
@@ -53,7 +63,9 @@ export default function Header() {
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">Save changes</Button>
+                                <Button type="submit" isLoading={isLoading}>
+                                    Add Instagram Account
+                                </Button>
                             </DialogFooter>
                         </DialogContent>
                     </DropdownMenu>
