@@ -26,7 +26,8 @@ const HeaderContainer = () => {
         },
     });
 
-    const { mutate: instagramLoginMutate, isPending } = useMutation(instagramLogin, {
+    const { mutate: instagramLoginMutate, isPending } = useMutation({
+        mutationFn: instagramLogin,
         onSuccess: (data) => {
             console.log('Success:', data);
             successToast('Conta adicionada com sucesso');

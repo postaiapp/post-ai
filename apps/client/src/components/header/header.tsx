@@ -1,21 +1,22 @@
 import { InstagramAccountType } from '@common/interfaces/instagramAccount';
 import { Button } from '@components/button';
+import { PasswordInput } from '@components/passwordInput/passwordInput';
 import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, DialogFooter } from '@components/ui/dialog';
 import { Input } from '@components/ui/input';
 import { Label } from '@components/ui/label';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { CircleUserRound, Instagram, User2 } from 'lucide-react';
 import Image from 'next/image';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, UseFormHandleSubmit, UseFormRegister, FieldErrors } from 'react-hook-form';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SidebarTrigger } from '../ui/sidebar';
 
 type HeaderProps = {
     onSubmit: SubmitHandler<InstagramAccountType>;
-    handleSubmit: (callback: SubmitHandler<InstagramAccountType>) => (e?: React.BaseSyntheticEvent) => Promise<void>;
-    register: ReturnType<typeof useForm>['register'];
-    errors: ReturnType<typeof useForm>['formState']['errors'];
+    handleSubmit: UseFormHandleSubmit<InstagramAccountType>;
+    register: UseFormRegister<InstagramAccountType>;
+    errors: FieldErrors<InstagramAccountType>;
     isLoading: boolean;
 };
 
@@ -52,21 +53,41 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
                                     Add your Instagram account to get more followers and likes.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Username</Label>
-                                    <Input className="col-span-3" />
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <div className="py-4">
+                                    <div className=" flex w-full items-center gap-4">
+                                        <Label className="text-right">Username</Label>
+                                        <Input
+                                            className=""
+                                            {...register('username')}
+                                            placeholder="Digite seu username ou email"
+                                        />
+                                        {errors.username && (
+                                            <span className="col-span-4 text-red-500 text-sm">
+                                                {errors.username.message}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex w-full mt-2 items-center gap-4">
+                                        <Label className="text-right">Password</Label>
+                                        <PasswordInput<InstagramAccountType>
+                                            register={register}
+                                            textValue="password"
+                                            containerClassName="w-full"
+                                        />
+                                        {errors.password && (
+                                            <span className="col-span-4 text-red-500 text-sm">
+                                                {errors.password.message}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label className="text-right">Password</Label>
-                                    <Input className="col-span-3" />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="submit" isLoading={isLoading}>
-                                    Add Instagram Account
-                                </Button>
-                            </DialogFooter>
+                                <DialogFooter>
+                                    <Button type="submit" isLoading={isLoading}>
+                                        Add Instagram Account
+                                    </Button>
+                                </DialogFooter>
+                            </form>
                         </DialogContent>
                     </DropdownMenu>
                 </Dialog>

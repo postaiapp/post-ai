@@ -33,7 +33,7 @@ export default function LoginCard({
                     <Label htmlFor="password" required>
                         Senha
                     </Label>
-                    <PasswordInput<AuthLoginType> register={register} textValue="password" />
+                    <PasswordInput<AuthLoginType> register={register} textValue="password" className="pr-10" />
                     {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                 </div>
 
