@@ -20,13 +20,16 @@
     "paths": {
       "@config/*": ["./src/config/*"],
       "@database/*": ["./src/database/*"],
-      "@schemas/*": ["./src/schema/*"],
       "@utils/*": ["./src/utils/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@common/*": ["./src/common/*"],
       "@auth/*": ["src/modules/auth*"],
       "@modules/*": ["./src/modules/*"],
       "@guards/*": ["./src/guards/*"],
+      "@schemas/*": ["./src/schema/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@decorators/*": ["./src/decorators/*"],
+      "@type/*": ["src/type/*"],
     }
   }
 }

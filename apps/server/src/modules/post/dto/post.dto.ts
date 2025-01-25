@@ -1,44 +1,46 @@
-import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
+import { Escape } from 'class-sanitizer';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, Min } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
 
-export class LoginDto {
-    @IsString()
+export class VerifyAccountDto {
     @IsNotEmpty()
-    @MinLength(6)
-    @MaxLength(20)
+    @IsString()
+    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
+    @Escape()
+    username: string;
+
+    @IsNotEmpty()
+    @IsString()
+    @Min(8)
     @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
     @Escape()
     password: string;
-
-    @IsString()
-    @IsNotEmpty()
-    @IsEmail()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
-    email: string;
 }
-
-export class RegisterDto {
-    @IsString()
+export class CreatePostDto {
     @IsNotEmpty()
+    @IsString()
+    username: string;
+
+    @IsNotEmpty()
+    @IsString()
     @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
     @Escape()
-    name: string;
+    caption: string;
 
+    @IsOptional()
     @IsString()
+    @IsUrl()
+    img: string;
+
+    @IsOptional()
+    @IsDate()
+    @Transform((obj) => new Date(obj.value))
+    post_date: Date;
+
     @IsNotEmpty()
-    @MinLength(6)
-    @MaxLength(20)
+    @IsString()
     @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
     @Escape()
     password: string;
-
-    @IsString()
-    @IsEmail()
-    @IsNotEmpty()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
-    email: string;
 }
