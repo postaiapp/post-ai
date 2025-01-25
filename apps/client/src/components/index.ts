@@ -1,6 +1,7 @@
 import { Header } from './header';
 import { Login } from './loginCard';
 import { Modal } from './modal';
-import Sidebar from './sidebar';
+import { Sidebar } from './sidebar';
+import { TextArea } from './textArea';
 
-export { Header, Sidebar, Login, Modal };
+export { Header, Sidebar, Login, Modal, TextArea };

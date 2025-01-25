@@ -1,5 +1,5 @@
 import { defaultPrompts } from '@common/constants/home';
-import TextArea from '@components/textArea';
+import { TextArea } from '@components/index';
 import { Button } from '@components/ui/button';
 import { Send } from 'lucide-react';
 import Image from 'next/image';
