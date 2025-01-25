@@ -25,6 +25,7 @@ const ResponseInterceptor = async (response: AxiosResponse) => {
 };
 
 const ErrorInterceptor = (error: AxiosError) => {
+    console.log('error', error);
     if (!error.response) {
         return Promise.resolve({
             data: null,

@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -19,28 +20,28 @@ async function bootstrap() {
 
     app.use(helmet());
 
-    // const allowedOrigins = [
-    //   /^https:\/\/(?:.+\.)?amigoapp\.com\.br$/,
-    //   /^https:\/\/(?:.+\.)?amigo\.dev\.br$/,
-    // ];
+    const allowedOrigins = [/https:\/\/teste\.com$/, /https:\/\/teste\.teste\.com$/];
 
-    // const corsOptions: CorsOptions = {
-    //   origin: (origin, callback) => {
-    //     if (process.env.NODE_ENV === 'development') {
-    //       callback(null, true);
-    //       return;
-    //     }
+    const corsOptions: CorsOptions = {
+        origin: (origin, callback) => {
+            if (process.env.NODE_ENV === 'development') {
+                return callback(null, true);
+            }
 
-    //     if (!origin || allowedOrigins.some((regex) => regex.test(origin))) {
-    //       callback(null, true);
-    //     } else {
-    //       callback(new Error('Origin not allowed by CORS'));
-    //     }
-    //   },
-    //   credentials: true,
-    // };
+            if (!origin) {
+                return callback(null, true);
+            }
 
-    // app.enableCors(corsOptions);
+            if (allowedOrigins.some((regex) => regex.test(origin))) {
+                callback(null, true);
+            } else {
+                callback(new Error('Origin not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    };
+
+    app.enableCors(corsOptions);
 
     await app.listen(process.env.PORT);
 }

@@ -1,4 +1,4 @@
-import { defaultPrompts } from '@common/constants/home';
+import { defaultPrompts } from '@common/constants/chat';
 import { TextArea } from '@components/index';
 import { Button } from '@components/ui/button';
 import { Send } from 'lucide-react';

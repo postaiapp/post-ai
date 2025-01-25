@@ -55,36 +55,37 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
                             </DialogHeader>
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <div className="py-4">
-                                    <div className=" flex w-full items-center gap-4">
+                                    <div className="flex w-full items-center gap-4">
                                         <Label className="text-right">Username</Label>
                                         <Input
                                             className=""
                                             {...register('username')}
                                             placeholder="Digite seu username ou email"
                                         />
-                                        {errors.username && (
-                                            <span className="col-span-4 text-red-500 text-sm">
-                                                {errors.username.message}
-                                            </span>
-                                        )}
                                     </div>
-                                    <div className="flex w-full mt-2 items-center gap-4">
-                                        <Label className="text-right">Password</Label>
+
+                                    {errors.username && (
+                                        <span className="text-red-500 text-sm">{errors.username.message}</span>
+                                    )}
+
+                                    <div className="flex w-full mt-3 items-center gap-4">
+                                        <Label className="text-right mr-1">Password</Label>
                                         <PasswordInput<InstagramAccountType>
                                             register={register}
                                             textValue="password"
                                             containerClassName="w-full"
                                         />
-                                        {errors.password && (
-                                            <span className="col-span-4 text-red-500 text-sm">
-                                                {errors.password.message}
-                                            </span>
-                                        )}
                                     </div>
+
+                                    {errors.password && (
+                                        <span className="col-span-4 text-red-500 text-sm">
+                                            {errors.password.message}
+                                        </span>
+                                    )}
                                 </div>
                                 <DialogFooter>
                                     <Button type="submit" isLoading={isLoading}>
-                                        Add Instagram Account
+                                        Add account
                                     </Button>
                                 </DialogFooter>
                             </form>

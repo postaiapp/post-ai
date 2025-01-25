@@ -6,6 +6,9 @@ import client from './api';
 export const instagramLogin = async (body: InstagramAccountType) => {
     const { data, error }: ClientResponse = await client.post(`/instagram/login`, body);
 
+    console.log('data', data);
+    console.log('error', error);
+
     return {
         data,
         error,

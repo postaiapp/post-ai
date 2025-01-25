@@ -44,7 +44,7 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
             }, 1000);
 
             setLoading(false);
-            redirect('/');
+            redirect('/chat');
         },
         [setUser]
     );

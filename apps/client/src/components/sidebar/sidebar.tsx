@@ -1,5 +1,5 @@
 'use client';
-import { itemsSideBar } from '@common/constants/home';
+import { itemsSideBar } from '@common/constants/chat';
 import {
     Sidebar as UiSideBar,
     SidebarContent,
