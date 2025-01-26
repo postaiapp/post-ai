@@ -2,21 +2,21 @@ import { InstagramAccountSchema } from '@common/schemas/instagramAccount';
 import { z } from 'zod';
 
 interface InstagramAccountStore {
-    userId: string;
-    username: string;
-    fullName?: string;
-    biography?: string;
-    followerCount: number;
-    followingCount: number;
-    postCount: number;
-    profilePicUrl: string;
-    lastLogin: Date;
-    password: string;
-    isPrivate?: boolean;
+	userId: string;
+	username: string;
+	fullName?: string;
+	biography?: string;
+	followerCount: number;
+	followingCount: number;
+	postCount: number;
+	profilePicUrl: string;
+	lastLogin: Date;
+	password: string;
+	isPrivate?: boolean;
 }
 
 interface InstagramLogoutType {
-    userName: string;
+	userName: string;
 }
 
 type InstagramAccountType = z.infer<typeof InstagramAccountSchema>;
