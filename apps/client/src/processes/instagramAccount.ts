@@ -15,7 +15,7 @@ export const getUserInstagramAccounts = async () => {
 	const { data }: ClientResponse = await client.get(`/instagram/accounts`);
 
 	return {
-		data,
+		data: data?.accounts,
 	};
 };
 

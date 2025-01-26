@@ -1,5 +1,6 @@
 import { HeaderProps } from '@common/interfaces/header';
 import { InstagramAccountType } from '@common/interfaces/instagramAccount';
+import { AccountCard } from '@components/accountCard';
 import { Button } from '@components/button';
 import { PasswordInput } from '@components/passwordInput/passwordInput';
 import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, DialogFooter } from '@components/ui/dialog';
@@ -12,7 +13,7 @@ import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SidebarTrigger } from '../ui/sidebar';
 
-export default function Header({ onSubmit, handleSubmit, register, errors, isLoading }: HeaderProps) {
+export default function Header({ onSubmit, handleSubmit, register, errors, isLoading, accounts }: HeaderProps) {
 	return (
 		<div className="flex justify-between items-center w-full px-5 pt-1 border-b-2">
 			<div className="flex items-center space-x-4">
@@ -31,6 +32,9 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
 								<User2 size={20} />
 								<span className="text-sm">Profile data</span>
 							</DropdownMenuItem>
+
+							{accounts?.map((account) => <AccountCard key={account.id} {...account} />)}
+
 							<DialogTrigger asChild>
 								<DropdownMenuItem className="flex items-center gap-4">
 									<Instagram size={20} color="purple" />

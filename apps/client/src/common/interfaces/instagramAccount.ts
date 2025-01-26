@@ -2,6 +2,7 @@ import { InstagramAccountSchema } from '@common/schemas/instagramAccount';
 import { z } from 'zod';
 
 interface InstagramAccountStore {
+	id: string;
 	userId: string;
 	username: string;
 	fullName?: string;
@@ -13,7 +14,10 @@ interface InstagramAccountStore {
 	lastLogin: Date;
 	password: string;
 	isPrivate?: boolean;
+	isVerified?: boolean;
 }
+
+type AccountCardProps = Partial<InstagramAccountStore>;
 
 interface InstagramLogoutType {
 	userName: string;
@@ -21,4 +25,4 @@ interface InstagramLogoutType {
 
 type InstagramAccountType = z.infer<typeof InstagramAccountSchema>;
 
-export type { InstagramAccountStore, InstagramAccountType, InstagramLogoutType };
+export type { InstagramAccountStore, InstagramAccountType, InstagramLogoutType, AccountCardProps };

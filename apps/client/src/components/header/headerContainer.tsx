@@ -30,7 +30,7 @@ const HeaderContainer = () => {
 		mutationKey: ['instagram-accounts'],
 		mutationFn: instagramLogin,
 		onSuccess: () => {
-			successToast('Conta adicionada com sucesso');
+			successToast('Conta adicionada com sucesso!');
 		},
 		onError: (error: Error) => {
 			const errorMessage = error?.message || 'Algo de errado aconteceu, tente novamente.';
@@ -38,7 +38,7 @@ const HeaderContainer = () => {
 		},
 	});
 
-	const accounts = useQuery<InstagramAccountStore>({
+	const { data } = useQuery<{ data: InstagramAccountStore[] }>({
 		queryKey: ['instagram-accounts'],
 		queryFn: () => getUserInstagramAccounts(),
 	});
@@ -52,7 +52,7 @@ const HeaderContainer = () => {
 
 	return (
 		<Header
-			accounts={accounts}
+			accounts={data?.data || []}
 			onSubmit={onSubmit}
 			handleSubmit={handleSubmit}
 			register={register}

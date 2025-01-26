@@ -97,7 +97,7 @@ export class InstagramAuthService {
 			followingCount: account.followingCount,
 			postCount: account.postCount,
 			profilePicUrl: account.profilePicUrl,
-			lastLogin: account.lastLogin,
+			lastLogin: Date.now(),
 			id: account?._id.toString(),
 		};
 	}
@@ -126,6 +126,7 @@ export class InstagramAuthService {
 				lastLogin: new Date(),
 				password: hashedPassword,
 				isPrivate: userInfo.is_private,
+				isVerified: userInfo.is_verified,
 			};
 
 			const newUser = await this.userModel
@@ -153,29 +154,15 @@ export class InstagramAuthService {
 			throw new BadRequestException('Invalid Credentials');
 		}
 	}
-
 	async getAccounts(meta: Meta) {
-		const user = await this.userModel.findOne({
-			_id: meta.userId,
-		});
+		const user = await this.userModel.findOne({ _id: meta.userId }, { InstagramAccounts: 1, _id: 0 }).lean();
 
-		if (!user) {
-			throw new NotFoundException('User not found');
-		}
-
-		const accounts = await this.userModel
-			.findOne(
-				{
-					_id: meta.userId,
-				},
-				{
-					_id: 0,
-					InstagramAccounts: 1,
-				}
-			)
-			.lean();
-
-		console.log(accounts);
+		const accounts =
+			user?.InstagramAccounts?.map((account: InstagramAccount) => ({
+				...account,
+				id: account._id.toString(),
+				_id: undefined,
+			})) || [];
 
 		return {
 			accounts,
