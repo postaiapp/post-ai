@@ -12,24 +12,24 @@ import { AppService } from './app.service';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 
 @Module({
-    imports: [
-        ScheduleModule.forRoot(),
-        DatabaseModule,
-        AppConfigModule,
-        AuthModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => ({
-                secret: configService.get<string>('JWT_SECRET'),
-                signOptions: { expiresIn: '1d' },
-            }),
-            inject: [ConfigService],
-            global: true,
-        }),
-        PostModule,
-        InstagramAuthModule,
-    ],
-    controllers: [AppController],
-    providers: [AppService, AuthGuard],
+	imports: [
+		ScheduleModule.forRoot(),
+		DatabaseModule,
+		AppConfigModule,
+		AuthModule,
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('JWT_SECRET'),
+				signOptions: { expiresIn: '1d' },
+			}),
+			inject: [ConfigService],
+			global: true,
+		}),
+		PostModule,
+		InstagramAuthModule,
+	],
+	controllers: [AppController],
+	providers: [AppService, AuthGuard],
 })
 export class AppModule {}

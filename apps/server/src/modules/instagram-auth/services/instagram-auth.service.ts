@@ -1,15 +1,14 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
 import * as crypto from 'crypto';
 import { scrypt } from 'crypto';
-import { IgApiClient } from 'instagram-private-api';
+import { AccountRepositoryLoginResponseLogged_in_user, IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { promisify } from 'util';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
-import { InstagramAccountDocument } from '@schemas/instagram-account.schema';
 
 const scryptAsync = promisify(scrypt);
 
@@ -43,7 +42,7 @@ export class InstagramAuthService {
 		return false;
 	}
 
-	async login(body: InstagramAuthDto, meta: Meta) {
+	async createAccount(body: InstagramAuthDto, meta: Meta) {
 		const { username } = body;
 
 		const existingThisAccount = await this.hasInstagramAccount(meta, username);
@@ -52,53 +51,65 @@ export class InstagramAuthService {
 			return this.addAccount(body, meta);
 		}
 
-		return this.verifyAccount(body, meta);
+		throw new BadRequestException('Account already exists');
 	}
 
-	async verifyAccount(body: InstagramAuthDto, meta: Meta) {
+	async login(body: InstagramAuthDto, meta: Meta) {
 		const { password, username } = body;
 
-		const instagramAccount = await this.userModel
-			.findOne(
+		let user = {} as AccountRepositoryLoginResponseLogged_in_user;
+
+		this.ig.state.generateDevice(username);
+
+		try {
+			user = await this.ig.account.login(username, password);
+		} catch (error) {
+			this.logger.error(`Login failed for user ${username}:`, error);
+			throw new BadRequestException('Invalid credentials');
+		}
+
+		const account = await this.ig.user.info(user.pk);
+
+		await this.userModel
+			.findOneAndUpdate(
 				{
 					_id: meta?.userId,
 					InstagramAccounts: {
-						$elemMatch: {
-							username: username,
-						},
+						$elemMatch: { userId: user.pk.toString() },
 					},
 				},
 				{
-					InstagramAccounts: 1,
-					_id: 0,
+					$set: {
+						'InstagramAccounts.$.username': account.username,
+						'InstagramAccounts.$.fullName': account.full_name,
+						'InstagramAccounts.$.biography': account.biography,
+						'InstagramAccounts.$.followerCount': account.follower_count,
+						'InstagramAccounts.$.followingCount': account.following_count,
+						'InstagramAccounts.$.postCount': account.media_count,
+						'InstagramAccounts.$.profilePicUrl': account.profile_pic_url,
+						'InstagramAccounts.$.lastLogin': new Date(),
+						'InstagramAccounts.$.isPrivate': account.is_private,
+						'InstagramAccounts.$.isVerified': account.is_verified,
+					},
+				},
+				{
+					new: true,
 				}
 			)
 			.lean();
 
-		if (!instagramAccount) {
-			throw new NotFoundException('Instagram account not found');
-		}
-
-		const account: InstagramAccountDocument = instagramAccount?.InstagramAccounts[0] as InstagramAccountDocument;
-
-		const [hashedPassword, salt] = account.password.split('.');
-
-		const hash = (await scryptAsync(password, salt, 32)) as Buffer;
-
-		if (hashedPassword !== hash.toString('hex')) {
-			throw new BadRequestException('Invalid credentials');
-		}
-
 		return {
 			username: account.username,
-			fullName: account.fullName,
+			fullName: account.full_name,
 			biography: account.biography,
-			followerCount: account.followerCount,
-			followingCount: account.followingCount,
-			postCount: account.postCount,
-			profilePicUrl: account.profilePicUrl,
-			lastLogin: Date.now(),
-			id: account?._id.toString(),
+			followerCount: account.follower_count,
+			followingCount: account.following_count,
+			postCount: account.media_count,
+			profilePicUrl: account.profile_pic_url,
+			lastLogin: new Date(),
+			userid: user.pk.toString(),
+			isPrivate: account.is_private,
+			isVerified: account.is_verified,
 		};
 	}
 
@@ -136,7 +147,12 @@ export class InstagramAuthService {
 					{
 						_id: 0,
 						new: true,
-						select: 'email InstagramAccounts.username InstagramAccounts.userId',
+						select: {
+							email: 1,
+							'InstagramAccounts.username': 1,
+							'InstagramAccounts.userId': 1,
+							_id: 0,
+						},
 					}
 				)
 				.lean();

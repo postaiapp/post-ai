@@ -10,6 +10,6 @@ export type InstagramAccount = {
 	profilePicUrl: string;
 	lastLogin: Date;
 	password: string;
-	isPrivate: boolean;
-	isVerified: boolean;
+	isPrivate?: boolean;
+	isVerified?: boolean;
 };

@@ -8,13 +8,13 @@ import { Post, PostSchema } from '@schemas/post.schema';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 
 @Module({
-    imports: [
-        DatabaseModule.forFeature([
-            { name: User.name, schema: UserSchema },
-            { name: Post.name, schema: PostSchema },
-        ]),
-    ],
-    controllers: [PostController],
-    providers: [PostService, IgApiClient, InstagramAuthService],
+	imports: [
+		DatabaseModule.forFeature([
+			{ name: User.name, schema: UserSchema },
+			{ name: Post.name, schema: PostSchema },
+		]),
+	],
+	controllers: [PostController],
+	providers: [PostService, IgApiClient, InstagramAuthService],
 })
 export class PostModule {}

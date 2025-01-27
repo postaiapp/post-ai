@@ -4,11 +4,20 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/c
 import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from '../services/instagram-auth.service';
+import { TokenManagement } from '../services/token-management.service';
 
 @UseGuards(AuthGuard)
 @Controller('instagram')
 export class InstagramAuthController {
-	constructor(private readonly instagramAuthService: InstagramAuthService) {}
+	constructor(
+		private readonly instagramAuthService: InstagramAuthService,
+		private readonly tokenService: TokenManagement
+	) {}
+
+	@Post()
+	create(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
+		return this.instagramAuthService.createAccount(body, meta);
+	}
 
 	@Post('login')
 	login(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
@@ -23,5 +32,10 @@ export class InstagramAuthController {
 	@Get('accounts')
 	getAccounts(@Meta() meta: MetaType) {
 		return this.instagramAuthService.getAccounts(meta);
+	}
+
+	@Get('token')
+	token() {
+		return this.tokenService.checkTokenInSchedulePosts();
 	}
 }
