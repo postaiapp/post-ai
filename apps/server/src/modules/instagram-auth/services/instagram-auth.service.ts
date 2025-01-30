@@ -3,14 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
-import * as crypto from 'crypto';
-import { scrypt } from 'crypto';
 import { AccountRepositoryLoginResponseLogged_in_user, IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
-import { promisify } from 'util';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
-
-const scryptAsync = promisify(scrypt);
+import { mappingIntegrationsErrors } from '@constants/errors';
+import { Session } from '@schemas/token';
 
 @Injectable()
 export class InstagramAuthService {
@@ -30,16 +27,27 @@ export class InstagramAuthService {
 			throw new BadRequestException('User not found');
 		}
 
-		const existingAccount = await this.userModel.countDocuments({
-			_id: user?._id,
-			'InstagramAccounts.username': username,
-		});
+		const existingAccount = await this.userModel
+			.findOne(
+				{
+					_id: user?._id,
+					'InstagramAccounts.username': username,
+				},
+				{
+					_id: 0,
+					InstagramAccounts: 1,
+				}
+			)
+			.lean();
 
-		if (existingAccount > 0) {
-			return true;
+		if (!!existingAccount) {
+			return {
+				userId: existingAccount.InstagramAccounts[0].userId,
+				session: existingAccount.InstagramAccounts[0].session,
+			};
 		}
 
-		return false;
+		return null;
 	}
 
 	async createAccount(body: InstagramAuthDto, meta: Meta) {
@@ -54,12 +62,45 @@ export class InstagramAuthService {
 		throw new BadRequestException('Account already exists');
 	}
 
+	async getToken(): Promise<Session> {
+		try {
+			const serializedState = await this.ig.state.serialize();
+
+			const compressedState = Buffer.from(JSON.stringify(serializedState)).toString('base64');
+
+			return {
+				state: compressedState,
+				lastChecked: new Date(),
+				isValid: true,
+				lastRefreshed: new Date(),
+			};
+		} catch (error) {
+			this.logger.error('Failed to serialize session state', error);
+			throw new BadRequestException('Failed to save session state');
+		}
+	}
+
+	async restoreSession(username: string, session: Session) {
+		try {
+			const decompressed = Buffer.from(session.state, 'base64').toString('utf-8');
+			const state = JSON.parse(decompressed);
+
+			this.ig.state.generateDevice(username);
+
+			await this.ig.state.deserialize(state);
+			return true;
+		} catch (error) {
+			this.logger.error('Failed to restore session', error);
+			return false;
+		}
+	}
+
 	async login(body: InstagramAuthDto, meta: Meta) {
 		const { password, username } = body;
 
-		let user = {} as AccountRepositoryLoginResponseLogged_in_user;
-
 		this.ig.state.generateDevice(username);
+
+		let user: AccountRepositoryLoginResponseLogged_in_user;
 
 		try {
 			user = await this.ig.account.login(username, password);
@@ -69,6 +110,23 @@ export class InstagramAuthService {
 		}
 
 		const account = await this.ig.user.info(user.pk);
+
+		const session = await this.getToken();
+
+		const accountData: InstagramAccount = {
+			userId: user.pk.toString(),
+			username: account.username,
+			fullName: account.full_name,
+			biography: account.biography,
+			followerCount: account.follower_count,
+			followingCount: account.following_count,
+			postCount: account.media_count,
+			profilePicUrl: account.profile_pic_url,
+			lastLogin: new Date(),
+			isPrivate: account.is_private,
+			isVerified: account.is_verified,
+			session,
+		};
 
 		await this.userModel
 			.findOneAndUpdate(
@@ -80,16 +138,7 @@ export class InstagramAuthService {
 				},
 				{
 					$set: {
-						'InstagramAccounts.$.username': account.username,
-						'InstagramAccounts.$.fullName': account.full_name,
-						'InstagramAccounts.$.biography': account.biography,
-						'InstagramAccounts.$.followerCount': account.follower_count,
-						'InstagramAccounts.$.followingCount': account.following_count,
-						'InstagramAccounts.$.postCount': account.media_count,
-						'InstagramAccounts.$.profilePicUrl': account.profile_pic_url,
-						'InstagramAccounts.$.lastLogin': new Date(),
-						'InstagramAccounts.$.isPrivate': account.is_private,
-						'InstagramAccounts.$.isVerified': account.is_verified,
+						'InstagramAccounts.$': accountData,
 					},
 				},
 				{
@@ -123,7 +172,7 @@ export class InstagramAuthService {
 
 			const userInfo = await this.ig.user.info(user.pk);
 
-			const hashedPassword = await this.generatePasswordHash(password);
+			const session = await this.getToken();
 
 			const userData: InstagramAccount = {
 				userId: user.pk.toString(),
@@ -135,9 +184,9 @@ export class InstagramAuthService {
 				postCount: userInfo.media_count,
 				profilePicUrl: userInfo.profile_pic_url,
 				lastLogin: new Date(),
-				password: hashedPassword,
 				isPrivate: userInfo.is_private,
 				isVerified: userInfo.is_verified,
+				session,
 			};
 
 			const newUser = await this.userModel
@@ -166,10 +215,13 @@ export class InstagramAuthService {
 				newUser,
 			};
 		} catch (error) {
-			this.logger.error(`Login failed for user ${username}:`, error);
-			throw new BadRequestException('Invalid Credentials');
+			const { logger, exception } = mappingIntegrationsErrors(error.message, username);
+
+			this.logger.error(logger);
+			throw new BadRequestException(exception);
 		}
 	}
+
 	async getAccounts(meta: Meta) {
 		const user = await this.userModel.findOne({ _id: meta.userId }, { InstagramAccounts: 1, _id: 0 }).lean();
 
@@ -183,13 +235,6 @@ export class InstagramAuthService {
 		return {
 			accounts,
 		};
-	}
-
-	async generatePasswordHash(password: string) {
-		const salt = crypto.randomBytes(8).toString('hex');
-		const hash = (await scryptAsync(password, salt, 32)) as Buffer;
-
-		return `${hash.toString('hex')}.${salt}`;
 	}
 
 	async delete(body: DeleteInstagramAuthDto, meta: Meta) {

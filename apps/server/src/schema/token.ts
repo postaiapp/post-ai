@@ -2,7 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 
 export class Session {
 	@Prop({ required: true, type: String })
-	token: string;
+	state: string;
 
 	@Prop({ required: true, type: Boolean, default: false })
 	isValid: boolean;

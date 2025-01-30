@@ -5,9 +5,15 @@ import { IgApiClient } from 'instagram-private-api';
 import { InstagramAuthController } from './controller/instagram-auth.controller';
 import { InstagramAuthService } from './services/instagram-auth.service';
 import { TokenManagement } from './services/token-management.service';
+import { Post, PostSchema } from '@schemas/post.schema';
 
 @Module({
-	imports: [DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+	imports: [
+		DatabaseModule.forFeature([
+			{ name: User.name, schema: UserSchema },
+			{ name: Post.name, schema: PostSchema },
+		]),
+	],
 	controllers: [InstagramAuthController],
 	providers: [InstagramAuthService, IgApiClient, TokenManagement],
 })

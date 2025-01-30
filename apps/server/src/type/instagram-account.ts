@@ -1,3 +1,5 @@
+import { Session } from '@schemas/token';
+
 export type InstagramAccount = {
 	_id?: string;
 	userId: string;
@@ -9,7 +11,7 @@ export type InstagramAccount = {
 	postCount: number;
 	profilePicUrl: string;
 	lastLogin: Date;
-	password: string;
 	isPrivate?: boolean;
 	isVerified?: boolean;
+	session: Session;
 };

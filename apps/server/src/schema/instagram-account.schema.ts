@@ -30,9 +30,6 @@ export class InstagramAccount {
 	@Prop({ required: true, type: Date })
 	lastLogin: Date;
 
-	@Prop({ required: true, type: String })
-	password: string;
-
 	@Prop({ required: false, type: Boolean, default: false })
 	isPrivate?: boolean;
 
