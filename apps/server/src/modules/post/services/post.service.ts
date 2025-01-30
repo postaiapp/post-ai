@@ -160,6 +160,7 @@ export class PostService {
 		const { username, caption } = body;
 
 		const user = await this.userModel.findOne({ _id: meta.userId });
+
 		if (!user) {
 			throw new NotFoundException('User not found');
 		}
@@ -181,6 +182,7 @@ export class PostService {
 			throw new NotFoundException('Post not found');
 		}
 
+		this.logger.debug(`Post published successfully ${username}`);
 		return {
 			message: 'Post published successfully',
 			post: {

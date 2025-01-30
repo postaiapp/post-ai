@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-// import { Cron } from '@nestjs/schedule';
-// import { Cron, CronExpression } from '@nestjs/schedule';
 import { InstagramAccount } from '@schemas/instagram-account.schema';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
+import { InstagramAuthService } from './instagram-auth.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class TokenManagement {
@@ -16,6 +16,7 @@ export class TokenManagement {
 
 	constructor(
 		private readonly ig: IgApiClient,
+		private readonly instagramAuthService: InstagramAuthService,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		@InjectModel(Post.name) private readonly postModel: Model<Post>
 	) {}
@@ -56,7 +57,7 @@ export class TokenManagement {
 		return users.flatMap((user) => user.InstagramAccounts);
 	}
 
-	// @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async checkTokenInSchedulePosts() {
 		const nextWeekDate = new Date();
 		nextWeekDate.setDate(nextWeekDate.getDate() + this.TOKEN_CHECK_INTERVAL);
@@ -66,48 +67,35 @@ export class TokenManagement {
 
 		const usersToValidateToken = await this.validateUsersToken(lastLoginDate, nextWeekDate);
 
-		console.log('usersToValidateToken', usersToValidateToken);
-
 		for (const account of usersToValidateToken) {
-			console.log('account', account);
-			// const { username, session, _id } = account;
+			const { username, session } = account;
 
-			// if (!session?.token) continue;
+			if (!session?.isValid) continue;
 
-			// const isTokenValid = await this.verifyValidationToken(session?.token, account?.userId);
+			const isTokenValid = await this.instagramAuthService.restoreSession(username, session);
 
-			// if (!isTokenValid) {
-			// 	await this.notifyUserAboutTokenRefresh(_id.toString());
-			// }
+			await this.userModel.updateOne(
+				{
+					_id: account.userId,
+					'InstagramAccounts.username': username,
+				},
+				{
+					$set: {
+						'InstagramAccounts.$.session': {
+							lastChecked: new Date(),
+							isValid: isTokenValid,
+						},
+					},
+				}
+			);
 
-			// await this.userModel.updateOne(
-			// 	{
-			// 		_id: _id.toString(),
-			// 		'InstagramAccounts.username': username,
-			// 	},
-			// 	{
-			// 		$set: {
-			// 			'InstagramAccounts.$.tokenStatus': {
-			// 				lastChecked: new Date(),
-			// 				isValid: isTokenValid,
-			// 			},
-			// 		},
-			// 	}
-			// );
+			if (!isTokenValid) {
+				await this.notifyUserAboutTokenRefresh(account.userId);
+			}
 		}
 	}
 
-	async verifyValidationToken(token: string, userId: string) {
-		try {
-			await this.ig.state.deserialize(JSON.parse(token));
-			await this.ig.user.info(userId);
-			return true;
-		} catch {
-			return false;
-		}
-	}
-
-	private async notifyUserAboutTokenRefresh(userId: string) {
+	async notifyUserAboutTokenRefresh(userId: string) {
 		this.logger.log(`User ${userId} needs token refresh`);
 	}
 }
