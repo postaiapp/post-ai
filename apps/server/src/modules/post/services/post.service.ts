@@ -67,7 +67,7 @@ export class PostService {
 		const post = await this.createPostRecord({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
-			userId: account.userId,
+			userId: account.accountId,
 			publishedAt: new Date(),
 			scheduledAt: null,
 		});
@@ -106,7 +106,7 @@ export class PostService {
 		const post = await this.createPostRecord({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
-			userId: instagramAccount.userId,
+			userId: instagramAccount.accountId,
 			publishedAt: null,
 			scheduledAt: post_date || null,
 		});

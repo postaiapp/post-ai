@@ -4,7 +4,7 @@ import { Session } from './token';
 @Schema({ versionKey: false })
 export class InstagramAccount {
 	@Prop({ required: true, type: String })
-	userId: string;
+	accountId: string;
 
 	@Prop({ required: true, type: String })
 	username: string;
@@ -32,6 +32,9 @@ export class InstagramAccount {
 
 	@Prop({ required: false, type: Boolean, default: false })
 	isPrivate?: boolean;
+
+	@Prop({ required: false, type: Boolean, default: false })
+	isVerified?: boolean;
 
 	@Prop({ type: Session, required: true })
 	session: Session;

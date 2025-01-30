@@ -42,7 +42,7 @@ export class InstagramAuthService {
 
 		if (!!existingAccount) {
 			return {
-				userId: existingAccount.InstagramAccounts[0].userId,
+				accountId: existingAccount.InstagramAccounts[0].accountId,
 				session: existingAccount.InstagramAccounts[0].session,
 			};
 		}
@@ -114,7 +114,7 @@ export class InstagramAuthService {
 		const session = await this.getToken();
 
 		const accountData: InstagramAccount = {
-			userId: user.pk.toString(),
+			accountId: user.pk.toString(),
 			username: account.username,
 			fullName: account.full_name,
 			biography: account.biography,
@@ -133,7 +133,7 @@ export class InstagramAuthService {
 				{
 					_id: meta?.userId,
 					InstagramAccounts: {
-						$elemMatch: { userId: user.pk.toString() },
+						$elemMatch: { accountId: user.pk.toString() },
 					},
 				},
 				{
@@ -156,7 +156,7 @@ export class InstagramAuthService {
 			postCount: account.media_count,
 			profilePicUrl: account.profile_pic_url,
 			lastLogin: new Date(),
-			userid: user.pk.toString(),
+			accountId: user.pk.toString(),
 			isPrivate: account.is_private,
 			isVerified: account.is_verified,
 		};
@@ -175,7 +175,7 @@ export class InstagramAuthService {
 			const session = await this.getToken();
 
 			const userData: InstagramAccount = {
-				userId: user.pk.toString(),
+				accountId: user.pk.toString(),
 				username: user.username,
 				fullName: userInfo.full_name,
 				biography: userInfo.biography,
@@ -199,7 +199,7 @@ export class InstagramAuthService {
 						select: {
 							email: 1,
 							'InstagramAccounts.username': 1,
-							'InstagramAccounts.userId': 1,
+							'InstagramAccounts.accountId': 1,
 							_id: 0,
 						},
 					}

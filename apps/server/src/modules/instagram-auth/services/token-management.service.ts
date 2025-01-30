@@ -43,7 +43,7 @@ export class TokenManagement {
 							},
 						},
 						{
-							'InstagramAccounts.userId': { $in: usersWithScheduledPosts },
+							'InstagramAccounts.accountId': { $in: usersWithScheduledPosts },
 						},
 					],
 				},
@@ -52,9 +52,10 @@ export class TokenManagement {
 					InstagramAccounts: 1,
 				}
 			)
+			.lean()
 			.exec();
 
-		return users.flatMap((user) => user.InstagramAccounts);
+		return users.flatMap((user) => user.InstagramAccounts.map((account) => ({ ...account, userId: user._id })));
 	}
 
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -68,34 +69,41 @@ export class TokenManagement {
 		const usersToValidateToken = await this.validateUsersToken(lastLoginDate, nextWeekDate);
 
 		for (const account of usersToValidateToken) {
-			const { username, session } = account;
-
-			if (!session?.isValid) continue;
+			const { username, session, userId } = account;
 
 			const isTokenValid = await this.instagramAuthService.restoreSession(username, session);
 
+			if (!isTokenValid) {
+				this.logger.error(`Token for user ${userId} is invalid`);
+				await this.notifyUserAboutTokenRefresh(userId.toString());
+			}
+
 			await this.userModel.updateOne(
 				{
-					_id: account.userId,
+					_id: userId,
 					'InstagramAccounts.username': username,
 				},
 				{
 					$set: {
 						'InstagramAccounts.$.session': {
+							...session,
 							lastChecked: new Date(),
-							isValid: isTokenValid,
+							isValid: false,
 						},
 					},
 				}
 			);
 
-			if (!isTokenValid) {
-				await this.notifyUserAboutTokenRefresh(account.userId);
-			}
+			this.logger.log(`Token for user ${userId} is checked`);
+
+			return {
+				message: 'Token is checked',
+			};
 		}
 	}
 
 	async notifyUserAboutTokenRefresh(userId: string) {
-		this.logger.log(`User ${userId} needs token refresh`);
+		//TODO: Implement notification system for user about token refresh EMAIL or SMS
+		this.logger.error(`User ${userId} needs token refresh`);
 	}
 }
