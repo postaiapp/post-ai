@@ -26,18 +26,18 @@ export class PostService {
 		private schedulerRegistry: SchedulerRegistry
 	) {}
 
-	async create({ body, meta }: DefaultPostBodyCreate) {
-		const { post_date } = body;
+	async create({ data, meta }: DefaultPostBodyCreate) {
+		const { post_date } = data;
 
 		if (post_date) {
-			return this.schedulePost({ body, meta });
+			return this.schedulePost({ data, meta });
 		}
 
-		return this.publishNow({ body, meta });
+		return this.publishNow({ data, meta });
 	}
 
-	async publishNow({ body, meta }: PublishedPostProps) {
-		const { username, caption } = body;
+	async publishNow({ data, meta }: PublishedPostProps) {
+		const { username, caption } = data;
 
 		const account = await this.userModel
 			.findOne(
@@ -68,6 +68,7 @@ export class PostService {
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: account.accountId,
+			canceledAt: null,
 			publishedAt: new Date(),
 			scheduledAt: null,
 		});
@@ -83,8 +84,8 @@ export class PostService {
 		};
 	}
 
-	async schedulePost({ body, meta }: DefaultPostBodyCreate) {
-		const { username, post_date, caption } = body;
+	async schedulePost({ data, meta }: DefaultPostBodyCreate) {
+		const { username, post_date, caption } = data;
 		const date = new Date(post_date);
 
 		if (date < new Date()) {
@@ -109,20 +110,20 @@ export class PostService {
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: instagramAccount.accountId,
+			canceledAt: null,
 			publishedAt: null,
 			jobId,
 			scheduledAt: post_date || null,
 		});
 
 		await this.scheduleCronJob(jobId, date, {
-			body,
+			data,
 			meta,
 			id: post._id.toHexString(),
 			session: instagramAccount.session,
 		});
 
 		return {
-			message: 'Post scheduled successfully',
 			scheduled_date: date,
 			post_id: post._id.toHexString(),
 		};
@@ -158,8 +159,8 @@ export class PostService {
 		this.schedulerRegistry.deleteCronJob(jobId);
 	}
 
-	async publishPost({ body, meta, id, session }: PublishedPostProps) {
-		const { username, caption } = body;
+	async publishPost({ data, meta, id, session }: PublishedPostProps) {
+		const { username, caption } = data;
 
 		const user = await this.userModel.findOne({ _id: meta.userId });
 
@@ -222,11 +223,11 @@ export class PostService {
 		}
 	}
 
-	async createPostRecord(postBody: PostBodyCreate) {
+	async createPostRecord(data: PostBodyCreate) {
 		try {
-			return await this.postModel.create(postBody);
+			return await this.postModel.create(data);
 		} catch (error) {
-			this.logger.error('Failed to save post to database', { postBody, error });
+			this.logger.error('Failed to save post to database', { data, error });
 			throw new BadRequestException('Failed to create post record');
 		}
 	}
@@ -279,6 +280,6 @@ export class PostService {
 
 		this.cleanupJob(post.jobId);
 
-		return { message: 'Scheduled post cancelled successfully' };
+		return true;
 	}
 }

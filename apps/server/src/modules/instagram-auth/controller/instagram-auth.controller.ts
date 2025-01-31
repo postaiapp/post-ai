@@ -33,9 +33,4 @@ export class InstagramAuthController {
 	getAccounts(@Meta() meta: MetaType) {
 		return this.instagramAuthService.getAccounts(meta);
 	}
-
-	@Get('token')
-	token() {
-		return this.tokenService.checkTokenInSchedulePosts();
-	}
 }

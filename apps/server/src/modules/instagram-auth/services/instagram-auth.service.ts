@@ -30,7 +30,7 @@ export class InstagramAuthService {
 		const existingAccount = await this.userModel
 			.findOne(
 				{
-					_id: user?._id,
+					_id: user._id,
 					'InstagramAccounts.username': username,
 				},
 				{
@@ -40,23 +40,23 @@ export class InstagramAuthService {
 			)
 			.lean();
 
-		if (!!existingAccount) {
-			return {
-				accountId: existingAccount.InstagramAccounts[0].accountId,
-				session: existingAccount.InstagramAccounts[0].session,
-			};
+		if (!existingAccount) {
+			return null;
 		}
 
-		return null;
+		return {
+			accountId: existingAccount.InstagramAccounts[0].accountId,
+			session: existingAccount.InstagramAccounts[0].session,
+		};
 	}
 
-	async createAccount(body: InstagramAuthDto, meta: Meta) {
-		const { username } = body;
+	async createAccount(data: InstagramAuthDto, meta: Meta) {
+		const { username } = data;
 
 		const existingThisAccount = await this.hasInstagramAccount(meta, username);
 
 		if (!existingThisAccount) {
-			return this.addAccount(body, meta);
+			return this.addAccount(data, meta);
 		}
 
 		throw new BadRequestException('Account already exists');
@@ -109,9 +109,7 @@ export class InstagramAuthService {
 			throw new BadRequestException('Invalid credentials');
 		}
 
-		const account = await this.ig.user.info(user.pk);
-
-		const session = await this.getToken();
+		const [account, session] = await Promise.all([this.ig.user.info(user.pk), this.getToken()]);
 
 		const accountData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -140,9 +138,6 @@ export class InstagramAuthService {
 					$set: {
 						'InstagramAccounts.$': accountData,
 					},
-				},
-				{
-					new: true,
 				}
 			)
 			.lean();

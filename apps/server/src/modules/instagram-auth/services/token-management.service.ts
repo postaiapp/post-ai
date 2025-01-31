@@ -21,6 +21,25 @@ export class TokenManagement {
 		@InjectModel(Post.name) private readonly postModel: Model<Post>
 	) {}
 
+	async getValidateUsersWhereConditions(lastLoginDate: Date, usersWithScheduledPosts: string[]) {
+		const whereConditions = {
+			$or: [
+				{
+					InstagramAccounts: {
+						$elemMatch: {
+							lastLogin: { $lte: lastLoginDate },
+						},
+					},
+				},
+				{
+					'InstagramAccounts.accountId': { $in: usersWithScheduledPosts },
+				},
+			],
+		};
+
+		return whereConditions;
+	}
+
 	async validateUsersToken(lastLoginDate: Date, nextWeekDate: Date) {
 		const usersWithScheduledPosts = await this.postModel.distinct('userId', {
 			scheduledAt: {
@@ -29,31 +48,14 @@ export class TokenManagement {
 			},
 		});
 
+		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts);
+
 		const users = await this.userModel
-			.find(
-				{
-					$or: [
-						{
-							InstagramAccounts: {
-								$elemMatch: {
-									lastLogin: {
-										$lte: lastLoginDate,
-									},
-								},
-							},
-						},
-						{
-							'InstagramAccounts.accountId': { $in: usersWithScheduledPosts },
-						},
-					],
-				},
-				{
-					_id: 1,
-					InstagramAccounts: 1,
-				}
-			)
-			.lean()
-			.exec();
+			.find(whereCondition, {
+				_id: 1,
+				InstagramAccounts: 1,
+			})
+			.lean();
 
 		return users.flatMap((user) => user.InstagramAccounts.map((account) => ({ ...account, userId: user._id })));
 	}

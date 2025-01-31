@@ -3,7 +3,7 @@ import { Meta } from './meta';
 import { Session } from '@schemas/token';
 
 export type DefaultPostBodyCreate = {
-	body?: CreatePostDto;
+	data?: CreatePostDto;
 	meta?: Meta;
 	query?: CanceledPostBody;
 };

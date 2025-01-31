@@ -13,6 +13,7 @@ async function bootstrap() {
 			whitelist: true,
 			transform: true,
 			transformOptions: { enableImplicitConversion: true },
+			forbidNonWhitelisted: true,
 		})
 	);
 	app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
