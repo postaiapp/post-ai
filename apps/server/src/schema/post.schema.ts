@@ -14,8 +14,14 @@ export class Post {
 	@Prop({ required: false, type: Date })
 	scheduledAt: Date;
 
+	@Prop({ required: false, type: Date })
+	canceledAt: Date;
+
 	@Prop({ required: true, type: String })
 	userId: string;
+
+	@Prop({ required: false, type: String })
+	jobId: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

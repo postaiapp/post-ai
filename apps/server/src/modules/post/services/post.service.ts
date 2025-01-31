@@ -8,7 +8,7 @@ import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { PostBodyCreate, PostCreate, PublishedPostProps } from '@type/post';
+import { PostBodyCreate, DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
@@ -26,7 +26,7 @@ export class PostService {
 		private schedulerRegistry: SchedulerRegistry
 	) {}
 
-	async create({ body, meta }: PostCreate) {
+	async create({ body, meta }: DefaultPostBodyCreate) {
 		const { post_date } = body;
 
 		if (post_date) {
@@ -83,7 +83,7 @@ export class PostService {
 		};
 	}
 
-	async schedulePost({ body, meta }: PostCreate) {
+	async schedulePost({ body, meta }: DefaultPostBodyCreate) {
 		const { username, post_date, caption } = body;
 		const date = new Date(post_date);
 
@@ -103,15 +103,17 @@ export class PostService {
 			throw new TokenExpiredError('Session restoration failed', new Date());
 		}
 
+		const jobId = `post_${username}_${date.getTime()}`;
+
 		const post = await this.createPostRecord({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: instagramAccount.accountId,
 			publishedAt: null,
+			jobId,
 			scheduledAt: post_date || null,
 		});
 
-		const jobId = `post_${username}_${date.getTime()}`;
 		await this.scheduleCronJob(jobId, date, {
 			body,
 			meta,
@@ -229,13 +231,54 @@ export class PostService {
 		}
 	}
 
-	async cancelScheduledPost(jobId: string) {
-		const job = this.scheduledPosts.get(jobId);
-		if (!job) {
+	async cancelScheduledPost({ query, meta }: DefaultPostBodyCreate) {
+		const { postId, username } = query;
+
+		const account = await this.userModel
+			.findOne(
+				{
+					_id: meta.userId,
+					'InstagramAccounts.username': username,
+				},
+				{
+					_id: 0,
+					InstagramAccounts: 1,
+				}
+			)
+			.lean()
+			.then((user) => user?.InstagramAccounts[0]);
+
+		const post = await this.postModel
+			.findOne(
+				{
+					_id: postId,
+					scheduledAt: { $ne: null },
+					userId: account.accountId,
+				},
+				{ jobId: 1 }
+			)
+			.lean();
+
+		if (!post) {
 			throw new NotFoundException('Scheduled post not found');
 		}
 
-		this.cleanupJob(jobId);
+		const job = this.scheduledPosts.get(post.jobId);
+
+		if (!job) {
+			throw new NotFoundException('Scheduled job not found');
+		}
+
+		await this.postModel.updateOne(
+			{ _id: postId },
+			{
+				canceledAt: new Date(),
+				scheduledAt: null,
+			}
+		);
+
+		this.cleanupJob(post.jobId);
+
 		return { message: 'Scheduled post cancelled successfully' };
 	}
 }
