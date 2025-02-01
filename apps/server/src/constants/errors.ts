@@ -8,19 +8,19 @@ export const mappingIntegrationsErrors = (error: any, username?: string): Except
 		IgLoginRequiredError: {
 			logger: `Login failed for user ${username}: Challenge required. Please verify your Instagram account for any issues.`,
 			exceptionMessage: 'SESSION_REQUIRED',
-			status: 403,
+			status: HttpStatus.FORBIDDEN,
 			Exception: ForbiddenException,
 		},
 		IgLoginBadPasswordError: {
 			logger: `Login failed for user ${username}: Bad Request.`,
 			exceptionMessage: 'INVALID_INSTAGRAM_CREDENTIALS',
-			status: 400,
+			status: HttpStatus.BAD_REQUEST,
 			Exception: BadRequestException,
 		},
 		IgLoginInvalidUserError: {
 			logger: `Login not found for ${username} account: Bad Request.`,
 			exceptionMessage: 'INVALID_INSTAGRAM_CREDENTIALS',
-			status: 400,
+			status: HttpStatus.BAD_REQUEST,
 			Exception: BadRequestException,
 		},
 	};
