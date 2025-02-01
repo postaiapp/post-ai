@@ -5,7 +5,7 @@ export const mappingIntegrationsErrors = (error: any, username?: string): Except
 	const errorInstance = error instanceof Error ? error : new Error(error);
 
 	const errors = {
-		challenge_required: {
+		IgLoginRequiredError: {
 			logger: `Login failed for user ${username}: Challenge required. Please verify your Instagram account for any issues.`,
 			exceptionMessage: 'SESSION_REQUIRED',
 			status: 403,
