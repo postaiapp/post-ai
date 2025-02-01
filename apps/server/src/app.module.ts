@@ -10,6 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
+import { CronModule } from '@crons/cron.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.mod
 		DatabaseModule,
 		AppConfigModule,
 		AuthModule,
+		CronModule,
 		JwtModule.registerAsync({
 			imports: [ConfigModule],
 			useFactory: async (configService: ConfigService) => ({

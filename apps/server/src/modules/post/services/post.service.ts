@@ -8,7 +8,7 @@ import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { PostBodyCreate, DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
+import { DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
@@ -64,7 +64,7 @@ export class PostService {
 			throw new BadRequestException('Failed to publish on Instagram');
 		}
 
-		const post = await this.createPostRecord({
+		const post = await this.postModel.create({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: account.accountId,
@@ -106,7 +106,7 @@ export class PostService {
 
 		const jobId = `post_${username}_${date.getTime()}`;
 
-		const post = await this.createPostRecord({
+		const post = await this.postModel.create({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: instagramAccount.accountId,
@@ -140,11 +140,9 @@ export class PostService {
 					await this.publishPost(publishParams);
 				} catch (err) {
 					this.logger.error(`Failed to publish scheduled post ${jobId}`, err);
-				} finally {
-					this.cleanupJob(jobId);
 				}
 			},
-			null, // onComplete
+			this.createCleanupHandler(jobId),
 			true, // start
 			TIME_ZONE
 		);
@@ -152,6 +150,13 @@ export class PostService {
 		this.schedulerRegistry.addCronJob(jobId, job);
 		this.scheduledPosts.set(jobId, job);
 		this.logger.debug(`Post scheduled with ID ${jobId} for ${date}`);
+	}
+
+	private createCleanupHandler(jobId: string) {
+		return () => {
+			this.logger.debug(`Cleaning up job ${jobId}`);
+			this.cleanupJob(jobId);
+		};
 	}
 
 	private cleanupJob(jobId: string) {
@@ -206,13 +211,6 @@ export class PostService {
 				throw new TokenExpiredError('Session restoration failed', new Date());
 			}
 
-			try {
-				await this.ig.account.currentUser();
-			} catch (error) {
-				this.logger.error('Session validation failed', error);
-				throw new BadRequestException('Invalid or expired session');
-			}
-
 			const imageBuffer = await get({ url: IMAGE_TEST_URL, encoding: null });
 			await this.ig.publish.photo({ file: imageBuffer, caption });
 
@@ -220,15 +218,6 @@ export class PostService {
 		} catch (error) {
 			this.logger.error('Failed to publish photo on Instagram', { caption, error });
 			throw new BadRequestException('Failed to publish photo');
-		}
-	}
-
-	async createPostRecord(data: PostBodyCreate) {
-		try {
-			return await this.postModel.create(data);
-		} catch (error) {
-			this.logger.error('Failed to save post to database', { data, error });
-			throw new BadRequestException('Failed to create post record');
 		}
 	}
 

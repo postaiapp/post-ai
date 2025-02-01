@@ -3,9 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { InstagramAccount } from '@schemas/instagram-account.schema';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
-import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
-import { InstagramAuthService } from './instagram-auth.service';
+import { InstagramAuthService } from '../modules/instagram-auth/services/instagram-auth.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
@@ -15,7 +14,6 @@ export class TokenManagement {
 	private readonly TOKEN_REFRESH_DATE = 60;
 
 	constructor(
-		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		@InjectModel(Post.name) private readonly postModel: Model<Post>

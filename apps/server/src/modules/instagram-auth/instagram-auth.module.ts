@@ -4,7 +4,6 @@ import { User, UserSchema } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { InstagramAuthController } from './controller/instagram-auth.controller';
 import { InstagramAuthService } from './services/instagram-auth.service';
-import { TokenManagement } from './services/token-management.service';
 import { Post, PostSchema } from '@schemas/post.schema';
 
 @Module({
@@ -15,6 +14,6 @@ import { Post, PostSchema } from '@schemas/post.schema';
 		]),
 	],
 	controllers: [InstagramAuthController],
-	providers: [InstagramAuthService, IgApiClient, TokenManagement],
+	providers: [InstagramAuthService, IgApiClient],
 })
 export class InstagramAuthModule {}

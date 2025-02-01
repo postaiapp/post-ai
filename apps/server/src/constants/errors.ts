@@ -1,16 +1,36 @@
-export const mappingIntegrationsErrors = (errorMessage: string, username: string) => {
+import { BadRequestException, ForbiddenException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import { ExceptionResponse } from '@type/error';
+
+export const mappingIntegrationsErrors = (error: any, username?: string): ExceptionResponse => {
+	const errorInstance = error instanceof Error ? error : new Error(error);
+
 	const errors = {
 		challenge_required: {
 			logger: `Login failed for user ${username}: Challenge required. Please verify your Instagram account for any issues.`,
-			exception: 'Challenge required. Please verify your Instagram account for any issues.',
+			exceptionMessage: 'SESSION_REQUIRED',
+			status: 403,
+			Exception: ForbiddenException,
+		},
+		IgLoginBadPasswordError: {
+			logger: `Login failed for user ${username}: Bad Request.`,
+			exceptionMessage: 'INVALID_INSTAGRAM_CREDENTIALS',
+			status: 400,
+			Exception: BadRequestException,
+		},
+		IgLoginInvalidUserError: {
+			logger: `Login not found for ${username} account: Bad Request.`,
+			exceptionMessage: 'INVALID_INSTAGRAM_CREDENTIALS',
+			status: 400,
+			Exception: BadRequestException,
 		},
 	};
 
-	for (const key in errors) {
-		if (errorMessage.includes(key)) {
-			return errors[key];
+	return (
+		errors[errorInstance.name] || {
+			logger: 'Internal Server error',
+			exceptionMessage: 'Internal Server error',
+			status: HttpStatus.INTERNAL_SERVER_ERROR,
+			Exception: InternalServerErrorException,
 		}
-	}
-
-	return { logger: 'Something went wrong', exception: 'Something went wrong' };
+	);
 };
