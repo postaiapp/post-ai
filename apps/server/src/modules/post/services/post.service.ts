@@ -1,168 +1,274 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
 import { Post } from '@schemas/post.schema';
+import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { PostBodyCreate, PostCreate } from '@type/post';
+import { DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
 
 @Injectable()
 export class PostService {
-    private scheduledPosts: Map<string, CronJob> = new Map();
-    private readonly logger = new Logger(PostService.name);
+	private scheduledPosts: Map<string, CronJob> = new Map();
+	private readonly logger = new Logger(PostService.name);
 
-    constructor(
-        @InjectModel(User.name) private readonly userModel: Model<User>,
-        @InjectModel(Post.name) private readonly postModel: Model<Post>,
-        private readonly ig: IgApiClient,
-        private readonly instagramAuthService: InstagramAuthService,
-        private schedulerRegistry: SchedulerRegistry
-    ) {}
+	constructor(
+		@InjectModel(User.name) private readonly userModel: Model<User>,
+		@InjectModel(Post.name) private readonly postModel: Model<Post>,
+		private readonly ig: IgApiClient,
+		private readonly instagramAuthService: InstagramAuthService,
+		private schedulerRegistry: SchedulerRegistry
+	) {}
 
-    async create({ body, meta }: PostCreate) {
-        const { post_date } = body;
+	async create({ data, meta }: DefaultPostBodyCreate) {
+		const { post_date } = data;
 
-        if (post_date) {
-            return this.schedulePost({ body, meta });
-        }
+		if (post_date) {
+			return this.schedulePost({ data, meta });
+		}
 
-        return this.publishPost({ body, meta });
-    }
+		return this.publishNow({ data, meta });
+	}
 
-    async schedulePost({ body, meta }: PostCreate) {
-        const { username, post_date } = body;
-        const date = new Date(post_date);
+	async publishNow({ data, meta }: PublishedPostProps) {
+		const { username, caption } = data;
 
-        if (date < new Date()) {
-            throw new BadRequestException('Invalid post date');
-        }
+		const account = await this.userModel
+			.findOne(
+				{
+					_id: meta.userId,
+					'InstagramAccounts.username': username,
+				},
+				{
+					_id: 0,
+					InstagramAccounts: 1,
+				}
+			)
+			.lean()
+			.then((user) => user?.InstagramAccounts[0]);
 
-        const jobId = `post_${username}_${date.getTime()}`;
-        const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
+		if (!account) {
+			throw new NotFoundException('User does not have this account');
+		}
 
-        await this.instagramAuthService.verifyAccount(body, meta);
+		try {
+			await this.publishPhotoOnInstagram(caption, username, account.session);
+		} catch (error) {
+			this.logger.error('Failed to publish photo on Instagram', { username, error });
+			throw new BadRequestException('Failed to publish on Instagram');
+		}
 
-        const job = new CronJob(
-            cronExpression,
-            async () => {
-                this.logger.debug(`Executing scheduled post for ${username}`);
+		const post = await this.postModel.create({
+			caption,
+			imageUrl: IMAGE_TEST_URL,
+			userId: account.accountId,
+			canceledAt: null,
+			publishedAt: new Date(),
+			scheduledAt: null,
+		});
 
-                try {
-                    await this.publishPost({ body, meta });
-                } catch (err) {
-                    this.logger.error(`Error publishing scheduled post for ${username}`, err);
-                }
+		return {
+			message: 'Post published successfully',
+			post: {
+				caption: post.caption,
+				imageUrl: post.imageUrl,
+				publishedAt: post.publishedAt,
+				id: post._id.toHexString(),
+			},
+		};
+	}
 
-                this.scheduledPosts.delete(jobId);
-            },
-            null, // onComplete
-            true, // start
-            TIME_ZONE // timezone
-        );
+	async schedulePost({ data, meta }: DefaultPostBodyCreate) {
+		const { username, post_date, caption } = data;
+		const date = new Date(post_date);
 
-        this.schedulerRegistry.addCronJob(jobId, job);
-        this.scheduledPosts.set(jobId, job);
+		if (date < new Date()) {
+			throw new BadRequestException('Invalid post date');
+		}
 
-        this.logger.debug(`Post scheduled for ${username} at ${date}`);
+		const instagramAccount = await this.instagramAuthService.hasInstagramAccount(meta, username);
 
-        return {
-            message: 'Post scheduled successfully',
-            scheduled_date: date,
-        };
-    }
+		if (!instagramAccount) {
+			throw new NotFoundException('User does not have this account');
+		}
 
-    async publishPost({ body, meta }: PostCreate) {
-        const { username, caption, password, post_date } = body;
+		const restored = await this.instagramAuthService.restoreSession(username, instagramAccount.session);
 
-        const user = await this.userModel.findOne({ _id: meta.userId });
+		if (!restored) {
+			throw new TokenExpiredError('Session restoration failed', new Date());
+		}
 
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
+		const jobId = `post_${username}_${date.getTime()}`;
 
-        this.ig.state.generateDevice(username);
+		const post = await this.postModel.create({
+			caption,
+			imageUrl: IMAGE_TEST_URL,
+			userId: instagramAccount.accountId,
+			canceledAt: null,
+			publishedAt: null,
+			jobId,
+			scheduledAt: post_date || null,
+		});
 
-        try {
-            await this.ig.account.login(username, password);
-        } catch (error) {
-            this.logger.error('Erro ao realizar login no Instagram', { username, error });
-            throw new BadRequestException('Invalid Instagram credentials');
-        }
+		await this.scheduleCronJob(jobId, date, {
+			data,
+			meta,
+			id: post._id.toHexString(),
+			session: instagramAccount.session,
+		});
 
-        await this.publishPhotoOnInstagram(caption, username);
+		return {
+			scheduled_date: date,
+			post_id: post._id.toHexString(),
+		};
+	}
 
-        const newPost = await this.createPostRecord({
-            caption,
-            imageUrl: IMAGE_TEST_URL,
-            userId: meta.userId.toString(),
-            publishedAt: post_date || new Date(),
-        });
+	async scheduleCronJob(jobId: string, date: Date, publishParams: PublishedPostProps) {
+		const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
 
-        this.logger.debug(`Post criado com sucesso para o usuário: ${username}`);
+		const job = new CronJob(
+			cronExpression,
+			async () => {
+				this.logger.debug(`Executing scheduled post ${jobId}`);
+				try {
+					await this.publishPost(publishParams);
+				} catch (err) {
+					this.logger.error(`Failed to publish scheduled post ${jobId}`, err);
+				}
+			},
+			this.createCleanupHandler(jobId),
+			true, // start
+			TIME_ZONE
+		);
 
-        return {
-            message: 'Post created successfully',
-            post: {
-                caption: newPost.caption,
-                imageUrl: newPost.imageUrl,
-                publishedAt: newPost.publishedAt,
-                id: newPost._id.toHexString(),
-            },
-        };
-    }
+		this.schedulerRegistry.addCronJob(jobId, job);
+		this.scheduledPosts.set(jobId, job);
+		this.logger.debug(`Post scheduled with ID ${jobId} for ${date}`);
+	}
 
-    async publishPhotoOnInstagram(caption: string, username: string): Promise<boolean> {
-        this.ig.state.generateDevice(username);
+	private createCleanupHandler(jobId: string) {
+		return () => {
+			this.logger.debug(`Cleaning up job ${jobId}`);
+			this.cleanupJob(jobId);
+		};
+	}
 
-        try {
-            const imageBuffer = await get({
-                url: IMAGE_TEST_URL,
-                encoding: null,
-            });
+	private cleanupJob(jobId: string) {
+		this.scheduledPosts.delete(jobId);
+		this.schedulerRegistry.deleteCronJob(jobId);
+	}
 
-            await this.ig.publish.photo({
-                file: imageBuffer,
-                caption,
-            });
+	async publishPost({ data, meta, id, session }: PublishedPostProps) {
+		const { username, caption } = data;
 
-            return true;
-        } catch (error) {
-            this.logger.error('Erro ao publicar a foto no Instagram', { caption, error });
-            throw new BadRequestException('Error publishing post');
-        }
-    }
+		const user = await this.userModel.findOne({ _id: meta.userId });
 
-    async createPostRecord(postBody: PostBodyCreate) {
-        try {
-            const newPost = await this.postModel.create(postBody);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
 
-            if (!newPost) {
-                throw new Error('Error saving post to the database');
-            }
+		try {
+			await this.publishPhotoOnInstagram(caption, username, session);
+		} catch (error) {
+			this.logger.error('Failed to publish photo on Instagram', { username, error });
+			throw new BadRequestException('Failed to publish on Instagram');
+		}
 
-            return newPost;
-        } catch (error) {
-            this.logger.error('Erro ao salvar o post no banco de dados', { postBody, error });
-            throw new BadRequestException('Error creating post');
-        }
-    }
+		const updatedPost = await this.postModel.findOneAndUpdate(
+			{ _id: id },
+			{ publishedAt: new Date() },
+			{ new: true }
+		);
 
-    async cancelScheduledPost(jobId: string) {
-        const job = this.scheduledPosts.get(jobId);
+		if (!updatedPost) {
+			throw new NotFoundException('Post not found');
+		}
 
-        if (job) {
-            job.stop();
-            this.schedulerRegistry.deleteCronJob(jobId);
-            this.scheduledPosts.delete(jobId);
+		this.logger.debug(`Post published successfully ${username}`);
+		return {
+			message: 'Post published successfully',
+			post: {
+				caption: updatedPost.caption,
+				imageUrl: updatedPost.imageUrl,
+				publishedAt: updatedPost.publishedAt,
+				scheduledAt: updatedPost.scheduledAt,
+				id: updatedPost._id.toHexString(),
+			},
+		};
+	}
 
-            this.logger.debug(`Cancelled scheduled post ${jobId}`);
-            return { message: 'Scheduled post cancelled successfully' };
-        }
-        throw new BadRequestException('Scheduled post not found');
-    }
+	async publishPhotoOnInstagram(caption: string, username: string, session: Session): Promise<boolean> {
+		try {
+			const restored = await this.instagramAuthService.restoreSession(username, session);
+
+			if (!restored) {
+				throw new TokenExpiredError('Session restoration failed', new Date());
+			}
+
+			const imageBuffer = await get({ url: IMAGE_TEST_URL, encoding: null });
+			await this.ig.publish.photo({ file: imageBuffer, caption });
+
+			return true;
+		} catch (error) {
+			this.logger.error('Failed to publish photo on Instagram', { caption, error });
+			throw new BadRequestException('Failed to publish photo');
+		}
+	}
+
+	async cancelScheduledPost({ query, meta }: DefaultPostBodyCreate) {
+		const { postId, username } = query;
+
+		const account = await this.userModel
+			.findOne(
+				{
+					_id: meta.userId,
+					'InstagramAccounts.username': username,
+				},
+				{
+					_id: 0,
+					InstagramAccounts: 1,
+				}
+			)
+			.lean()
+			.then((user) => user?.InstagramAccounts[0]);
+
+		const post = await this.postModel
+			.findOne(
+				{
+					_id: postId,
+					scheduledAt: { $ne: null },
+					userId: account.accountId,
+				},
+				{ jobId: 1 }
+			)
+			.lean();
+
+		if (!post) {
+			throw new NotFoundException('Scheduled post not found');
+		}
+
+		const job = this.scheduledPosts.get(post.jobId);
+
+		if (!job) {
+			throw new NotFoundException('Scheduled job not found');
+		}
+
+		await this.postModel.updateOne(
+			{ _id: postId },
+			{
+				canceledAt: new Date(),
+				scheduledAt: null,
+			}
+		);
+
+		this.cleanupJob(post.jobId);
+
+		return true;
+	}
 }

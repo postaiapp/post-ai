@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@config/*": ["./src/config/*"],
+      "@crons/*": ["./src/crons/*"],
       "@database/*": ["./src/database/*"],
       "@utils/*": ["./src/utils/*"],
       "@middlewares/*": ["./src/middlewares/*"],

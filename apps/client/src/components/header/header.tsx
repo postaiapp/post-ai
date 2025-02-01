@@ -7,7 +7,7 @@ import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, Dialog
 import { Input } from '@components/ui/input';
 import { Label } from '@components/ui/label';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { CircleUserRound, Instagram, User2 } from 'lucide-react';
+import { CircleUserRound, Instagram } from 'lucide-react';
 import Image from 'next/image';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -28,11 +28,6 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
 							<CircleUserRound size={24} className="cursor-pointer" />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent side="top" className="mr-5">
-							<DropdownMenuItem className="flex items-center gap-4">
-								<User2 size={20} />
-								<span className="text-sm">Profile data</span>
-							</DropdownMenuItem>
-
 							{accounts?.map((account) => <AccountCard key={account.id} {...account} />)}
 
 							<DialogTrigger asChild>

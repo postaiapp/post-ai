@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import { AccountCardProps } from '@common/interfaces/instagramAccount';
+import { Button } from '@components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { DropdownMenuItem } from '@components/ui/dropdown-menu';
 import { BadgeCheck, LockKeyhole, LockOpen } from 'lucide-react';
@@ -23,22 +24,33 @@ export default function AccountCard({ fullName, username, profilePicUrl, isPriva
 	}, [isPrivate, isVerified]);
 
 	return (
-		<DropdownMenuItem className="flex items-center gap-4">
-			<Avatar className="h-6 w-6">
-				<AvatarImage crossOrigin="anonymous" src={profilePicUrl} alt="profile instagram picture" />
-				{fallBackName ? (
-					<AvatarFallback>
-						{fallBackName[0]} {fallBackName[1]}
-					</AvatarFallback>
-				) : null}
-			</Avatar>
+		<DropdownMenuItem className="flex flex-col items-start gap-2">
+			<div className="flex items-center gap-4">
+				<Avatar className="h-6 w-6">
+					<AvatarImage crossOrigin="anonymous" src={profilePicUrl} alt="profile instagram picture" />
+					{fallBackName ? (
+						<AvatarFallback>
+							{fallBackName[0]} {fallBackName[1]}
+						</AvatarFallback>
+					) : null}
+				</Avatar>
 
-			<div className="flex flex-col">
-				<div className="flex items-center gap-2">
-					<span className="text-xs font-medium">Post ai</span>
-					{icon}
+				<div className="flex flex-col">
+					<div className="flex items-center gap-2">
+						<span className="text-xs font-medium">Post ai</span>
+						{icon}
+					</div>
+					<span className="text-xs text-zinc-600">@{username}</span>
 				</div>
-				<span className="text-xs text-zinc-600">@{username}</span>
+			</div>
+
+			<div className="flex gap-2 w-full items-center">
+				<Button className="text-xs w-1/2" variant="outline">
+					Refresh login
+				</Button>
+				<Button className="text-xs w-1/2" variant="destructive">
+					Logout
+				</Button>
 			</div>
 		</DropdownMenuItem>
 	);
