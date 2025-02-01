@@ -3,8 +3,8 @@ import { InstagramAccountType, InstagramLogoutType } from '@common/interfaces/in
 
 import client from './api';
 
-export const instagramLogin = async (body: InstagramAccountType) => {
-	const { data }: ClientResponse = await client.post(`/instagram/login`, body);
+export const instagramCreate = async (body: InstagramAccountType) => {
+	const { data }: ClientResponse = await client.post(`/instagram`, body);
 
 	return {
 		data,
@@ -20,7 +20,15 @@ export const getUserInstagramAccounts = async () => {
 };
 
 export const instagramLogout = async (filter: InstagramLogoutType) => {
-	const { data }: ClientResponse = await client.delete(`/instagram/logout/${filter.userName}`);
+	const { data }: ClientResponse = await client.delete(`/instagram/logout/${filter.username}`);
+
+	return {
+		data,
+	};
+};
+
+export const instagramLogin = async (body: InstagramAccountType) => {
+	const { data }: ClientResponse = await client.post(`/instagram/login`, body);
 
 	return {
 		data,

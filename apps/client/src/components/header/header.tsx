@@ -1,11 +1,14 @@
+import { Fragment } from 'react';
+
 import { HeaderProps } from '@common/interfaces/header';
 import { InstagramAccountType } from '@common/interfaces/instagramAccount';
 import { AccountCard } from '@components/accountCard';
 import { Button } from '@components/button';
 import { PasswordInput } from '@components/passwordInput/passwordInput';
-import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogTrigger, DialogFooter } from '@components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@components/ui/dialog';
 import { Input } from '@components/ui/input';
 import { Label } from '@components/ui/label';
+import { Separator } from '@components/ui/separator';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { CircleUserRound, Instagram } from 'lucide-react';
 import Image from 'next/image';
@@ -13,7 +16,20 @@ import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { SidebarTrigger } from '../ui/sidebar';
 
-export default function Header({ onSubmit, handleSubmit, register, errors, isLoading, accounts }: HeaderProps) {
+export default function Header({
+	onSubmit,
+	handleSubmit,
+	register,
+	errors,
+	isLoading,
+	accounts,
+	reset,
+	handleLogout,
+	modalOpen,
+	setModalOpen,
+	isLoginPending,
+	setIsLogin,
+}: HeaderProps) {
 	return (
 		<div className="flex justify-between items-center w-full px-5 pt-1 border-b-2">
 			<div className="flex items-center space-x-4">
@@ -22,13 +38,33 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
 			</div>
 
 			<div className="flex items-center space-x-4">
-				<Dialog>
+				<Dialog
+					open={modalOpen}
+					onOpenChange={(isOpen) => {
+						setModalOpen(isOpen);
+						if (!isOpen) {
+							setIsLogin(false);
+							reset();
+						}
+					}}
+				>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<CircleUserRound size={24} className="cursor-pointer" />
 						</DropdownMenuTrigger>
-						<DropdownMenuContent side="top" className="mr-5">
-							{accounts?.map((account) => <AccountCard key={account.id} {...account} />)}
+						<DropdownMenuContent side="top" className="mr-5 p-2">
+							{accounts?.map((account) => (
+								<Fragment key={account.id}>
+									<AccountCard
+										{...account}
+										setIsLogin={setIsLogin}
+										setModalOpen={setModalOpen}
+										handleLogout={() => handleLogout(account.username)}
+									/>
+
+									<Separator className="my-2" />
+								</Fragment>
+							))}
 
 							<DialogTrigger asChild>
 								<DropdownMenuItem className="flex items-center gap-4">
@@ -75,7 +111,7 @@ export default function Header({ onSubmit, handleSubmit, register, errors, isLoa
 									)}
 								</div>
 								<DialogFooter>
-									<Button type="submit" isLoading={isLoading}>
+									<Button type="submit" isLoading={isLoading || isLoginPending}>
 										Add account
 									</Button>
 								</DialogFooter>
