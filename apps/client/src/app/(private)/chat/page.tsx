@@ -32,14 +32,14 @@ export default function Home() {
 				</div>
 			</div>
 
-			<div className="my-4 w-[70%]">
+			<footer className="my-4 w-[70%]">
 				<TextArea
 					placeholder="Descreva seu post aqui..."
 					iconRight={<Send size={20} color="purple" />}
 					showCount
 					maxLength={200}
 				/>
-			</div>
+			</footer>
 		</div>
 	);
 }
