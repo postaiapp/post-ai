@@ -1,9 +1,15 @@
 import { localStorageClear, localStorageGetKey, localStorageSet } from '@utils/storage';
 import { warningToast } from '@utils/toast';
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { redirect } from 'next/navigation';
 
-const client = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL });
+const client = axios.create({
+	baseURL: process.env.NEXT_PUBLIC_API_URL,
+	withCredentials: true,
+	headers: {
+		'Content-Type': 'application/json',
+	},
+});
 
 const TokenInterceptor = (config: any) => {
 	const token = localStorageGetKey('token');
