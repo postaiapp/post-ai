@@ -6,7 +6,7 @@ import { AccountCardProps } from '@common/interfaces/instagramAccount';
 import { Button } from '@components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { DropdownMenuItem } from '@components/ui/dropdown-menu';
-import { BadgeCheck, LockKeyhole, LockOpen, LogOut, RefreshCcw } from 'lucide-react';
+import { BadgeCheck, LockKeyhole, LockOpen, RefreshCcw, Trash } from 'lucide-react';
 
 export default function AccountCard({
 	fullName,
@@ -65,8 +65,8 @@ export default function AccountCard({
 					<RefreshCcw className="h-3 w-3 text-zinc-600" />
 				</Button>
 				<Button className="text-xs w-1/2" onClick={() => handleLogout(username!)}>
-					Logout
-					<LogOut className="h-3 w-3 text-zinc-200" />
+					Remove
+					<Trash className="h-3 w-3 text-zinc-200" />
 				</Button>
 			</div>
 		</DropdownMenuItem>

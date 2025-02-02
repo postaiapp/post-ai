@@ -35,7 +35,7 @@ export class AuthService {
 		const session = await this.generateToken({ user });
 
 		res.cookie('session', session, {
-			httpOnly: true,
+			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
 			maxAge: 24 * 60 * 60 * 1000, // 1 day
