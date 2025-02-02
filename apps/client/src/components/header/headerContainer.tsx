@@ -1,59 +1,78 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { mappedErrors } from '@common/constants/error';
-import { InstagramAccountType } from '@common/interfaces/instagramAccount';
+import { InstagramAccountStore, InstagramAccountType } from '@common/interfaces/instagramAccount';
 import { InstagramAccountSchema } from '@common/schemas/instagramAccount';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { instagramLogin } from '@processes/instagramAccount';
-import { useMutation } from '@tanstack/react-query';
-import { errorToast, successToast } from '@utils/toast';
+import { useInstagramMutation } from '@hooks/useInstagramMutation';
+import { getUserInstagramAccounts } from '@processes/instagramAccount';
+import { useQuery } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import Header from './header';
 
 const HeaderContainer = () => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<InstagramAccountType>({
-        resolver: zodResolver(InstagramAccountSchema),
-        defaultValues: {
-            username: '',
-            password: '',
-        },
-    });
+	const [modalOpen, setModalOpen] = useState(false);
+	const [isLogin, setIsLogin] = useState(false);
 
-    const { mutate: instagramLoginMutate, isPending } = useMutation({
-        mutationFn: instagramLogin,
-        onSuccess: (data) => {
-            console.log('Success:', data);
-            successToast('Conta adicionada com sucesso');
-        },
-        onError: (error: Error) => {
-            const errorMessage = error?.message || 'Algo de errado aconteceu, tente novamente.';
-            errorToast(mappedErrors[errorMessage] || errorMessage);
-        },
-    });
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm<InstagramAccountType>({
+		resolver: zodResolver(InstagramAccountSchema),
+		mode: 'onSubmit',
+		defaultValues: {
+			username: '',
+			password: '',
+		},
+	});
 
-    const onSubmit = useCallback<SubmitHandler<InstagramAccountType>>(
-        (body) => {
-            return instagramLoginMutate(body);
-        },
-        [instagramLoginMutate]
-    );
+	const { mutate: instagramCreateMutate, isPending: isCreatePending } = useInstagramMutation('create', setModalOpen);
+	const { mutate: instagramLoginMutate, isPending: isLoginPending } = useInstagramMutation('login', setModalOpen);
+	const { mutate: instagramLogoutMutate } = useInstagramMutation('logout');
 
-    return (
-        <Header
-            onSubmit={onSubmit}
-            handleSubmit={handleSubmit}
-            register={register}
-            errors={errors}
-            isLoading={isPending}
-        />
-    );
+	const { data } = useQuery<{ data: InstagramAccountStore[] }>({
+		queryKey: ['instagram-accounts'],
+		queryFn: () => getUserInstagramAccounts(),
+	});
+
+	const handleLogout = useCallback(
+		(username: string) => {
+			instagramLogoutMutate({ username });
+		},
+		[instagramLogoutMutate]
+	);
+
+	const onSubmit = useCallback<SubmitHandler<InstagramAccountType>>(
+		(body) => {
+			if (isLogin) {
+				return instagramLoginMutate(body);
+			}
+
+			return instagramCreateMutate(body);
+		},
+		[instagramCreateMutate, instagramLoginMutate, isLogin]
+	);
+
+	return (
+		<Header
+			accounts={data?.data || []}
+			onSubmit={onSubmit}
+			isLoginPending={isLoginPending}
+			modalOpen={modalOpen}
+			setModalOpen={setModalOpen}
+			handleLogout={handleLogout}
+			handleSubmit={handleSubmit}
+			setIsLogin={setIsLogin}
+			register={register}
+			reset={reset}
+			errors={errors}
+			isLoading={isCreatePending}
+		/>
+	);
 };
 
 export default HeaderContainer;

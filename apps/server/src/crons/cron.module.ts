@@ -1,11 +1,10 @@
-import { DatabaseModule } from '@database/database.module';
 import { Module } from '@nestjs/common';
+import { TokenManagement } from './token-management.service';
+import { DatabaseModule } from '@database/database.module';
 import { User, UserSchema } from '@schemas/user.schema';
-import { IgApiClient } from 'instagram-private-api';
-import { PostController } from './controller/post.controller';
-import { PostService } from './services/post.service';
 import { Post, PostSchema } from '@schemas/post.schema';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
+import { IgApiClient } from 'instagram-private-api';
 
 @Module({
 	imports: [
@@ -14,7 +13,6 @@ import { InstagramAuthService } from '@modules/instagram-auth/services/instagram
 			{ name: Post.name, schema: PostSchema },
 		]),
 	],
-	controllers: [PostController],
-	providers: [PostService, IgApiClient, InstagramAuthService],
+	providers: [TokenManagement, InstagramAuthService, IgApiClient],
 })
-export class PostModule {}
+export class CronModule {}
