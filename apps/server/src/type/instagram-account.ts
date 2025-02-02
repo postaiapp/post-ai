@@ -1,13 +1,17 @@
+import { Session } from '@schemas/token';
+
 export type InstagramAccount = {
-    userId: string;
-    username: string;
-    fullName: string;
-    biography: string;
-    followerCount: number;
-    followingCount: number;
-    postCount: number;
-    profilePicUrl: string;
-    lastLogin: Date;
-    password: string;
-    isPrivate: boolean;
+	_id?: string;
+	accountId: string;
+	username: string;
+	fullName: string;
+	biography: string;
+	followerCount: number;
+	followingCount: number;
+	postCount: number;
+	profilePicUrl: string;
+	lastLogin: Date;
+	isPrivate?: boolean;
+	isVerified?: boolean;
+	session: Session;
 };
