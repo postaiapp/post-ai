@@ -1,5 +1,16 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import {
+	Body,
+	Controller,
+	Delete,
+	HttpCode,
+	HttpStatus,
+	Patch,
+	Post,
+	Req,
+	Res,
+	UnauthorizedException,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { LoginDto, RegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 
@@ -18,5 +29,22 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	register(@Body() registerDto: RegisterDto) {
 		return this.authService.register(registerDto);
+	}
+
+	@Patch('refresh')
+	@HttpCode(HttpStatus.OK)
+	async refreshToken(@Req() req: Request) {
+		try {
+			return this.authService.refreshToken(req);
+		} catch {
+			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
+		}
+	}
+
+	@Delete('logout')
+	@HttpCode(HttpStatus.OK)
+	async logout(@Res() res: Response) {
+		const response = await this.authService.logout(res);
+		return res.send(response);
 	}
 }

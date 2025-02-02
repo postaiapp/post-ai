@@ -7,6 +7,7 @@ import { AuthenticateType } from '@type/auth';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../dto/auth.dto';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -32,10 +33,12 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
-		const session = await this.generateToken({ user });
+		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
 
-		res.cookie('session', session, {
-			httpOnly: false,
+		const refreshToken = await this.generateToken({ user, expiresIn: '1d' });
+
+		res.cookie('refreshToken', refreshToken, {
+			httpOnly: true,
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
 			maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -47,8 +50,36 @@ export class AuthService {
 				name: user.name,
 				email: user.email,
 			},
-			token: session,
+			token: accessToken,
 		};
+	}
+
+	async refreshToken(req: Request) {
+		const refreshToken = req.cookies['refreshToken'];
+
+		if (!refreshToken) {
+			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
+		}
+
+		const payload = await this.jwtService.verifyAsync(refreshToken, {
+			secret: this.config.get('JWT_SECRET'),
+		});
+
+		const user = await this.userModel.findById(payload.userId).lean();
+
+		if (!user) {
+			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
+		}
+
+		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
+
+		return {
+			token: accessToken,
+		};
+	}
+
+	async logout(res: Response) {
+		res.clearCookie('refreshToken');
 	}
 
 	async register({ name, email, password }: RegisterDto) {
@@ -76,12 +107,12 @@ export class AuthService {
 		};
 	}
 
-	async generateToken({ user }) {
+	async generateToken({ user, expiresIn }) {
 		const payload = { userId: user._id, email: user.email };
 
 		return await this.jwtService.signAsync(payload, {
 			secret: this.config.get('JWT_SECRET'),
-			expiresIn: '1d',
+			expiresIn,
 		});
 	}
 }

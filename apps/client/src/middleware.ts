@@ -1,3 +1,4 @@
+import { localStorageClear } from '@utils/storage';
 import dayjs from 'dayjs';
 import { jwtDecode } from 'jwt-decode';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -20,7 +21,7 @@ export function middleware(request: NextRequest) {
 
 	const publicRoute = publicRoutes.find((route) => route.path === path);
 
-	const token = request.cookies.get('session');
+	const token = request.cookies?.get('refreshToken');
 
 	if (!token && publicRoute) {
 		return NextResponse.next();
@@ -30,6 +31,7 @@ export function middleware(request: NextRequest) {
 		const redirectUrl = request.nextUrl.clone();
 		redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
 
+		localStorageClear();
 		return NextResponse.redirect(redirectUrl);
 	}
 
@@ -45,7 +47,7 @@ export function middleware(request: NextRequest) {
 		const expirationDate = decodedToken.exp;
 
 		if (expirationDate && dayjs.unix(expirationDate).isBefore(dayjs())) {
-			request.cookies.delete('session');
+			request.cookies.delete('refreshToken');
 
 			const redirectUrl = request.nextUrl.clone();
 			redirectUrl.pathname = '/';

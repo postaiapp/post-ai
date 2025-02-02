@@ -29,7 +29,7 @@ export default function SidebarFooter({ handleLogout }: { handleLogout: () => vo
 								</Button>
 							</DropdownMenuItem>
 							<DropdownMenuItem>
-								<Button className="text-xs w-full" onClick={() => handleLogout()}>
+								<Button className="text-xs w-full" onClick={handleLogout}>
 									<LogOut className="h-3 w-3 text-zinc-200" /> Logout
 								</Button>
 							</DropdownMenuItem>

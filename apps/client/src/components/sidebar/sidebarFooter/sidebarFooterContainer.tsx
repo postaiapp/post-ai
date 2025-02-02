@@ -1,19 +1,20 @@
 import { useCallback } from 'react';
 
+import { logout } from '@processes/auth';
 import { localStorageClear } from '@utils/storage';
 import { redirect } from 'next/navigation';
-import { useCookies } from 'next-client-cookies';
 
 import SidebarFooter from './sidebarFooter';
 
 const SidebarFooterContainer = () => {
-	const cookies = useCookies();
+	const handleLogout = useCallback(async () => {
+		const response = await logout();
 
-	const handleLogout = useCallback(() => {
-		localStorageClear();
-		cookies.remove('session');
-		redirect('/auth');
-	}, [cookies]);
+		if (response) {
+			localStorageClear();
+			redirect('/auth');
+		}
+	}, []);
 
 	return <SidebarFooter handleLogout={handleLogout} />;
 };
