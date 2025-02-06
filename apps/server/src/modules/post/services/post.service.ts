@@ -3,10 +3,10 @@ import { InstagramAuthService } from '@modules/instagram-auth/services/instagram
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
+import { CronJob } from 'cron';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
-import { PostBodyCreate, PostCreate } from '@type/post';
+import { PostBodyCreate, PostCreate } from 'src/types/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';

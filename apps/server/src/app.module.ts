@@ -10,11 +10,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
+import { OpenaiModule } from './modules/openai/openai.module';
+import { StorageModule } from '@storages/storage.module';
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
         DatabaseModule,
+        StorageModule,
         AppConfigModule,
         AuthModule,
         JwtModule.registerAsync({
@@ -28,6 +31,7 @@ import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.mod
         }),
         PostModule,
         InstagramAuthModule,
+        OpenaiModule,
     ],
     controllers: [AppController],
     providers: [AppService, AuthGuard],

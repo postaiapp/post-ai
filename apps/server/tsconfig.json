@@ -25,11 +25,12 @@
       "@common/*": ["./src/common/*"],
       "@auth/*": ["src/modules/auth*"],
       "@modules/*": ["./src/modules/*"],
+      "@storages/*": ["./src/storages/*"],
       "@guards/*": ["./src/guards/*"],
       "@schemas/*": ["./src/schema/*"],
       "@constants/*": ["./src/constants/*"],
       "@decorators/*": ["./src/decorators/*"],
-      "@type/*": ["src/type/*"],
+      "@type/*": ["src/types/*"],
     }
   }
 }

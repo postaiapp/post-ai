@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
-import { InstagramAccount } from '@type/instagram-account';
-import { Meta } from '@type/meta';
+import { InstagramAccount } from 'src/types/instagram-account';
+import { Meta } from 'src/types/meta';
 import * as crypto from 'crypto';
 import { scrypt } from 'crypto';
 import { IgApiClient } from 'instagram-private-api';
