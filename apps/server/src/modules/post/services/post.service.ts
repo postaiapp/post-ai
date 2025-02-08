@@ -6,7 +6,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
-import { PostBodyCreate, PostCreate } from 'src/types/post';
+import { PostBodyCreate, PostCreate } from '@type/post';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';

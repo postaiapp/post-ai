@@ -25,9 +25,6 @@ class BaseController {
             });
         }
 
-        console.error('--- ERROR ---');
-        console.error(error.message);
-
         return res.status(status).json({
             code: error?.code || '500',
             message: error?.message || 'Something went wrong, please try again.',

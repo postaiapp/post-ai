@@ -1,7 +1,7 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
 import { Body, Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
-import { Meta as MetaType } from 'src/types/meta';
+import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from '../services/instagram-auth.service';
 

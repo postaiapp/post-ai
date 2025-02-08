@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
-import { Uploader, UploadParams } from 'src/types/storage';
+import { Uploader, UploadParams } from '@type/storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from 'axios';
 
@@ -12,9 +12,10 @@ export class R2Storage implements Uploader {
 
     constructor(private configService: ConfigService) {
         const accountId = this.configService.get<string>('CLOUDFLARE_ACCOUNT_ID');
+        const bucketName = this.configService.get<string>('AWS_BUCKET_NAME');
 
         this.client = new S3Client({
-            endpoint: `https://${accountId}.r2.cloudflarestorage.com/post-ai`,
+            endpoint: `https://${accountId}.r2.cloudflarestorage.com/${bucketName}`,
             region: 'auto',
             credentials: {
                 accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID'),

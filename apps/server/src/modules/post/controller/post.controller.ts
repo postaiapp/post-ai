@@ -1,7 +1,7 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { Meta as MetaType } from 'src/types/meta';
+import { Meta as MetaType } from '@type/meta';
 import { CreatePostDto } from '../dto/post.dto';
 import { PostService } from '../services/post.service';
 

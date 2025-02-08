@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Request, Response } from '@nestjs/common';
+import { Controller, Post, Body, Request, Response, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@guards/auth.guard';
 import { OpenaiService } from './openai.service';
 import { CreateOpenaiDto } from './dto/create-openai.dto';
 import BaseController from '@utils/base-controller';
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
+@UseGuards(AuthGuard)
 @Controller('openai')
 export class OpenaiController extends BaseController {
     constructor(private readonly openaiService: OpenaiService) {
