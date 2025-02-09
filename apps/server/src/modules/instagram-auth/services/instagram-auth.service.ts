@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
-import { Session } from '@schemas/token';
 
 @Injectable()
 export class InstagramAuthService {

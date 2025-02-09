@@ -5,9 +5,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { AuthenticateType } from '@type/auth';
 import * as bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../dto/auth.dto';
-import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -86,7 +86,7 @@ export class AuthService {
 		const alreadyUser = await this.userModel.findOne({ email });
 
 		if (alreadyUser) {
-			throw new UnauthorizedException('Registration failed');
+			throw new UnauthorizedException('REGISTRATION_FAILED');
 		}
 
 		const password_hash = await bcrypt.hash(password, 12);
@@ -98,11 +98,10 @@ export class AuthService {
 		});
 
 		return {
-			message: 'User created successfully',
 			user: {
 				name: newUser?.name,
 				email: newUser?.email,
-				id: newUser?._id.toHexString(),
+				id: newUser?._id.toString(),
 			},
 		};
 	}

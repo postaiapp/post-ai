@@ -25,6 +25,26 @@ class EnvironmentVariables {
     @IsString()
     @IsNotEmpty()
     JWT_SECRET: string;
+
+    @IsString()
+    @IsNotEmpty()
+    OPENAI_API_KEY: string;
+
+    @IsString()
+    @IsNotEmpty()
+    CLOUDFLARE_ACCOUNT_ID: string;
+
+    @IsString()
+    @IsNotEmpty()
+    AWS_BUCKET_NAME: string;
+
+    @IsString()
+    @IsNotEmpty()
+    AWS_ACCESS_KEY_ID: string;
+
+    @IsString()
+    @IsNotEmpty()
+    AWS_SECRET_ACCESS_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
