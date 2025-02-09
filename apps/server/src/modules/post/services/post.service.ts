@@ -4,11 +4,11 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob } from '@nestjs/schedule/node_modules/cron/dist';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
+import { CronJob } from 'cron';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
@@ -54,14 +54,14 @@ export class PostService {
 			.then((user) => user?.InstagramAccounts[0]);
 
 		if (!account) {
-			throw new NotFoundException('User does not have this account');
+			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
 		try {
 			await this.publishPhotoOnInstagram(caption, username, account.session);
 		} catch (error) {
 			this.logger.error('Failed to publish photo on Instagram', { username, error });
-			throw new BadRequestException('Failed to publish on Instagram');
+			throw new BadRequestException('FAILED_PUBLISH_POST');
 		}
 
 		const post = await this.postModel.create({
@@ -74,12 +74,11 @@ export class PostService {
 		});
 
 		return {
-			message: 'Post published successfully',
 			post: {
 				caption: post.caption,
 				imageUrl: post.imageUrl,
 				publishedAt: post.publishedAt,
-				id: post._id.toHexString(),
+				id: post._id.toString(),
 			},
 		};
 	}
@@ -89,19 +88,19 @@ export class PostService {
 		const date = new Date(post_date);
 
 		if (date < new Date()) {
-			throw new BadRequestException('Invalid post date');
+			throw new BadRequestException('INVALID_POST_DATE');
 		}
 
 		const instagramAccount = await this.instagramAuthService.hasInstagramAccount(meta, username);
 
 		if (!instagramAccount) {
-			throw new NotFoundException('User does not have this account');
+			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
 		const restored = await this.instagramAuthService.restoreSession(username, instagramAccount.session);
 
 		if (!restored) {
-			throw new TokenExpiredError('Session restoration failed', new Date());
+			throw new TokenExpiredError('SESSION_REQUIRED', new Date());
 		}
 
 		const jobId = `post_${username}_${date.getTime()}`;
@@ -119,13 +118,13 @@ export class PostService {
 		await this.scheduleCronJob(jobId, date, {
 			data,
 			meta,
-			id: post._id.toHexString(),
+			id: post._id.toString(),
 			session: instagramAccount.session,
 		});
 
 		return {
 			scheduled_date: date,
-			post_id: post._id.toHexString(),
+			post_id: post._id.toString(),
 		};
 	}
 
@@ -170,14 +169,14 @@ export class PostService {
 		const user = await this.userModel.findOne({ _id: meta.userId });
 
 		if (!user) {
-			throw new NotFoundException('User not found');
+			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
 		try {
 			await this.publishPhotoOnInstagram(caption, username, session);
 		} catch (error) {
 			this.logger.error('Failed to publish photo on Instagram', { username, error });
-			throw new BadRequestException('Failed to publish on Instagram');
+			throw new BadRequestException('FAILED_PUBLISH_POST');
 		}
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
@@ -187,18 +186,17 @@ export class PostService {
 		);
 
 		if (!updatedPost) {
-			throw new NotFoundException('Post not found');
+			throw new NotFoundException('POST_NOT_FOUND');
 		}
 
 		this.logger.debug(`Post published successfully ${username}`);
 		return {
-			message: 'Post published successfully',
 			post: {
 				caption: updatedPost.caption,
 				imageUrl: updatedPost.imageUrl,
 				publishedAt: updatedPost.publishedAt,
 				scheduledAt: updatedPost.scheduledAt,
-				id: updatedPost._id.toHexString(),
+				id: updatedPost._id.toString(),
 			},
 		};
 	}
@@ -208,7 +206,7 @@ export class PostService {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
 			if (!restored) {
-				throw new TokenExpiredError('Session restoration failed', new Date());
+				throw new TokenExpiredError('SESSION_REQUIRED', new Date());
 			}
 
 			const imageBuffer = await get({ url: IMAGE_TEST_URL, encoding: null });
@@ -217,7 +215,7 @@ export class PostService {
 			return true;
 		} catch (error) {
 			this.logger.error('Failed to publish photo on Instagram', { caption, error });
-			throw new BadRequestException('Failed to publish photo');
+			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
 		}
 	}
 
@@ -250,13 +248,13 @@ export class PostService {
 			.lean();
 
 		if (!post) {
-			throw new NotFoundException('Scheduled post not found');
+			throw new NotFoundException('SCHEDULED_POST_NOT_FOUND');
 		}
 
 		const job = this.scheduledPosts.get(post.jobId);
 
 		if (!job) {
-			throw new NotFoundException('Scheduled job not found');
+			throw new NotFoundException('SCHEDULED_JOB_NOT_FOUND');
 		}
 
 		await this.postModel.updateOne(
