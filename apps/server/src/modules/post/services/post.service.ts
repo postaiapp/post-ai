@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { DefaultPostBodyCreate, PublishedPostProps } from '@type/post';
+import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps } from '@type/post';
 import { CronJob } from 'cron';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
@@ -67,7 +67,8 @@ export class PostService {
 		const post = await this.postModel.create({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
-			userId: account.accountId,
+			userId: meta.userId,
+			accountId: account.accountId,
 			canceledAt: null,
 			publishedAt: new Date(),
 			scheduledAt: null,
@@ -108,7 +109,8 @@ export class PostService {
 		const post = await this.postModel.create({
 			caption,
 			imageUrl: IMAGE_TEST_URL,
-			userId: instagramAccount.accountId,
+			accountId: instagramAccount.accountId,
+			userId: meta.userId,
 			canceledAt: null,
 			publishedAt: null,
 			jobId,
@@ -219,39 +221,25 @@ export class PostService {
 		}
 	}
 
-	async cancelScheduledPost({ query, meta }: DefaultPostBodyCreate) {
-		const { postId, username } = query;
-
-		const account = await this.userModel
-			.findOne(
-				{
-					_id: meta.userId,
-					'InstagramAccounts.username': username,
-				},
-				{
-					_id: 0,
-					InstagramAccounts: 1,
-				}
-			)
-			.lean()
-			.then((user) => user?.InstagramAccounts[0]);
+	async cancelScheduledPost({ query }: DefaultPostBodyCreate) {
+		const { postId } = query;
 
 		const post = await this.postModel
 			.findOne(
 				{
 					_id: postId,
 					scheduledAt: { $ne: null },
-					userId: account.accountId,
 				},
 				{ jobId: 1 }
 			)
 			.lean();
 
+			
 		if (!post) {
 			throw new NotFoundException('SCHEDULED_POST_NOT_FOUND');
 		}
-
-		const job = this.scheduledPosts.get(post.jobId);
+		
+		const job = this.scheduledPosts.get(post.jobId);	
 
 		if (!job) {
 			throw new NotFoundException('SCHEDULED_JOB_NOT_FOUND');
@@ -268,5 +256,111 @@ export class PostService {
 		this.cleanupJob(post.jobId);
 
 		return true;
+	}
+
+	async getUserPostsWithDetails({ query, meta }: GetUserPostsProps) {
+    const pagination = query.page || query.limit ? { 
+        page: query.page,
+        limit: query.limit,
+    } : undefined;
+
+    const userId = meta.userId;
+
+    const user = await this.userModel.findOne({ _id: userId });
+    const accountsIds = user?.InstagramAccounts.map(account => account.accountId) ?? [];
+
+    const page = pagination?.page ?? 1;
+    const limit = pagination?.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await Promise.all([
+        this.postModel.aggregate([
+            { 
+                $match: { accountId: { $in: accountsIds } } 
+            },
+            { 
+                $lookup: {  
+                    from: "users",
+                    let: { userId: "$userId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { 
+                                    $eq: ["$_id", { $toObjectId: "$$userId" }] 
+                                }
+                            }
+                        }
+                    ],
+                    as: "user"
+                }
+            },
+            { 
+                $unwind: { path: "$user", preserveNullAndEmptyArrays: true },  
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    let: { accountId: "$accountId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", { $toObjectId: meta.userId }] }
+                            }
+                        },
+                        {
+                            $unwind: "$InstagramAccounts"
+                        },
+                        {
+                            $match: {
+                                $expr: { $eq: ["$InstagramAccounts.accountId", "$$accountId"] }
+                            }
+                        }
+                    ],
+                    as: "accountInfo"
+                }
+            },
+            {
+                $unwind: { path: "$accountInfo", preserveNullAndEmptyArrays: true }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    caption: 1,
+                    imageUrl: 1,
+                    createdAt: 1,
+                    scheduledAt: 1,
+                    publishedAt: 1,
+                    canceledAt: 1,
+                    userId: 1,
+                    accountId: 1,
+                    user: {
+                        name: "$user.name",
+                        email: "$user.email",
+                        profilePicUrl: "$user.profilePicUrl"
+                    },
+                    account: {
+                        username: "$accountInfo.InstagramAccounts.username",
+                        profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl"
+                    }
+                }
+            },
+            { $skip: skip },
+            { $limit: limit }
+        ]),
+
+        this.postModel.countDocuments({
+            accountId: { $in: accountsIds }
+        })
+    ]);
+
+    return {
+        success: true,
+        data: posts,
+        meta: {
+            total,
+            page,
+            limit,
+        },
+    };
 	}
 }
