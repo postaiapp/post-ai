@@ -10,6 +10,7 @@ import {
   getFilteredRowModel,
   ColumnFiltersState,
   getPaginationRowModel,
+  OnChangeFn,
 } from "@tanstack/react-table"
 
 import {
@@ -32,6 +33,10 @@ interface DataTableProps<TData, TValue> {
   currentPage?: number
   totalItems?: number
   onPageChange?: (page: number) => void
+  sorting?: SortingState
+  columnFilters?: ColumnFiltersState
+  setSorting?: OnChangeFn<SortingState>
+  setColumnFilters?: OnChangeFn<ColumnFiltersState>
 }
 
 export function DataTable<TData, TValue>({
@@ -41,17 +46,18 @@ export function DataTable<TData, TValue>({
   currentPage = 0,
   totalItems = 0,
   onPageChange,
+  sorting,
+  columnFilters,
+  setColumnFilters,
+  setSorting
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (value) => { if (currentPage !== 0 && onPageChange) { onPageChange(0) }; setColumnFilters?.(value) },
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {
@@ -69,7 +75,7 @@ export function DataTable<TData, TValue>({
         const newState = updater({ pageIndex: currentPage, pageSize });
         onPageChange?.(newState.pageIndex);
       }
-    },
+    }
   })
 
   return (
@@ -149,7 +155,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-center space-x-2 my-4 text-sm text-gray-500">
+      {(!!sorting ? sorting?.length === 0 : true) && (!!columnFilters ? columnFilters?.length === 0 : true) && <div className="flex items-center justify-center space-x-2 my-4 text-sm text-gray-500">
         <Button
           variant="ghost"
           size="sm"
@@ -196,7 +202,7 @@ export function DataTable<TData, TValue>({
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
-      </div>
+      </div>}
     </div >
   )
 }

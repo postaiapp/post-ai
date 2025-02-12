@@ -259,19 +259,13 @@ export class PostService {
 	}
 
 	async getUserPostsWithDetails({ query, meta }: GetUserPostsProps) {
-    const pagination = query.page || query.limit ? { 
-        page: query.page,
-        limit: query.limit,
-    } : undefined;
-
     const userId = meta.userId;
 
     const user = await this.userModel.findOne({ _id: userId });
     const accountsIds = user?.InstagramAccounts.map(account => account.accountId) ?? [];
 
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 10;
-    const skip = (page - 1) * limit;
+		const { page, limit } = query;
+    const skip = page && limit ? (page - 1) * limit : undefined;
 
     const [posts, total] = await Promise.all([
         this.postModel.aggregate([
@@ -344,8 +338,8 @@ export class PostService {
                     }
                 }
             },
-            { $skip: skip },
-            { $limit: limit }
+						...(skip !== undefined ? [{ $skip: skip }] : []),
+						...(limit !== undefined ? [{ $limit: limit }] : [])
         ]),
 
         this.postModel.countDocuments({

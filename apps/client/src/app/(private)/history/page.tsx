@@ -7,20 +7,24 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { columns } from './columns';
 import { Loading } from '@components/loading/loading';
+import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
 const History = () => {
+	const [sorting, setSorting] = useState<SortingState>([])
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 	const [currentPage, setCurrentPage] = useState(0);
 	const pageSize = 10;
 
 	const { data, isPending, isError } = useQuery({
-		queryKey: ['history', currentPage, pageSize],
+		queryKey: sorting.length === 0 && columnFilters.length === 0 ? ['history', currentPage, pageSize] : ['history', "all"
+		],
 		queryFn: () => getUserPostsWithDetails({
-			page: currentPage + 1,
-			limit: pageSize,
+			page: sorting.length === 0 && columnFilters.length === 0 ? currentPage + 1 : undefined,
+			limit: sorting.length === 0 && columnFilters.length === 0 ? pageSize : undefined,
 		}),
 		select: (data) => ({
-			items: data.data.data as PostEntityWithDetails[],
-			total: data.data.meta.total
+			items: (data.data.data ?? []) as PostEntityWithDetails[],
+			total: data.data.meta.total ?? 0
 		}),
 	});
 
@@ -52,11 +56,15 @@ const History = () => {
 			) : (
 				<DataTable
 					columns={columns}
-					data={data?.items ?? []}
+					data={data.items}
 					pageSize={pageSize}
 					currentPage={currentPage}
-					totalItems={data?.total ?? 0}
+					totalItems={data.total}
 					onPageChange={handlePageChange}
+					sorting={sorting}
+					columnFilters={columnFilters}
+					setSorting={setSorting}
+					setColumnFilters={setColumnFilters}
 				/>
 			)}
 		</div>

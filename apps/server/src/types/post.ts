@@ -25,6 +25,9 @@ export type CanceledPostBody = {
 };
 
 export type GetUserPostsProps = {
-	query: Pick<GetAllPostsQueryDto, keyof GetAllPostsQueryDto>;
+	query: {
+		page?: number;
+		limit?: number;
+	};
 	meta: Meta
 }
