@@ -57,12 +57,7 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		try {
-			await this.publishPhotoOnInstagram(caption, username, account.session);
-		} catch (error) {
-			this.logger.error('Failed to publish photo on Instagram', { username, error });
-			throw new BadRequestException('FAILED_PUBLISH_POST');
-		}
+		await this.publishPhotoOnInstagram(caption, username, account.session);
 
 		const post = await this.postModel.create({
 			caption,

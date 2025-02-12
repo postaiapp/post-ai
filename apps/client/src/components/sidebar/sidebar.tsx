@@ -12,7 +12,7 @@ import {
 } from '@components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 
-import { SidebarFooter } from './sidebarFooter';
+import { SidebarFooter } from './sidebarFooter/index';
 
 export default function Sidebar() {
 	const pathname = usePathname();
