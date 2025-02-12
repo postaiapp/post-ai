@@ -11,6 +11,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { StorageModule } from '@storages/storage.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ChatsModule } from './modules/chats/chats.module';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 import { OpenaiModule } from './modules/openai/openai.module';
 
@@ -34,6 +35,7 @@ import { OpenaiModule } from './modules/openai/openai.module';
 		PostModule,
 		InstagramAuthModule,
 		OpenaiModule,
+		ChatsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AuthGuard],
