@@ -2,16 +2,22 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Interaction, InteractionSchema } from './interaction.schema';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Chat {
 	@Prop({ required: true })
-	user_id: number;
+	user_id: string;
 
 	@Prop()
 	finished_at: Date;
 
 	@Prop({ type: [InteractionSchema], default: [] })
 	interactions: Interaction[];
+
+	@Prop({ default: null, required: true })
+	first_message: string;
+
+	@Prop({ default: new Date(), required: false })
+	created_at: Date;
 }
 
 export type ChatDocument = HydratedDocument<Chat>;

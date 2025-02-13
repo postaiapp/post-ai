@@ -1,4 +1,4 @@
 export type Meta = {
-	userId: number;
+	userId: number | string;
 	email: string;
 };

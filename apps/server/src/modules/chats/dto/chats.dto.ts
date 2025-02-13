@@ -1,6 +1,6 @@
 import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
 
 export class CreateChatDto {
@@ -11,8 +11,8 @@ export class CreateChatDto {
 	message: string;
 
 	@IsOptional()
-	@IsNumber()
-	chatId: number;
+	@IsString()
+	chatId: string;
 }
 
 export class CreateChatParamsDto {

@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Interaction {
 	@Prop({ required: true })
-	user_id: number;
+	user_id: string;
 
 	@Prop({ required: true })
 	request: string;
