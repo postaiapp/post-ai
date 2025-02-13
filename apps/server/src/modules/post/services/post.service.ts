@@ -57,21 +57,18 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		try {
-			await this.publishPhotoOnInstagram(caption, username, account.session);
-		} catch (error) {
-			this.logger.error('Failed to publish photo on Instagram', { username, error });
-			throw new BadRequestException('FAILED_PUBLISH_POST');
-		}
+		const { id, code } = await this.publishPhotoOnInstagram(caption, username, account.session);
 
 		const post = await this.postModel.create({
+			code,
+			postId: id,
 			caption,
 			imageUrl: IMAGE_TEST_URL,
 			userId: meta.userId,
 			accountId: account.accountId,
 			canceledAt: null,
 			publishedAt: new Date(),
-			scheduledAt: null,
+			scheduledAt: null
 		});
 
 		return {
@@ -174,16 +171,11 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
-		try {
-			await this.publishPhotoOnInstagram(caption, username, session);
-		} catch (error) {
-			this.logger.error('Failed to publish photo on Instagram', { username, error });
-			throw new BadRequestException('FAILED_PUBLISH_POST');
-		}
+		const {id: postId, code} = await this.publishPhotoOnInstagram(caption, username, session);
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
 			{ _id: id },
-			{ publishedAt: new Date() },
+			{ publishedAt: new Date(), postId, code },
 			{ new: true }
 		);
 
@@ -194,6 +186,8 @@ export class PostService {
 		this.logger.debug(`Post published successfully ${username}`);
 		return {
 			post: {
+				code,
+				postId,
 				caption: updatedPost.caption,
 				imageUrl: updatedPost.imageUrl,
 				publishedAt: updatedPost.publishedAt,
@@ -203,7 +197,7 @@ export class PostService {
 		};
 	}
 
-	async publishPhotoOnInstagram(caption: string, username: string, session: Session): Promise<boolean> {
+	async publishPhotoOnInstagram(caption: string, username: string, session: Session): Promise<{id: string, code: string}> {
 		try {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
@@ -212,12 +206,55 @@ export class PostService {
 			}
 
 			const imageBuffer = await get({ url: IMAGE_TEST_URL, encoding: null });
-			await this.ig.publish.photo({ file: imageBuffer, caption });
+			const post = await this.ig.publish.photo({ file: imageBuffer, caption });
 
-			return true;
+			return {id: post.media.id, code: post.media.code};
 		} catch (error) {
 			this.logger.error('Failed to publish photo on Instagram', { caption, error });
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
+		}
+	}
+
+	async getInstagramPostInfo(postId: string, username: string, session: Session) {
+		try {
+			const restored = await this.instagramAuthService.restoreSession(username, session);
+
+			if (!restored) {
+				throw new TokenExpiredError('SESSION_REQUIRED', new Date());
+			}
+
+			const mediaInfo = (await this.ig.media.info(postId)).items[0];
+			const insights = (await this.ig.insights.post(postId)).data.media;
+			const comments = (await this.ig.feed.mediaComments(postId).items()).slice(-5)
+
+			const recentComments = comments?.map(comment => ({	
+				text: comment.text,
+				user: {
+					username: comment.user.username,
+					profile_pic_url: comment.user.profile_pic_url,
+					verified: comment.user.is_verified
+				},
+				created_at: comment.created_at,
+				like_count: comment.comment_like_count,
+				reply_count: comment.child_comment_count
+			})) ?? [];
+
+			return {
+				code: mediaInfo.code,
+				caption: mediaInfo.caption.text,
+				engagement: {
+				hasLiked: mediaInfo.has_liked,
+					likes: insights.like_count,
+					comments: insights.comment_count,
+				},
+				comments: {
+					recent: recentComments,
+					has_more: mediaInfo.comment_count > 5
+				},
+			};
+		} catch (error) {
+			this.logger.error('Failed to get Instagram post info', { postId, error });
+			throw new BadRequestException('FAILED_GET_INSTAGRAM_POST_INFO');
 		}
 	}
 
@@ -264,7 +301,7 @@ export class PostService {
     const user = await this.userModel.findOne({ _id: userId });
     const accountsIds = user?.InstagramAccounts.map(account => account.accountId) ?? [];
 
-		const { page, limit } = query;
+    const { page, limit } = query;
     const skip = page && limit ? (page - 1) * limit : undefined;
 
     const [posts, total] = await Promise.all([
@@ -327,6 +364,7 @@ export class PostService {
                     canceledAt: 1,
                     userId: 1,
                     accountId: 1,
+                    postId: 1,
                     user: {
                         name: "$user.name",
                         email: "$user.email",
@@ -334,12 +372,13 @@ export class PostService {
                     },
                     account: {
                         username: "$accountInfo.InstagramAccounts.username",
-                        profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl"
+                        profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl",
+												session: "$accountInfo.InstagramAccounts.session"
                     }
                 }
             },
-						...(skip !== undefined ? [{ $skip: skip }] : []),
-						...(limit !== undefined ? [{ $limit: limit }] : [])
+            ...(skip !== undefined ? [{ $skip: skip }] : []),
+            ...(limit !== undefined ? [{ $limit: limit }] : [])
         ]),
 
         this.postModel.countDocuments({
@@ -347,9 +386,31 @@ export class PostService {
         })
     ]);
 
+    const postsWithInstagramInfo = await Promise.all(
+        posts.map(async (post) => {
+            try {
+                const instagramInfo = post.postId ? (await this.getInstagramPostInfo(post.postId, post.account.username, post.account.session)) : null
+                if (instagramInfo) {
+                    return {
+                        ...post,
+												...instagramInfo
+                    };
+                } else {
+                    return post;
+                }
+
+               
+            } catch (error) {
+                console.log(error)
+                this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
+                return post;
+            }
+        })
+    );
+
     return {
         success: true,
-        data: posts,
+        data: postsWithInstagramInfo,
         meta: {
             total,
             page,
