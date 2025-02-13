@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    domains: ['i.imgur.com'],
+    domains: ['i.imgur.com', 'randomuser.me'],
   }
 };
 

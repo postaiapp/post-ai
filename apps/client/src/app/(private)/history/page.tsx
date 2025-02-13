@@ -5,7 +5,7 @@ import { DataTable } from '@components/dataTable/dataTable';
 import { getUserPostsWithDetails } from '@processes/posts';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { columns } from './columns';
+import { columns } from './historyTable/columns';
 import { Loading } from '@components/loading/loading';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
