@@ -234,7 +234,7 @@ export class PostService {
 					profile_pic_url: comment.user.profile_pic_url,
 					verified: comment.user.is_verified
 				},
-				created_at: comment.created_at,
+				created_at: new Date(comment.created_at * 1000),
 				like_count: comment.comment_like_count,
 				reply_count: comment.child_comment_count
 			})) ?? [];
