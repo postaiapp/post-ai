@@ -1,5 +1,3 @@
-import { InstagramAccountStore } from "./instagramAccount";
-
 export interface PostEntity {
 	_id: string;
 	caption: string;
@@ -23,6 +21,9 @@ export interface PostEntityWithDetails extends PostEntity {
 	account: {
 		username: string;
 		profilePicUrl?: string;
+		fullName?: string;
+		isPrivate?: boolean;
+		isVerified?: boolean;
 	};
 	engagement?: {
 		hasLiked: boolean;

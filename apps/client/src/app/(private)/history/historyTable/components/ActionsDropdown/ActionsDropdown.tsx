@@ -21,17 +21,36 @@ export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
       const response = await cancelPost({
         postId,
       })
-
       return response.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['history'] });
+
+      // Optmistic UI -> updates the cache with the new post canceled
+      queryClient.setQueryData(['history'], (old: { pages: { data: { data: PostEntityWithDetails[], meta: { page: number, limit: number, total: number } } }[] }) => {
+        const newPages = old.pages.map(page => ({
+          ...page,
+          data: {
+            ...page.data,
+            data: page.data.data.map(item => 
+              item._id === post._id 
+                ? {...item, canceledAt: new Date()}
+                : item
+            )
+          }
+        }));
+
+        return {
+          ...old,
+          pages: newPages
+        }
+      })
       successToast("Post cancelado com sucesso")
     },
     onError: (error: Error) => {
+      console.log(error)
       const errorMessage = mappedErrors[error?.message] ?? 'Algo de errado aconteceu, tente novamente.'
       errorToast(errorMessage)
-      console.log(error.message)
     },
   });
 

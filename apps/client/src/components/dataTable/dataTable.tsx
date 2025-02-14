@@ -30,7 +30,6 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pageSize?: number
-  currentPage?: number
   totalItems?: number
   onPageChange?: (page: number) => void
   sorting?: SortingState
@@ -79,7 +78,6 @@ export function DataTable<TData, TValue>({
           pageIndex: currentPage,
           pageSize,
         });
-
         if (newPagination.pageIndex !== currentPage) {
           setCurrentPage(newPagination.pageIndex);
         }

@@ -2,9 +2,10 @@
 
 import { PostEntityWithDetails } from "@common/interfaces/post"
 import { ColumnDef } from "@tanstack/react-table"
-import { UserUi } from "./components/UserUi/UserUi"
+import { SimpleUserAvatar } from "../../../../components/simpleUserAvatar/SimpleUserAvatar"
 import { ActionsDropdown } from "./components/ActionsDropdown/ActionsDropdown"
 import { StatusBadge } from "./components/StatusBadge/StatusBadge"
+import { AccountCardCore } from "@components/accountCard/accountCard"
 
 
 export const columns: ColumnDef<PostEntityWithDetails>[] = [
@@ -21,7 +22,7 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
       return accountA.username.localeCompare(accountB.username)
     },
     filterFn: "arrIncludes",
-    cell: ({ row }) => <UserUi image={row.original.account?.profilePicUrl} username={row.original.account?.username ?? "Desconhecido"} />
+    cell: ({ row }) => <AccountCardCore fullName={row.original.account?.fullName} isPrivate={row.original.account?.isPrivate} isVerified={row.original.account?.isVerified} profilePicUrl={row.original.account?.profilePicUrl} username={row.original.account?.username ?? "Desconhecido"} />
 
   },
   {
@@ -37,7 +38,7 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
       return userA.name.localeCompare(userB.name)
     },
     filterFn: "arrIncludes",
-    cell: ({ row }) => <UserUi image={row.original?.user?.profilePicUrl} username={row.original?.user?.name ?? "Desconhecido"} />
+    cell: ({ row }) => <SimpleUserAvatar image={row.original?.user?.profilePicUrl} username={row.original?.user?.name ?? "Desconhecido"} />
   },
   {
     accessorKey: "caption",
