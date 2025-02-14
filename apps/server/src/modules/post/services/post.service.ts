@@ -258,13 +258,12 @@ export class PostService {
 		}
 	}
 
-	async cancelScheduledPost({ query }: DefaultPostBodyCreate) {
-		const { postId } = query;
-
+	async cancelScheduledPost({ postId , userId}: { postId: string, userId: string }) {
 		const post = await this.postModel
 			.findOne(
 				{
 					_id: postId,
+					userId: userId,
 					scheduledAt: { $ne: null },
 				},
 				{ jobId: 1 }
@@ -286,7 +285,6 @@ export class PostService {
 			{ _id: postId },
 			{
 				canceledAt: new Date(),
-				scheduledAt: null,
 			}
 		);
 
@@ -298,8 +296,13 @@ export class PostService {
 	async getUserPostsWithDetails({ query, meta }: GetUserPostsProps) {
     const userId = meta.userId;
 
-    const user = await this.userModel.findOne({ _id: userId });
-    const accountsIds = user?.InstagramAccounts.map(account => account.accountId) ?? [];
+		const accountsIds = await this.userModel.findOne(
+			{ _id: userId },
+			{
+				 _id: 0,
+				 InstagramAccounts: 1
+			 }
+			).then((accounts) => accounts?.InstagramAccounts.map(account => account.accountId) ?? []);
 
     const { page, limit } = query;
     const skip = page && limit ? (page - 1) * limit : undefined;
@@ -373,7 +376,10 @@ export class PostService {
                     account: {
                         username: "$accountInfo.InstagramAccounts.username",
                         profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl",
-												session: "$accountInfo.InstagramAccounts.session"
+												session: "$accountInfo.InstagramAccounts.session",
+												fullName: "$accountInfo.InstagramAccounts.fullName",
+												isPrivate: "$accountInfo.InstagramAccounts.isPrivate",
+												isVerified: "$accountInfo.InstagramAccounts.isVerified"
                     }
                 }
             },
@@ -389,16 +395,21 @@ export class PostService {
     const postsWithInstagramInfo = await Promise.all(
         posts.map(async (post) => {
             try {
+				
                 const instagramInfo = post.postId ? (await this.getInstagramPostInfo(post.postId, post.account.username, post.account.session)) : null
-                if (instagramInfo) {
-                    return {
-                        ...post,
-												...instagramInfo
-                    };
-                } else {
-                    return post;
-                }
 
+								const postWithoutAccountSession = {
+									...post,
+									account: {
+										...post.account,
+										session: undefined
+									}
+								}
+
+								return {
+										...postWithoutAccountSession,
+										...(instagramInfo ?? [])
+								};
                
             } catch (error) {
                 console.log(error)
