@@ -4,7 +4,7 @@ import { Body, Controller, Get, Param, Post, Response, UseGuards } from '@nestjs
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { CreateChatDto } from '../dto/chats.dto';
+import { CreateChatDto, CreateChatParamsDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 
 @UseGuards(AuthGuard)
@@ -15,12 +15,14 @@ export class ChatsController extends BaseController {
 	}
 
 	@Post('messages')
-	async sendMessage(@Body() body: CreateChatDto, @Response() res: ExpressResponse, @Meta() meta: MetaType) {
+	async sendMessage(@Body() data: CreateChatDto, @Response() res: ExpressResponse, @Meta() meta: MetaType) {
+		const options = {
+			data,
+			meta,
+		};
+
 		try {
-			const response = await this.chatService.sendMessage({
-				data: body,
-				meta,
-			});
+			const response = await this.chatService.sendMessage(options);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
@@ -28,19 +30,19 @@ export class ChatsController extends BaseController {
 		}
 	}
 
-	// @Post(':chatId/interactions/:index/regenerate')
-	// async regenerateResponse(@Param('chatId') chatId: string, @Param('index') index: number) {
-	// 	return this.chatService.regenerateResponse(chatId, index);
-	// }
-
 	@Get('interactions/:chatId')
 	async listChatInteractions(
-		@Param('chatId') chatId: string,
+		@Param() params: CreateChatParamsDto,
 		@Meta() meta: MetaType,
 		@Response() res: ExpressResponse
 	) {
+		const options = {
+			params,
+			meta,
+		};
+
 		try {
-			const response = await this.chatService.listChatInteractions(chatId, meta);
+			const response = await this.chatService.listChatInteractions(options);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {

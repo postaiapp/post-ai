@@ -1,16 +1,16 @@
 import { CreatePostDto } from '@modules/post/dto/post.dto';
-import { Meta } from './meta';
 import { Session } from '@schemas/token';
+import { Meta } from './meta';
 
-export type DefaultPostBodyCreate = {
+type DefaultPostBodyCreate = {
 	data?: CreatePostDto;
 	meta?: Meta;
 	query?: CanceledPostBody;
 };
 
-export type PublishedPostProps = DefaultPostBodyCreate & { id?: string; session?: Session };
+type PublishedPostProps = DefaultPostBodyCreate & { id?: string; session?: Session };
 
-export type PostBodyCreate = {
+type PostBodyCreate = {
 	caption: string;
 	imageUrl: Buffer | string;
 	userId: string;
@@ -20,7 +20,16 @@ export type PostBodyCreate = {
 	jobId?: string;
 };
 
-export type CanceledPostBody = {
+type CanceledPostBody = {
 	postId: string;
 	username: string;
 };
+
+type VerifyPostPublishProps = {
+	postId: string;
+	caption: string;
+	username: string;
+	session: Session;
+};
+
+export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps };

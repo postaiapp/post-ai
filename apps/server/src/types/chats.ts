@@ -1,4 +1,4 @@
-import { CreateChatDto } from '@modules/chats/dto/chats.dto';
+import { CreateChatDto, CreateChatParamsDto } from '@modules/chats/dto/chats.dto';
 import { Meta } from './meta';
 
 interface SendMessageData {
@@ -6,4 +6,9 @@ interface SendMessageData {
 	meta: Meta;
 }
 
-export type { SendMessageData };
+interface ListChatInteractionsOptions {
+	params: CreateChatParamsDto;
+	meta: Meta;
+}
+
+export type { ListChatInteractionsOptions, SendMessageData };
