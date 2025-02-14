@@ -9,7 +9,7 @@ import { StatusBadge } from "./components/StatusBadge/StatusBadge"
 
 export const columns: ColumnDef<PostEntityWithDetails>[] = [
   {
-    accessorKey: "account",
+    accessorKey: "account.username",
     header: "Conta",
     enableSorting: true,
     enableColumnFilter: true,
@@ -20,16 +20,12 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
       if (!accountA?.username || !accountB?.username) return 0
       return accountA.username.localeCompare(accountB.username)
     },
-    filterFn: (row, _, filterValue) => {
-      const account = row.original.account
-      if (!account?.username) return false
-      return account.username.toLowerCase().includes(filterValue.toLowerCase())
-    },
+    filterFn: "arrIncludes",
     cell: ({ row }) => <UserUi image={row.original.account?.profilePicUrl} username={row.original.account?.username ?? "Desconhecido"} />
 
   },
   {
-    accessorKey: "user",
+    accessorKey: "user.name",
     header: "Usuário",
     enableSorting: true,
     enableColumnFilter: true,
@@ -40,12 +36,7 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
       if (!userA?.name || !userB?.name) return 0
       return userA.name.localeCompare(userB.name)
     },
-    filterFn: (row, _, filterValue) => {
-      const user = row.original.user
-      console.log(row.original.comments)
-      if (!user?.name) return false
-      return user.name.toLowerCase().includes(filterValue.toLowerCase())
-    },
+    filterFn: "arrIncludes",
     cell: ({ row }) => <UserUi image={row.original?.user?.profilePicUrl} username={row.original?.user?.name ?? "Desconhecido"} />
   },
   {

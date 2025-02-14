@@ -3,41 +3,53 @@
 import { PostEntityWithDetails } from '@common/interfaces/post';
 import { DataTable } from '@components/dataTable/dataTable';
 import { getUserPostsWithDetails } from '@processes/posts';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { columns } from './historyTable/columns';
-import { Loading } from '@components/loading/loading';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
 const History = () => {
 	const [sorting, setSorting] = useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-	const [currentPage, setCurrentPage] = useState(0);
 	const pageSize = 10;
 
-	const { data, isPending, isError } = useQuery({
-		queryKey: sorting.length === 0 && columnFilters.length === 0 ? ['history', currentPage, pageSize] : ['history', "all"
-		],
-		queryFn: () => getUserPostsWithDetails({
-			page: sorting.length === 0 && columnFilters.length === 0 ? currentPage + 1 : undefined,
-			limit: sorting.length === 0 && columnFilters.length === 0 ? pageSize : undefined,
-		}),
-		select: (data) => ({
-			items: (data.data.data ?? []) as PostEntityWithDetails[],
-			total: data.data.meta.total ?? 0
-		}),
-	});
+	const { data, fetchNextPage, hasNextPage, isError, isPending, isFetchingNextPage } = useInfiniteQuery<{ data: { data: PostEntityWithDetails[], meta: { limit: number, page: number, total: number } } }>(
+		{
+			queryKey: ['history'],
+			queryFn: ({ pageParam = 1 }) => getUserPostsWithDetails({
+				page: pageParam as number,
+				limit: pageSize
+			}),
+			initialPageParam: 1,
+			staleTime: 60000 * 5,
+			gcTime: Infinity,
+			getNextPageParam: (lastPage) => {
+				const { limit, page, total } = lastPage.data.meta;
 
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
-	};
+				const totalPages = Math.ceil(total / limit);
+
+				if (page < totalPages) {
+					return page + 1;
+				}
+
+				return undefined;
+			},
+		}
+	);
+
+	const allPagesLoaded = !hasNextPage && !!data && data.pages.length > 0;
+	const allPagesData = data?.pages.flatMap((page) => page.data.data);
+
+	useEffect(() => {
+		if (hasNextPage && !isFetchingNextPage) {
+			fetchNextPage();
+		}
+	}, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
 	return (
 		<div className='p-8 px-10 space-y-8'>
 			<h1 className='text-2xl font-bold'>Histórico de Posts</h1>
-			{isPending ? (
-				<Loading containerClassName='h-64' />
-			) : isError ? (
+			{isError ? (
 				<div className="flex flex-col items-center justify-center h-64 text-center">
 					<div className="text-red-500 mb-4">
 						<svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,12 +67,12 @@ const History = () => {
 				</div>
 			) : (
 				<DataTable
+					allPagesLoaded={allPagesLoaded}
+					isPending={isPending}
 					columns={columns}
-					data={data.items}
+					data={allPagesData ?? []}
 					pageSize={pageSize}
-					currentPage={currentPage}
-					totalItems={data.total}
-					onPageChange={handlePageChange}
+					totalItems={data?.pages[0]?.data.meta.total ?? 0}
 					sorting={sorting}
 					columnFilters={columnFilters}
 					setSorting={setSorting}

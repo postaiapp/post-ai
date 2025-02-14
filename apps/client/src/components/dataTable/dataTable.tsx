@@ -37,27 +37,31 @@ interface DataTableProps<TData, TValue> {
   columnFilters?: ColumnFiltersState
   setSorting?: OnChangeFn<SortingState>
   setColumnFilters?: OnChangeFn<ColumnFiltersState>
+  isPending: boolean
+  allPagesLoaded: boolean
 }
 
 export function DataTable<TData, TValue>({
+  isPending,
+  allPagesLoaded,
   columns,
   data,
   pageSize = 10,
-  currentPage = 0,
   totalItems = 0,
-  onPageChange,
   sorting,
   columnFilters,
   setColumnFilters,
   setSorting
 }: DataTableProps<TData, TValue>) {
+  const [currentPage, setCurrentPage] = useState(0);
+
   const table = useReactTable({
-    data,
+    data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: (value) => { if (currentPage !== 0 && onPageChange) { onPageChange(0) }; setColumnFilters?.(value) },
+    onColumnFiltersChange: (value) => { if (currentPage !== 0 && setCurrentPage) { setCurrentPage(0) }; setColumnFilters?.(value) },
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {
@@ -69,11 +73,16 @@ export function DataTable<TData, TValue>({
       },
     },
     pageCount: Math.ceil(totalItems / pageSize),
-    manualPagination: true,
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: currentPage, pageSize });
-        onPageChange?.(newState.pageIndex);
+        const newPagination = updater({
+          pageIndex: currentPage,
+          pageSize,
+        });
+
+        if (newPagination.pageIndex !== currentPage) {
+          setCurrentPage(newPagination.pageIndex);
+        }
       }
     }
   })
@@ -82,7 +91,10 @@ export function DataTable<TData, TValue>({
     <div className="rounded-md border">
       <div className="flex items-center justify-between">
         <div className="px-4 py-2 text-sm text-gray-600">
-          Total de itens: {totalItems}
+          Quantidade de itens: {data.length}
+          {!allPagesLoaded &&
+            " (Carregando mais)"
+          }
         </div>
         <div className="flex items-center py-4 px-4">
           {table.getAllColumns().map((column) => {
@@ -96,6 +108,7 @@ export function DataTable<TData, TValue>({
                     column.setFilterValue(event.target.value)
                   }
                   className="max-w-sm mr-4"
+                  disabled={isPending}
                 />
               )
             }
@@ -120,6 +133,7 @@ export function DataTable<TData, TValue>({
                           <Button
                             variant="ghost"
                             onClick={() => header.column.toggleSorting()}
+                            disabled={isPending}
                           >
                             <ArrowUpDown className="ml-2 h-4 w-4" />
                           </Button>
@@ -133,7 +147,17 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isPending ? (
+            Array.from({ length: pageSize }).map((_, index) => (
+              <TableRow key={index}>
+                {Array.from({ length: columns.length }).map((_, cellIndex) => (
+                  <TableCell key={cellIndex}>
+                    <div className="h-6 bg-gray-200 animate-pulse rounded" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -155,12 +179,12 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      {(!!sorting ? sorting?.length === 0 : true) && (!!columnFilters ? columnFilters?.length === 0 : true) && <div className="flex items-center justify-center space-x-2 my-4 text-sm text-gray-500">
+      <div className="flex items-center justify-center space-x-2 my-4 text-sm text-gray-500">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => table.firstPage()}
-          disabled={!table.getCanPreviousPage()}
+          disabled={!table.getCanPreviousPage() || isPending}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -169,26 +193,34 @@ export function DataTable<TData, TValue>({
           variant="ghost"
           size="sm"
           onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          disabled={!table.getCanPreviousPage() || isPending}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="flex items-center gap-1 text-xs">
           <div className="text-muted-foreground">Página</div>
-          <strong className="font-medium">
-            {table.getState().pagination.pageIndex + 1}
-          </strong>
+          {isPending ? (
+            <div className="h-4 w-6 bg-gray-200 animate-pulse rounded" />
+          ) : (
+            <strong className="font-medium">
+              {table.getState().pagination.pageIndex + 1}
+            </strong>
+          )}
           <div className="text-muted-foreground">de</div>
-          <strong className="font-medium">
-            {table.getPageCount()}
-          </strong>
+          {isPending ? (
+            <div className="h-4 w-6 bg-gray-200 animate-pulse rounded" />
+          ) : (
+            <strong className="font-medium">
+              {table.getPageCount()}
+            </strong>
+          )}
         </span>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          disabled={!table.getCanNextPage() || isPending}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronRight className="h-4 w-4" />
@@ -197,12 +229,12 @@ export function DataTable<TData, TValue>({
           variant="ghost"
           size="sm"
           onClick={() => table.lastPage()}
-          disabled={!table.getCanNextPage()}
+          disabled={!table.getCanNextPage() || isPending}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
-      </div>}
-    </div >
+      </div>
+    </div>
   )
 }
