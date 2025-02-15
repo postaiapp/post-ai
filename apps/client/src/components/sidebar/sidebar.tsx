@@ -34,6 +34,8 @@ export default function Sidebar() {
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}
+
+							
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
