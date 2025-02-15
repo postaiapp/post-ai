@@ -1,0 +1,10 @@
+FROM node:18
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare yarn@1.22.19 --activate
+
+COPY package.json yarn.lock ./
+RUN yarn install --immutable --check-cache
+
+COPY . .

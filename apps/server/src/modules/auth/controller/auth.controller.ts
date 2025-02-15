@@ -19,14 +19,14 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post()
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	async create(@Body() createAuthDto: LoginDto, @Res() res: Response) {
 		const response = await this.authService.authenticate({ ...createAuthDto, res });
 		return res.send(response);
 	}
 
 	@Post('register')
-	@HttpCode(HttpStatus.OK)
+	@HttpCode(HttpStatus.CREATED)
 	register(@Body() registerDto: RegisterDto) {
 		return this.authService.register(registerDto);
 	}

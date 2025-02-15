@@ -1,24 +1,26 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb';
+import { Test } from '@nestjs/testing';
+import { config } from 'dotenv';
 import mongoose from 'mongoose';
 import { AppModule } from '../src/app.module';
 
+config({ path: `.env.${process.env.NODE_ENV}` });
+
 let app: INestApplication;
-let mongoContainer: StartedMongoDBContainer;
-let mongoConnection: mongoose.Connection;
 
 global.beforeAll(async () => {
 	try {
-		mongoContainer = await new MongoDBContainer().start();
+		console.log('Environment:', process.env.NODE_ENV);
+		console.log('MongoDB URI:', process.env.MONGODB_URI);
 
-		mongoConnection = mongoose.createConnection(mongoContainer.getConnectionString(), {
-			directConnection: true,
-		});
+		if (!process.env.MONGODB_URI) {
+			throw new Error('MONGODB_URI is not defined');
+		}
 
-		await mongoConnection.asPromise();
-`
-		const moduleFixture: TestingModule = await Test.createTestingModule({
+		await mongoose.connect(process.env.MONGODB_URI);
+		console.log('MongoDB connected successfully');
+
+		const moduleFixture = await Test.createTestingModule({
 			imports: [AppModule],
 		}).compile();
 
@@ -27,27 +29,35 @@ global.beforeAll(async () => {
 			new ValidationPipe({
 				whitelist: true,
 				transform: true,
+				transformOptions: { enableImplicitConversion: true },
 			})
 		);
 
 		await app.init();
+		console.log('Application initialized successfully');
 	} catch (error) {
-		console.error('Erro no setup:', error);
+		console.error('Setup failed:', error);
 		throw error;
 	}
-}, 120_000);
+});
 
 global.beforeEach(async () => {
-	const collections = await mongoConnection.db.collections();
-	for (const collection of collections) {
-		await collection.deleteMany({});
+	if (mongoose.connection.readyState === 1) {
+		await mongoose.connection.db.dropDatabase();
+		console.log('Database cleared');
+	} else {
+		console.warn('MongoDB not connected. Current state:', mongoose.connection.readyState);
 	}
 });
 
 global.afterAll(async () => {
-	await app?.close();
-	await mongoConnection?.close();
-	await mongoContainer?.stop();
+	try {
+		await app?.close();
+		await mongoose.disconnect();
+		console.log('Cleanup completed successfully');
+	} catch (error) {
+		console.error('Cleanup failed:', error);
+	}
 });
 
 global.getApp = () => app;
