@@ -6,12 +6,14 @@ import { Interaction } from '@schemas/interaction.schema';
 import { ListChatInteractionsOptions, SendMessageData } from '@type/chats';
 import * as dayjs from 'dayjs';
 import { Model } from 'mongoose';
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private openaiService: OpenaiService
+		private openaiService: OpenaiService,
+		private readonly imageGenerationService: ImageGenerationService
 	) {}
 
 	async findChat(chatId: string, userId: string) {
@@ -28,24 +30,35 @@ export class ChatsService {
 		return chat;
 	}
 
-	async sendMessage({ data, meta }: SendMessageData) {
-		const { chatId, message } = data;
-		let chat: ChatDocument;
+	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
+		const chat = await this.chatModel.findOne({
+			_id: data.chatId,
+			user_id: data.userId,
+		});
 
-		if (!!chatId) {
-			chat = await this.findChat(chatId, meta.userId.toString());
-		} else {
-			chat = new this.chatModel({
-				user_id: meta.userId.toString(),
+		if (!chat) {
+			return new this.chatModel({
+				user_id: data.userId,
 				finished_at: null,
-				interactions: [],
-				first_message: message,
+				first_message: data.message,
 			});
 		}
 
+		return chat;
+	}
+
+	async sendMessage({ data, meta }: SendMessageData) {
+		const { chatId, message } = data;
+
+		const chat: ChatDocument = await this.findOrCreateChat({
+			userId: meta.userId.toString(),
+			message,
+			chatId,
+		});
+
 		const context = await this.getChatContext(chat.interactions);
 
-		const { url } = await this.openaiService.generateImage({
+		const { url } = await this.imageGenerationService.generateImage({
 			prompt: `${data.message}\n\nContext: ${context}`,
 		});
 
