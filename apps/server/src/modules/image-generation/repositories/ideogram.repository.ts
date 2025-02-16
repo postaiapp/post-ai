@@ -7,13 +7,17 @@ import {
 	GeneratedImage,
 } from '@modules/image-generation/service/image-generation.service';
 import { DEFAULT_PROMPT } from '@constants/ai';
+import { R2Storage } from '@storages/r2-storage';
 
 @Injectable()
 export class IdeogramRepository implements ImageGenerationService {
 	private readonly apiKey: string;
-	private readonly baseUrl = 'https://api.ideogram.ai/api/v1';
+	private readonly baseUrl = 'https://api.ideogram.ai';
 
-	constructor(private configService: ConfigService) {
+	constructor(
+		private configService: ConfigService,
+		private storageService: R2Storage
+	) {
 		this.apiKey = this.configService.get<string>('IDEOGRAM_API_KEY');
 	}
 
@@ -24,25 +28,29 @@ export class IdeogramRepository implements ImageGenerationService {
 	async generateImage(options: GenerateImageOptions): Promise<GeneratedImage> {
 		const mountedPrompt = this.generatePrompt(options.prompt);
 
-		const response = await axios.post(
-			`${this.baseUrl}/generate`,
-			{
+		const mountedGenerateImagePayload = {
+			image_request: {
 				prompt: mountedPrompt,
-				style: options.style,
-				n: options.n || 1,
+				model: 'V_2',
+				magic_prompt_option: 'AUTO',
+				num_images: options.n || 1,
+				resolution: 'RESOLUTION_1024_1024',
 			},
-			{
-				headers: {
-					Authorization: `Bearer ${this.apiKey}`,
-					'Content-Type': 'application/json',
-				},
-			}
-		);
+		};
 
-		const url = response.data.images[0].url;
+		const response = await axios.post(`${this.baseUrl}/generate`, mountedGenerateImagePayload, {
+			headers: {
+				'Api-Key': this.apiKey,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		const url = response.data.data[0].url;
+
+		const uploadedImage = await this.storageService.downloadAndUploadImage(url);
 
 		return {
-			url,
+			url: uploadedImage.url,
 		};
 	}
 }
