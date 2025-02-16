@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
@@ -11,15 +11,15 @@ let app: INestApplication;
 
 global.beforeAll(async () => {
 	try {
-		console.log('Environment:', process.env.NODE_ENV);
-		console.log('MongoDB URI:', process.env.MONGODB_URI);
+		Logger.log('Environment:', process.env.NODE_ENV);
+		Logger.log('MongoDB URI:', process.env.MONGODB_URI);
 
-		if (!process.env.MONGODB_URI) {
-			throw new Error('MONGODB_URI is not defined');
+		if (!process.env.MONGODB_URI || process.env.NODE_ENV !== 'test') {
+			throw new Error('Wrong environment for tests');
 		}
 
 		await mongoose.connect(process.env.MONGODB_URI);
-		console.log('MongoDB connected successfully');
+		Logger.log('MongoDB connected successfully');
 
 		const moduleFixture = await Test.createTestingModule({
 			imports: [AppModule],
@@ -38,9 +38,9 @@ global.beforeAll(async () => {
 		);
 
 		await app.init();
-		console.log('Application initialized successfully');
+		Logger.log('Application initialized successfully');
 	} catch (error) {
-		console.error('Setup failed:', error);
+		Logger.error('Setup failed:', error);
 		throw error;
 	}
 });
@@ -48,9 +48,9 @@ global.beforeAll(async () => {
 global.beforeEach(async () => {
 	if (mongoose.connection.readyState === 1) {
 		await mongoose.connection.db.dropDatabase();
-		console.log('Database cleared');
+		Logger.log('Database cleared');
 	} else {
-		console.warn('MongoDB not connected. Current state:', mongoose.connection.readyState);
+		Logger.warn('MongoDB not connected. Current state:', mongoose.connection.readyState);
 	}
 });
 
@@ -58,9 +58,9 @@ global.afterAll(async () => {
 	try {
 		await app?.close();
 		await mongoose.disconnect();
-		console.log('Cleanup completed successfully');
+		Logger.log('Cleanup completed successfully');
 	} catch (error) {
-		console.error('Cleanup failed:', error);
+		Logger.error('Cleanup failed:', error);
 	}
 });
 

@@ -10,7 +10,7 @@ describe('AppController (e2e)', () => {
 		app = global.getApp();
 	});
 
-	it('Auth flux - /auth (POST)', async () => {
+	it('should be able to register and log in - /register (POST) and /auth (POST)', async () => {
 		const userResponse = await request(app.getHttpServer()).post(`/${prefix}/register`).send({
 			name: 'michelle',
 			email: 'mi@email.com',
@@ -18,6 +18,7 @@ describe('AppController (e2e)', () => {
 		});
 
 		expect(userResponse.status).toBe(HttpStatus.CREATED);
+		expect(userResponse.body.user).toBeDefined();
 
 		const authResponse = await request(app.getHttpServer()).post(`/${prefix}`).send({
 			email: 'mi@email.com',
@@ -28,18 +29,7 @@ describe('AppController (e2e)', () => {
 		expect(authResponse.body.token).toBeTruthy();
 	});
 
-	it('Register flux - /register (POST)', async () => {
-		const registerResponse = await request(app.getHttpServer()).post(`/${prefix}/register`).send({
-			name: 'michelle',
-			email: 'mi@email.com',
-			password: '12345678',
-		});
-
-		expect(registerResponse.status).toBe(HttpStatus.CREATED);
-		expect(registerResponse.body.user).toBeTruthy();
-	});
-
-	it('Refresh and logout flux - /refresh (PATCH) and /logout (POST)', async () => {
+	it('should be able to refresh token and log out - /refresh (PATCH) and /logout (POST)', async () => {
 		await request(app.getHttpServer()).post(`/${prefix}/register`).send({
 			name: 'michelle',
 			email: 'mi@email.com',
