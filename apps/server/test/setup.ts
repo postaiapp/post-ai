@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import mongoose from 'mongoose';
 import { AppModule } from '../src/app.module';
@@ -25,6 +26,9 @@ global.beforeAll(async () => {
 		}).compile();
 
 		app = moduleFixture.createNestApplication();
+		app.useGlobalGuards();
+
+		app.use(cookieParser());
 		app.useGlobalPipes(
 			new ValidationPipe({
 				whitelist: true,
