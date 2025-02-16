@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
 import * as request from 'supertest';
 
-describe('AppController (e2e)', () => {
+describe('Auth Controller (e2e)', () => {
 	let app: NestApplication;
 	const prefix = 'auth';
 

@@ -1,10 +1,10 @@
+import { mappingIntegrationsErrors } from '@constants/errors';
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from '../services/instagram-auth.service';
-import { mappingIntegrationsErrors } from '@constants/errors';
 @UseGuards(AuthGuard)
 @Controller('instagram')
 export class InstagramAuthController {
@@ -13,7 +13,7 @@ export class InstagramAuthController {
 	constructor(private readonly instagramAuthService: InstagramAuthService) {}
 
 	@Post()
-	@HttpCode(201)
+	@HttpCode(HttpStatus.CREATED)
 	async create(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.createAccount(body, meta);
@@ -26,7 +26,7 @@ export class InstagramAuthController {
 	}
 
 	@Post('login')
-	@HttpCode(200)
+	@HttpCode(HttpStatus.OK)
 	async login(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.login(body, meta);

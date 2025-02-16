@@ -5,10 +5,13 @@ import { User } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { InstagramAuthService } from './instagram-auth.service';
+import { ObjectId } from 'mongodb';
 
 describe('InstagramAuthService', () => {
 	let service: InstagramAuthService;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let userModel: Model<User>;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let igClient: IgApiClient;
 
 	const mockUserModel = {
@@ -126,9 +129,12 @@ describe('InstagramAuthService', () => {
 		});
 
 		it('should create new account if it does not exist', async () => {
+			const id = new ObjectId();
 			jest.spyOn(service, 'hasInstagramAccount').mockResolvedValueOnce(null);
 			jest.spyOn(service, 'addAccount').mockResolvedValueOnce({
 				newUser: {
+					_id: id,
+					__v: 0,
 					name: 'Test User',
 					email: 'test@example.com',
 					password: 'password',
@@ -155,7 +161,7 @@ describe('InstagramAuthService', () => {
 			});
 
 			const result = await service.createAccount(createData, { userId: 1, email: 'test@example.com' });
-			expect(result).toEqual({ newUser: { email: 'test@example.com' } });
+			expect(result).toEqual({ newUser: { _id: id, email: 'test@example.com' } });
 		});
 	});
 
