@@ -20,7 +20,7 @@ const ChatContainer = () => {
 	const chatId = searchParams.get('chatId') ?? undefined;
 
 	const {
-		mutate,
+		mutate: mutateSendMessage,
 		isPending: isPendingSendMessage,
 		isError: isErrorSendMessage,
 		isSuccess: isSuccessSendMessage,
@@ -28,7 +28,6 @@ const ChatContainer = () => {
 	} = useMutation({
 		mutationKey: ['sendMessage'],
 		mutationFn: ({ message, chatId }: { message: string; chatId?: string }) => {
-			// throw new Error('Ocorreu um erro ao enviar a mensagem. Por favor, tente novamente.');
 			return sendMessage({ message, chatId });
 		},
 		onSuccess: (data) => {
@@ -55,7 +54,7 @@ const ChatContainer = () => {
 	});
 
 	const handleSendMessage = (prompt: string, chatId?: string) => {
-		mutate({ message: prompt, chatId });
+		mutateSendMessage({ message: prompt, chatId });
 		setPrompt('');
 		setPendingPrompt(prompt);
 		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
@@ -71,20 +70,23 @@ const ChatContainer = () => {
 		});
 	};
 
-	// const handleRegenerate = (interaction, index) => {
-	// queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
-	// 	const oldDataWithoutRequestsWithNoResponse = old.data?.filter((item) => !!item.response) ?? [];
+	const handleRegenerate = (id: string) => {
+		// mutateRegenerate({ id});
+		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
+			const oldDataWithoutRequestsWithNoResponse = old.data?.filter((item) => !!item.response) ?? [];
 
-	// 	return {
-	// 		...old,
-	// 		data: oldDataWithoutRequestsWithNoResponse.map((index)=> ),
-	// 	};
-	// });
-	// scrollToMessage(interaction, index)
-	// };
+			return {
+				...old,
+				data: oldDataWithoutRequestsWithNoResponse.map((item) =>
+					item._id === id ? { ...item, response: undefined } : item
+				),
+			};
+		});
+		scrollToMessage(id);
+	};
 
-	const scrollToMessage = (interaction: Interaction, index: number) => {
-		const lastMessage = document.querySelector(`#${interaction.request.replace(/\s+/g, '-')}-${index}`);
+	const scrollToMessage = (id: string) => {
+		const lastMessage = document.querySelector(`#${id}`);
 		if (lastMessage) {
 			lastMessage.scrollIntoView({ behavior: 'smooth' });
 		}
@@ -103,9 +105,7 @@ const ChatContainer = () => {
 		if (typeof window !== 'undefined') {
 			if (data?.data?.length) {
 				const interaction = data.data.slice(-1)[0];
-				const index = data.data.length - 1;
-
-				scrollToMessage(interaction, index);
+				scrollToMessage(interaction._id);
 			}
 		}
 	}, [data?.data]);
@@ -120,7 +120,7 @@ const ChatContainer = () => {
 			data={data?.data ?? []}
 			errorSendMessage={errorSendMessage}
 			handleSendMessage={(prompt, chatId) => handleSendMessage(prompt, chatId)}
-			handleRegenerate={() => null}
+			handleRegenerate={(id) => handleRegenerate(id)}
 			prompt={prompt}
 			setPrompt={setPrompt}
 		/>

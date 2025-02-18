@@ -20,7 +20,7 @@ interface ChatUiProps {
 	data: Interaction[];
 	errorSendMessage: Error | null;
 	handleSendMessage: (prompt: string, chatId?: string) => void;
-	handleRegenerate: (interaction: Interaction, index: number) => void;
+	handleRegenerate: (id: string) => void;
 	prompt: string;
 	setPrompt: (prompt: string) => void;
 }
@@ -73,17 +73,17 @@ export const ChatUi = ({
 						</div>
 					) : (
 						<div className="space-y-8 w-full max-w-4xl mx-auto">
-							{data?.map((interaction, index) => (
+							{data?.map((interaction) => (
 								<div
-									key={`${interaction.request}-${interaction.response}`}
-									id={`${interaction.request.replace(/\s+/g, '-')}-${index}`}
+									key={interaction._id}
+									id={interaction._id}
 									className={'flex flex-col gap-6 w-full px-4'}
 								>
 									<RequestMessageComponent request={interaction.request} />
 									{interaction.response ? (
 										<ResponseMessageComponent
 											response={interaction.response}
-											onRegenerate={() => handleRegenerate(interaction, index)}
+											onRegenerate={() => handleRegenerate(interaction._id)}
 										/>
 									) : isPendingSendMessage ? (
 										<ResponseMessageLoadingComponent />

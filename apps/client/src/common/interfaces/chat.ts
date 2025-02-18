@@ -7,6 +7,7 @@ interface Chat {
 }
 
 interface Interaction {
+	_id: string;
 	request: string;
 	response: string;
 	isRegenerated: boolean;
