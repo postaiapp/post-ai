@@ -1,3 +1,4 @@
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 import { OpenaiService } from '@modules/openai/service/openai.service';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,7 +12,8 @@ import { Model } from 'mongoose';
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private openaiService: OpenaiService
+		private openaiService: OpenaiService,
+		private readonly imageGenerationService: ImageGenerationService
 	) {}
 
 	async findChat(chatId: string, userId: string) {
@@ -28,24 +30,35 @@ export class ChatsService {
 		return chat;
 	}
 
-	async sendMessage({ data, meta }: SendMessageData) {
-		const { chatId, message } = data;
-		let chat: ChatDocument;
+	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
+		const chat = await this.chatModel.findOne({
+			_id: data.chatId,
+			user_id: data.userId,
+		});
 
-		if (!!chatId) {
-			chat = await this.findChat(chatId, meta.userId.toString());
-		} else {
-			chat = new this.chatModel({
-				user_id: meta.userId.toString(),
+		if (!chat) {
+			return new this.chatModel({
+				user_id: data.userId,
 				finished_at: null,
-				interactions: [],
-				first_message: message,
+				first_message: data.message,
 			});
 		}
 
+		return chat;
+	}
+
+	async sendMessage({ data, meta }: SendMessageData) {
+		const { chatId, message } = data;
+
+		const chat: ChatDocument = await this.findOrCreateChat({
+			userId: meta.userId.toString(),
+			message,
+			chatId,
+		});
+
 		const context = await this.getChatContext(chat.interactions);
 
-		const { url } = await this.openaiService.generateImage({
+		const { url } = await this.imageGenerationService.generateImage({
 			prompt: `${data.message}\n\nContext: ${context}`,
 		});
 
@@ -94,5 +107,17 @@ export class ChatsService {
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
 		return chat.interactions.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+	}
+
+	async listUserChats({ userId }: { userId: string }) {
+		const chats = await this.chatModel.find({ user_id: userId.toString() });
+
+		return chats.map((chat) => ({
+			userId: chat.user_id,
+			interactions: chat.interactions,
+			firstMessage: chat.first_message,
+			id: chat._id,
+			createdAt: chat.created_at,
+		}));
 	}
 }
