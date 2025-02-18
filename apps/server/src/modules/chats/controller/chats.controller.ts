@@ -49,4 +49,15 @@ export class ChatsController extends BaseController {
 			return this.sendError({ error, res });
 		}
 	}
+
+	@Get()
+	async listUserChats(@Meta() meta: MetaType, @Response() res: ExpressResponse) {
+		try {
+			const response = await this.chatService.listUserChats({ userId: meta.userId.toString() });
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			return this.sendError({ error, res });
+		}
+	}
 }

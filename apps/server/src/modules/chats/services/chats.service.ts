@@ -1,3 +1,4 @@
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 import { OpenaiService } from '@modules/openai/service/openai.service';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,7 +7,6 @@ import { Interaction } from '@schemas/interaction.schema';
 import { ListChatInteractionsOptions, SendMessageData } from '@type/chats';
 import * as dayjs from 'dayjs';
 import { Model } from 'mongoose';
-import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 
 @Injectable()
 export class ChatsService {
@@ -107,5 +107,17 @@ export class ChatsService {
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
 		return chat.interactions.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+	}
+
+	async listUserChats({ userId }: { userId: string }) {
+		const chats = await this.chatModel.find({ user_id: userId.toString() });
+
+		return chats.map((chat) => ({
+			userId: chat.user_id,
+			interactions: chat.interactions,
+			firstMessage: chat.first_message,
+			id: chat._id,
+			createdAt: chat.created_at,
+		}));
 	}
 }
