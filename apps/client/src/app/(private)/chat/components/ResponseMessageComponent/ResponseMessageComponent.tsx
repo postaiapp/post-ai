@@ -16,15 +16,15 @@ export const ResponseMessageComponent = ({
 }) => {
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="bg-purple-100 p-4 rounded-lg w-fit max-w-[80%]">
+			<div className="bg-purple-100 p-4 rounded-lg w-fit">
 				<Image
 					onContextMenu={(e) => e.preventDefault()}
 					draggable={false}
 					src={response}
 					alt="Generated post"
 					className="max-w-full h-auto rounded-md"
-					width={400}
-					height={400}
+					width={350}
+					height={350}
 					priority
 				/>
 			</div>

@@ -13,7 +13,7 @@ import {
 } from '@components/ui/sidebar';
 import { getUserChats } from '@processes/chat';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Loader2, SquarePen } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -60,15 +60,8 @@ export default function Sidebar() {
 		<UiSideBar collapsible="icon">
 			<SidebarContent className="thin-scrollbar">
 				<SidebarGroup>
-					<div className="flex items-center justify-between">
-						<SidebarGroupLabel>Post AI</SidebarGroupLabel>
-						<SidebarMenuButton asChild className="w-fit">
-							<Link href="/chat">
-								<SquarePen size={20} />
-							</Link>
-						</SidebarMenuButton>
-					</div>
-					<SidebarGroupContent className="mt-2">
+					<SidebarGroupLabel className="pb-2">Post AI</SidebarGroupLabel>
+					<SidebarGroupContent>
 						<SidebarMenu>
 							{itemsSideBar.map((item) => (
 								<SidebarMenuItem key={item.title}>
@@ -81,56 +74,62 @@ export default function Sidebar() {
 								</SidebarMenuItem>
 							))}
 
-							{isPending ? (
-								<div className="flex justify-center items-center h-[200px]">
-									<Loader2 className="h-4 w-4 animate-spin" />
-								</div>
-							) : (
-								allPagesData.length > 0 && (
-									<div className="space-y-2 my-2 relative">
-										{filteredChats.today.length > 0 && (
-											<ListChatsComponent label="Hoje" chats={filteredChats.today} />
-										)}
-
-										{filteredChats.yesterday.length > 0 && (
-											<ListChatsComponent label="Ontem" chats={filteredChats.yesterday} />
-										)}
-
-										{filteredChats.last7Days.length > 0 && (
-											<ListChatsComponent
-												label="Últimos 7 dias"
-												chats={filteredChats.last7Days}
-											/>
-										)}
-
-										{filteredChats.last30Days.length > 0 && (
-											<ListChatsComponent
-												label="Últimos 30 dias"
-												chats={filteredChats.last30Days}
-											/>
-										)}
+							<div className="group-data-[collapsible=icon]:hidden">
+								{isPending ? (
+									<div className="flex justify-center items-center h-[200px]">
+										<Loader2 className="h-4 w-4 animate-spin" />
 									</div>
-								)
-							)}
+								) : (
+									allPagesData.length > 0 && (
+										<div className="space-y-2 my-2 relative">
+											{filteredChats.today.length > 0 && (
+												<ListChatsComponent label="Hoje" chats={filteredChats.today} />
+											)}
 
-							<div
-								ref={(el) => {
-									if (el) {
-										const observer = new IntersectionObserver(
-											(entries) => {
-												if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-													fetchNextPage();
-												}
-											},
-											{ threshold: 1.0 }
-										);
-										observer.observe(el);
-										return () => observer.disconnect();
-									}
-								}}
-								className="w-full flex justify-center py-2"
-							>
-								{isFetchingNextPage && <Loader2 className="h-4 w-4 animate-spin" />}
+											{filteredChats.yesterday.length > 0 && (
+												<ListChatsComponent label="Ontem" chats={filteredChats.yesterday} />
+											)}
+
+											{filteredChats.last7Days.length > 0 && (
+												<ListChatsComponent
+													label="Últimos 7 dias"
+													chats={filteredChats.last7Days}
+												/>
+											)}
+
+											{filteredChats.last30Days.length > 0 && (
+												<ListChatsComponent
+													label="Últimos 30 dias"
+													chats={filteredChats.last30Days}
+												/>
+											)}
+										</div>
+									)
+								)}
+
+								<div
+									ref={(el) => {
+										if (el) {
+											const observer = new IntersectionObserver(
+												(entries) => {
+													if (
+														entries[0].isIntersecting &&
+														hasNextPage &&
+														!isFetchingNextPage
+													) {
+														fetchNextPage();
+													}
+												},
+												{ threshold: 1.0 }
+											);
+											observer.observe(el);
+											return () => observer.disconnect();
+										}
+									}}
+									className="w-full flex justify-center py-2"
+								>
+									{isFetchingNextPage && <Loader2 className="h-4 w-4 animate-spin" />}
+								</div>
 							</div>
 						</SidebarMenu>
 					</SidebarGroupContent>

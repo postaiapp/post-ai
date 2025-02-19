@@ -1,13 +1,13 @@
-import { BarChart, History, Home, Leaf, Lightbulb, Salad, Tag, TrendingUp } from 'lucide-react';
+import { BarChart, History, Leaf, Lightbulb, Salad, SquarePen, Tag, TrendingUp } from 'lucide-react';
 
 const itemsSideBar = [
 	{
-		title: 'Home',
+		title: 'Novo Chat',
 		url: '/chat',
-		icon: Home,
+		icon: SquarePen,
 	},
 	{
-		title: 'History Posts',
+		title: 'Histórico de Posts',
 		url: '/history',
 		icon: History,
 	},
@@ -40,4 +40,5 @@ const defaultPrompts = [
 	},
 ];
 
-export { itemsSideBar, defaultPrompts };
+export { defaultPrompts, itemsSideBar };
+

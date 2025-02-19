@@ -40,7 +40,7 @@ export const ChatUi = ({
 }: ChatUiProps) => {
 	return (
 		<div className="relative flex flex-col justify-between items-center w-full h-screen overflow-hidden">
-			<div className="w-full h-full overflow-auto mt-6 mb-4">
+			<div className="w-full h-full overflow-auto mt-6 mb-4 thin-scrollbar">
 				<div className="mx-auto max-w-4xl w-full">
 					{!chatId && !isPendingSendMessage && !isSuccessSendMessage && !isErrorSendMessage && (
 						<div className="flex flex-col items-center">
@@ -112,7 +112,7 @@ export const ChatUi = ({
 
 						handleSendMessage(prompt, chatId);
 					}}
-					disabled={!!chatId && isPendingInteractions}
+					disabled={(!!chatId && isPendingInteractions) || isPendingSendMessage}
 					showCount
 					maxLength={200}
 				/>

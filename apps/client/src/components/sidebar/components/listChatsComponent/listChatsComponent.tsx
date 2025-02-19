@@ -13,7 +13,7 @@ export const ListChatsComponent = ({ label, chats }: { label: string; chats: Cha
 	return (
 		<div>
 			<SidebarMenu className="sticky top-0 bg-[#fafafa] z-10 p-2 text-sm font-medium">{label}</SidebarMenu>
-			<div className="space-y-1">
+			<div>
 				{chats.map((chat) => (
 					<SidebarMenuItem key={chat.id}>
 						<SidebarMenuButton asChild isActive={chatId === chat.id}>
