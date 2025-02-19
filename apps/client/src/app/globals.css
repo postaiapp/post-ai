@@ -108,3 +108,21 @@ body {
 ::-webkit-scrollbar-thumb:horizontal {
   background-color: #190041;
 }
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Largura menor */
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #190041;
+  border-radius: 4px; /* Borda mais arredondada */
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:horizontal {
+  background-color: #190041;
+  height: 6px; /* Altura para scrollbar horizontal */
+}

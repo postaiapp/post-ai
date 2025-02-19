@@ -23,3 +23,15 @@ export const getChatInteractions = async ({ chatId }: { chatId: string }): Promi
 
 	return data;
 };
+
+export const getUserChats = async ({
+	page,
+	limit,
+}: {
+	page?: number;
+	limit?: number;
+}): Promise<{ results: Chat[]; meta: { total: number; page?: number; limit?: number } }> => {
+	const { data }: ClientResponse = await client.get(`/chats?page=${page}&${limit}`);
+
+	return data.data;
+};

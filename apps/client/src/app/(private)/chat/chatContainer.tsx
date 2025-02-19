@@ -36,6 +36,7 @@ const ChatContainer = () => {
 			}
 
 			queryClient.invalidateQueries({ queryKey: ['chats', chatId] });
+			queryClient.invalidateQueries({ queryKey: ['userChats'] });
 			setPendingPrompt('');
 		},
 		onError: (error: Error) => {
@@ -58,7 +59,7 @@ const ChatContainer = () => {
 		setPrompt('');
 		setPendingPrompt(prompt);
 		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
-			const oldDataWithoutRequestsWithNoResponse = old.data?.filter((item) => !!item.response) ?? [];
+			const oldDataWithoutRequestsWithNoResponse = old?.data?.filter((item) => !!item.response) ?? [];
 
 			return {
 				...old,
@@ -73,7 +74,7 @@ const ChatContainer = () => {
 	const handleRegenerate = (id: string) => {
 		// mutateRegenerate({ id});
 		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
-			const oldDataWithoutRequestsWithNoResponse = old.data?.filter((item) => !!item.response) ?? [];
+			const oldDataWithoutRequestsWithNoResponse = old?.data?.filter((item) => !!item.response) ?? [];
 
 			return {
 				...old,
@@ -100,12 +101,13 @@ const ChatContainer = () => {
 		}
 	}, [pendingPrompt, isPendingSendMessage, setPendingPrompt, isErrorSendMessage, setPrompt]);
 
-	// Route to bottom when a message is sent by user or by bot
+	// Route to bottom when a message is sent by user or by bot, or when page is mounted
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			if (data?.data?.length) {
 				const interaction = data.data.slice(-1)[0];
-				scrollToMessage(interaction._id);
+				const finalIndex = data.data.length - 1;
+				scrollToMessage(`${interaction.request.toLowerCase().replace(/\s+/g, '-') + finalIndex}`);
 			}
 		}
 	}, [data?.data]);

@@ -1,4 +1,5 @@
 'use client';
+
 import { itemsSideBar } from '@common/constants/chat';
 import {
 	SidebarContent,
@@ -10,32 +11,127 @@ import {
 	SidebarMenuItem,
 	Sidebar as UiSideBar,
 } from '@components/ui/sidebar';
+import { getUserChats } from '@processes/chat';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { Loader2, SquarePen } from 'lucide-react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { SidebarFooter } from './sidebarFooter';
+import { ListChatsComponent } from './components/listChatsComponent/listChatsComponent';
+import { SidebarFooter } from './components/sidebarFooter';
+import { filterChatsByDate } from './utils/filterChatsByDate';
 
 export default function Sidebar() {
 	const pathname = usePathname();
 
+	const pageSize = 10;
+	const { data, fetchNextPage, hasNextPage, isPending, isFetchingNextPage } = useInfiniteQuery({
+		queryKey: ['userChats'],
+		queryFn: async ({ pageParam = 1 }) => {
+			const response = await getUserChats({
+				page: pageParam as number,
+				limit: pageSize,
+			});
+
+			return response;
+		},
+		initialPageParam: 1,
+		staleTime: 60000 * 5,
+		gcTime: 60000 * 24,
+		getNextPageParam: (lastPage) => {
+			const { limit, page, total } = lastPage.meta;
+
+			if (!limit || !page) return undefined;
+
+			const totalPages = Math.ceil(total / limit);
+
+			if (page < totalPages) {
+				return page + 1;
+			}
+
+			return undefined;
+		},
+	});
+
+	const allPagesData = data?.pages.flatMap((page) => page.results) || [];
+	const filteredChats = filterChatsByDate(allPagesData);
+
 	return (
 		<UiSideBar collapsible="icon">
-			<SidebarContent>
+			<SidebarContent className="thin-scrollbar">
 				<SidebarGroup>
-					<SidebarGroupLabel>Post AI</SidebarGroupLabel>
-					<SidebarGroupContent>
+					<div className="flex items-center justify-between">
+						<SidebarGroupLabel>Post AI</SidebarGroupLabel>
+						<SidebarMenuButton asChild className="w-fit">
+							<Link href="/chat">
+								<SquarePen size={20} />
+							</Link>
+						</SidebarMenuButton>
+					</div>
+					<SidebarGroupContent className="mt-2">
 						<SidebarMenu>
 							{itemsSideBar.map((item) => (
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton asChild isActive={pathname === item.url}>
-										<a href={item.url}>
+										<Link href={item.url}>
 											<item.icon />
 											<span>{item.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}
 
-							
+							{isPending ? (
+								<div className="flex justify-center items-center h-[200px]">
+									<Loader2 className="h-4 w-4 animate-spin" />
+								</div>
+							) : (
+								allPagesData.length > 0 && (
+									<div className="space-y-2 my-2 relative">
+										{filteredChats.today.length > 0 && (
+											<ListChatsComponent label="Hoje" chats={filteredChats.today} />
+										)}
+
+										{filteredChats.yesterday.length > 0 && (
+											<ListChatsComponent label="Ontem" chats={filteredChats.yesterday} />
+										)}
+
+										{filteredChats.last7Days.length > 0 && (
+											<ListChatsComponent
+												label="Últimos 7 dias"
+												chats={filteredChats.last7Days}
+											/>
+										)}
+
+										{filteredChats.last30Days.length > 0 && (
+											<ListChatsComponent
+												label="Últimos 30 dias"
+												chats={filteredChats.last30Days}
+											/>
+										)}
+									</div>
+								)
+							)}
+
+							<div
+								ref={(el) => {
+									if (el) {
+										const observer = new IntersectionObserver(
+											(entries) => {
+												if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+													fetchNextPage();
+												}
+											},
+											{ threshold: 1.0 }
+										);
+										observer.observe(el);
+										return () => observer.disconnect();
+									}
+								}}
+								className="w-full flex justify-center py-2"
+							>
+								{isFetchingNextPage && <Loader2 className="h-4 w-4 animate-spin" />}
+							</div>
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
