@@ -1,10 +1,10 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Get, Param, Post, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Response, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { CreateChatDto, CreateChatParamsDto } from '../dto/chats.dto';
+import { CreateChatDto, ListChatInteractionsParamsDto, ListUserChatsQueryDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 
 @UseGuards(AuthGuard)
@@ -32,7 +32,7 @@ export class ChatsController extends BaseController {
 
 	@Get('interactions/:chatId')
 	async listChatInteractions(
-		@Param() params: CreateChatParamsDto,
+		@Param() params: ListChatInteractionsParamsDto,
 		@Meta() meta: MetaType,
 		@Response() res: ExpressResponse
 	) {
@@ -51,9 +51,16 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get()
-	async listUserChats(@Meta() meta: MetaType, @Response() res: ExpressResponse) {
+	async listUserChats(
+		@Query() query: ListUserChatsQueryDto,
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse
+	) {
 		try {
-			const response = await this.chatService.listUserChats({ userId: meta.userId.toString() });
+			const response = await this.chatService.listUserChats({
+				userId: meta.userId.toString(),
+				pagination: { limit: query.limit, page: query.page },
+			});
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
