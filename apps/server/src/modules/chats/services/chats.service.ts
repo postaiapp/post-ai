@@ -109,15 +109,38 @@ export class ChatsService {
 		return chat.interactions.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 	}
 
-	async listUserChats({ userId }: { userId: string }) {
-		const chats = await this.chatModel.find({ user_id: userId.toString() });
+	async listUserChats({ userId, pagination }: { userId: string; pagination?: { page: number; limit: number } }) {
+		const { page, limit } = pagination || {};
 
-		return chats.map((chat) => ({
-			userId: chat.user_id,
-			interactions: chat.interactions,
-			firstMessage: chat.first_message,
-			id: chat._id,
-			createdAt: chat.created_at,
-		}));
+		const query = this.chatModel.find({ user_id: userId.toString() }).sort({ created_at: -1 });
+
+		if (pagination) {
+			const skip = pagination ? (page - 1) * limit : undefined;
+			query.skip(skip);
+			query.limit(limit);
+		}
+
+		const chats = await query.lean();
+
+		const allUserChatsCount = await this.chatModel
+			.countDocuments({
+				user_id: userId,
+			})
+			.lean();
+
+		return {
+			results: chats.map((chat) => ({
+				userId: chat.user_id.toString(),
+				interactions: chat.interactions,
+				firstMessage: chat.first_message,
+				id: chat._id.toString(),
+				createdAt: chat.created_at,
+			})),
+			meta: {
+				total: allUserChatsCount,
+				page,
+				limit,
+			},
+		};
 	}
 }
