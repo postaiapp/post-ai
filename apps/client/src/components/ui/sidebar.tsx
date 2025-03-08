@@ -11,15 +11,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@compo
 import { cn } from '@lib/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft, ChevronLeft } from 'lucide-react';
 
 import { useIsMobile } from '../../lib/hooks/use-mobile';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = '16rem';
+const SIDEBAR_WIDTH = '18rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
-const SIDEBAR_WIDTH_ICON = '3rem';
+const SIDEBAR_WIDTH_ICON = '4rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
 type SidebarContext = {
@@ -134,6 +134,41 @@ const SidebarProvider = React.forwardRef<
 });
 SidebarProvider.displayName = 'SidebarProvider';
 
+const SidebarCollapseButton = React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(
+    ({ className, ...props }, ref) => {
+        const { toggleSidebar, state } = useSidebar();
+        const isCollapsed = state === 'collapsed';
+
+        return (
+            <button
+                ref={ref}
+                onClick={toggleSidebar}
+                className={cn(
+                    'absolute top-1/2 -translate-y-1/2',
+                    'right-[-20px] translate-x-1/2',
+                    'h-10 w-10 rounded-full',
+                    'bg-gradient-to-r from-purple-500 to-purple-400',
+                    'border border-purple-400',
+                    'shadow-[0_2px_8px_rgba(0,0,0,0.1)]',
+                    'flex items-center justify-center',
+                    'hover:opacity-90 transition-all duration-200',
+                    'z-50',
+                    className
+                )}
+                {...props}
+            >
+                <ChevronLeft 
+                    className={cn(
+                        "h-5 w-5 text-white transition-transform duration-200",
+                        isCollapsed ? "rotate-180" : "rotate-0"
+                    )} 
+                />
+            </button>
+        );
+    }
+);
+SidebarCollapseButton.displayName = 'SidebarCollapseButton';
+
 const Sidebar = React.forwardRef<
     HTMLDivElement,
     React.ComponentProps<'div'> & {
@@ -147,7 +182,7 @@ const Sidebar = React.forwardRef<
     if (collapsible === 'none') {
         return (
             <div
-                className={cn('flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground', className)}
+                className={cn('flex h-full w-[--sidebar-width] bg-white flex-col bg-sidebar text-sidebar-foreground', className)}
                 ref={ref}
                 {...props}
             >
@@ -179,7 +214,7 @@ const Sidebar = React.forwardRef<
     return (
         <div
             ref={ref}
-            className="group peer hidden md:block text-sidebar-foreground"
+            className="group peer hidden md:block text-sidebar-foreground relative"
             data-state={state}
             data-collapsible={state === 'collapsed' ? collapsible : ''}
             data-variant={variant}
@@ -205,22 +240,27 @@ const Sidebar = React.forwardRef<
                     // Adjust the padding for floating and inset variants.
                     variant === 'floating' || variant === 'inset'
                         ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
-                        : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l',
+                        : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r-2 group-data-[side=right]:border-l',
+                    // Adiciona top-16 para posicionar abaixo do header
+                    'top-16',
                     className
                 )}
                 {...props}
             >
                 <div
                     data-sidebar="sidebar"
-                    className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+                    className={cn(
+                        'flex h-full w-full flex-col bg-white relative p-3',
+                        'h-[calc(100vh-4rem)]'
+                    )}
                 >
                     {children}
+                    <SidebarCollapseButton />
                 </div>
             </div>
         </div>
     );
 });
-Sidebar.displayName = 'Sidebar';
 
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
     ({ className, onClick, ...props }, ref) => {
@@ -351,7 +391,8 @@ const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'
         <div
             ref={ref}
             data-sidebar="group"
-            className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
+            className={cn('relative flex w-full min-w-0 flex-col items-center justify-center', className)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             {...props}
         />
     );
@@ -418,7 +459,7 @@ const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
-    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-[#fae5ff] focus-visible:ring-2 active:bg-[#fae5ff] disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-[#fae5ff] data-[active=true]:font-medium data-[state=open]:hover:bg-[#fae5ff] group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
     {
         variants: {
             variant: {
@@ -640,4 +681,5 @@ export {
     SidebarSeparator,
     SidebarTrigger,
     useSidebar,
+    SidebarCollapseButton,
 };

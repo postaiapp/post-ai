@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function Home() {
 	return (
-		<div className="flex flex-col items-center justify-between h-screen w-full">
+		<div className="flex flex-col items-center justify-between h-screen w-full bg-[#f6f2f7]">
 			<div className="flex flex-col items-center mt-12 w-[70%]">
 				<div className="p-3 mx-auto rounded-md border-[1.5px] border-gray-200 w-fit mb-4 shadow-sm">
 					<Image src="/logo.png" alt="Logo" width={48} height={48} />

@@ -7,9 +7,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <>
             <ToastContainer />
             <SidebarProvider defaultOpen={true}>
+                <Header />
                 <Sidebar />
-                <div className="flex flex-col w-full h-screen">
-                    <Header />
+                <div className="flex flex-col w-full h-screen pt-16">
                     {children}
                 </div>
             </SidebarProvider>
