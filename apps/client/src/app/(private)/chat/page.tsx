@@ -24,6 +24,8 @@ const RequestMessageComponent = ({ request }: { request: Interaction['request'] 
 };
 
 const ResponseMessageComponent = ({ response }: { response: Interaction['response'] }) => {
+	const router = useRouter();
+
 	return (
 		<div className="flex justify-start">
 			<div className="bg-purple-100 p-4 rounded-lg max-w-[80%]">
@@ -37,6 +39,13 @@ const ResponseMessageComponent = ({ response }: { response: Interaction['respons
 					height={400}
 					priority
 				/>
+
+				<Button
+					className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
+					onClick={() => router.push(`/post-details?image=${encodeURIComponent(response)}`)}
+				>
+					Postar imagem
+				</Button>
 			</div>
 		</div>
 	);
