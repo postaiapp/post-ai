@@ -92,19 +92,22 @@ body {
   color: #ffffff;
 }
 
+/* Estiliza a barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 12px; /* Largura da barra de rolagem */
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #190041; /* Cor do "negócio" que mexe */
-  border-radius: 2px; /* Borda arredondada */
+  width: 8px; /* Largura da scrollbar */
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* Fundo transparente */
+  background: #f1f1f1; /* Cor do fundo */
+  border-radius: 10px; /* Bordas arredondadas */
 }
 
-::-webkit-scrollbar-thumb:horizontal {
-  background-color: #190041;
+::-webkit-scrollbar-thumb {
+  background: #b4afb6; /* Cor do "botão" da scrollbar */
+  border-radius: 10px; /* Bordas arredondadas */
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5c595d; /* Cor ao passar o mouse */
+}
+
