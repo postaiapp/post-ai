@@ -37,8 +37,8 @@ export class PostService {
 		return this.publishNow({ data, meta });
 	}
 
-	async verifyPostPublish({ postId, caption, username, session }: VerifyPostPublishProps) {
-		const published = await this.publishPhotoOnInstagram(caption, username, session);
+	async verifyPostPublish({ postId, caption, username, session, img }: VerifyPostPublishProps) {
+		const published = await this.publishPhotoOnInstagram(caption, username, session, img);
 
 		if (!published) {
 			await this.postModel.updateOne({ _id: postId }, { $set: { canceledAt: dayjs().toDate() } });
@@ -69,7 +69,7 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		const published = await this.publishPhotoOnInstagram(caption, username, account.session);
+		const published = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
 
 		if (!published) {
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
@@ -77,7 +77,7 @@ export class PostService {
 
 		const postCreate = {
 			caption,
-			imageUrl: IMAGE_TEST_URL,
+			imageUrl: data.img,
 			userId: account.accountId,
 			canceledAt: null,
 			publishedAt: dayjs().toDate(),
@@ -187,7 +187,7 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
-		const published = await this.verifyPostPublish({ caption, username, session, postId: id });
+		const published = await this.verifyPostPublish({ caption, username, session, postId: id, img: data.img });
 
 		if (!published) {
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
@@ -216,7 +216,7 @@ export class PostService {
 		};
 	}
 
-	async publishPhotoOnInstagram(caption: string, username: string, session: Session): Promise<boolean> {
+	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<boolean> {
 		try {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
@@ -224,7 +224,8 @@ export class PostService {
 				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
 			}
 
-			const imageBuffer = await get({ url: IMAGE_TEST_URL, encoding: null });
+			const imageBuffer = await get({ url: img, encoding: null });
+
 			await this.ig.publish.photo({ file: imageBuffer, caption });
 
 			return true;

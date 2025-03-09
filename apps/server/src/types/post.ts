@@ -30,6 +30,7 @@ type VerifyPostPublishProps = {
 	caption: string;
 	username: string;
 	session: Session;
+	img: string;
 };
 
 export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps };
