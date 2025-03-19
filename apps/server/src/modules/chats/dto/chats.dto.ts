@@ -17,7 +17,7 @@ export class CreateChatDto {
 }
 
 export class ListChatInteractionsParamsDto {
-	@IsOptional()
+	@IsNotEmpty()
 	@IsString()
 	chatId: string;
 }

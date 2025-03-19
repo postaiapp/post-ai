@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
 import { ListChatInteractionsOptions, SendMessageData } from '@type/chats';
-import * as dayjs from 'dayjs';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -41,6 +40,8 @@ export class ChatsService {
 				user_id: data.userId,
 				finished_at: null,
 				first_message: data.message,
+				createdAt: new Date(),
+				updatedAt: new Date(),
 			});
 		}
 
@@ -71,7 +72,6 @@ export class ChatsService {
 			request: message,
 			response: url,
 			is_regenerated: false,
-			created_at: dayjs().toDate(),
 		};
 
 		chat.interactions.push(interactionBody);
@@ -84,7 +84,7 @@ export class ChatsService {
 				interactions: chat.interactions,
 				firstMessage: chat.first_message,
 				id: chat._id,
-				createdAt: chat.created_at,
+				createdAt: chat.createdAt,
 			},
 			interaction: {
 				request: interactionBody.request,
@@ -112,7 +112,7 @@ export class ChatsService {
 	async listUserChats({ userId, pagination }: { userId: string; pagination?: { page: number; limit: number } }) {
 		const { page, limit } = pagination || {};
 
-		const query = this.chatModel.find({ user_id: userId.toString() }).sort({ created_at: -1 });
+		const query = this.chatModel.find({ user_id: userId.toString() }).sort({ createdAt: -1, _id: -1 });
 
 		if (pagination) {
 			const skip = pagination ? (page - 1) * limit : undefined;
@@ -134,7 +134,7 @@ export class ChatsService {
 				interactions: chat.interactions,
 				firstMessage: chat.first_message,
 				id: chat._id.toString(),
-				createdAt: chat.created_at,
+				createdAt: chat.createdAt,
 			})),
 			meta: {
 				total: allUserChatsCount,
