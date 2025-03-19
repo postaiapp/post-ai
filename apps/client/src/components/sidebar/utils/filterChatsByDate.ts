@@ -1,39 +1,30 @@
 import { Chat } from '@common/interfaces/chat';
+import { differenceInDays } from 'date-fns';
 
 export const filterChatsByDate = (chats: Chat[]) => {
 	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(yesterday.getDate() - 1);
 
-	const last7Days = new Date(today);
-	last7Days.setDate(last7Days.getDate() - 7);
+	const todayChats: Chat[] = [];
+	const yesterdayChats: Chat[] = [];
+	const last7DaysChats: Chat[] = [];
+	const last30DaysChats: Chat[] = [];
 
-	const last30Days = new Date(today);
-	last30Days.setDate(last30Days.getDate() - 30);
+	chats.forEach((element) => {
+		const daysDifference = differenceInDays(today, new Date(element.createdAt));
 
-	const todayChats = chats.filter((chat) => {
-		const chatDate = new Date(chat.createdAt);
-		return chatDate.toDateString() === today.toDateString();
-	});
+		console.log({
+			daysDifference,
+		});
 
-	const yesterdayChats = chats.filter((chat) => {
-		const chatDate = new Date(chat.createdAt);
-		return chatDate.toDateString() === yesterday.toDateString();
-	});
-
-	const remainingChats = chats.filter((chat) => {
-		const chatDate = new Date(chat.createdAt);
-		return chatDate.toDateString() !== today.toDateString() && chatDate.toDateString() !== yesterday.toDateString();
-	});
-
-	const last7DaysChats = remainingChats.filter((chat) => {
-		const chatDate = new Date(chat.createdAt);
-		return chatDate >= last7Days && chatDate < yesterday;
-	});
-
-	const last30DaysChats = remainingChats.filter((chat) => {
-		const chatDate = new Date(chat.createdAt);
-		return chatDate >= last30Days && chatDate < last7Days;
+		if (daysDifference === 0) {
+			todayChats.push(element);
+		} else if (daysDifference === 1) {
+			yesterdayChats.push(element);
+		} else if (daysDifference <= 7) {
+			last7DaysChats.push(element);
+		} else {
+			last30DaysChats.push(element);
+		}
 	});
 
 	return {

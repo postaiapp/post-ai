@@ -12,14 +12,14 @@ export const ListChatsComponent = ({ label, chats }: { label: string; chats: Cha
 
 	return (
 		<div>
-			<SidebarMenu className="sticky top-0 bg-[#fafafa] z-10 p-2 text-sm font-medium">{label}</SidebarMenu>
+			<SidebarMenu className="sticky top-0 bg-[#fafafa] z-10 p-2 text-xs font-bold">{label}</SidebarMenu>
 			<div>
 				{chats.map((chat) => (
 					<SidebarMenuItem key={chat.id}>
 						<SidebarMenuButton asChild isActive={chatId === chat.id}>
 							<Link href={`/chat?chatId=${chat.id}`}>
 								<MessageSquare size={16} />
-								<span>{chat.firstMessage || 'Nova conversa'}</span>
+								<span className="text-sm">{chat.firstMessage || 'Nova conversa'}</span>
 							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>

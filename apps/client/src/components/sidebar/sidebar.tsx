@@ -15,16 +15,18 @@ import { getUserChats } from '@processes/chat';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import { ListChatsComponent } from './components/listChatsComponent/listChatsComponent';
 import { SidebarFooter } from './components/sidebarFooter';
 import { filterChatsByDate } from './utils/filterChatsByDate';
 
 export default function Sidebar() {
+	const searchParams = useSearchParams();
+	const chatId = searchParams.get('chatId');
 	const pathname = usePathname();
 
-	const pageSize = 10;
+	const pageSize = 5;
 	const { data, fetchNextPage, hasNextPage, isPending, isFetchingNextPage } = useInfiniteQuery({
 		queryKey: ['userChats'],
 		queryFn: async ({ pageParam = 1 }) => {
@@ -58,14 +60,21 @@ export default function Sidebar() {
 
 	return (
 		<UiSideBar collapsible="icon">
-			<SidebarContent className="thin-scrollbar">
+			<SidebarContent className="overflow-hidden">
 				<SidebarGroup>
 					<SidebarGroupLabel className="pb-2">Post AI</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{itemsSideBar.map((item) => (
 								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild isActive={pathname === item.url}>
+									<SidebarMenuButton
+										asChild
+										isActive={
+											pathname === '/chat'
+												? pathname === item.url && !chatId
+												: pathname === item.url
+										}
+									>
 										<Link href={item.url}>
 											<item.icon />
 											<span>{item.title}</span>
@@ -74,7 +83,7 @@ export default function Sidebar() {
 								</SidebarMenuItem>
 							))}
 
-							<div className="group-data-[collapsible=icon]:hidden">
+							<div className="group-data-[collapsible=icon]:hidden overflow-y-auto h-[calc(100vh-140px)] -mr-2 thin-scrollbar">
 								{isPending ? (
 									<div className="flex justify-center items-center h-[200px]">
 										<Loader2 className="h-4 w-4 animate-spin" />

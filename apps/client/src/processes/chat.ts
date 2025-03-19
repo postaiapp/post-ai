@@ -31,7 +31,12 @@ export const getUserChats = async ({
 	page?: number;
 	limit?: number;
 }): Promise<{ results: Chat[]; meta: { total: number; page?: number; limit?: number } }> => {
-	const { data }: ClientResponse = await client.get(`/chats?page=${page}&${limit}`);
+	const { data }: ClientResponse = await client.get(`/chats`, {
+		params: {
+			page,
+			limit,
+		},
+	});
 
 	return data.data;
 };

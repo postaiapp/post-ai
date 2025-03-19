@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Interaction } from '@common/interfaces/chat';
 import { Button } from '@components/button';
-import { AlertCircle, RefreshCw, Share2 } from 'lucide-react';
+import { AlertCircle, RefreshCw, Send } from 'lucide-react';
 import Image from 'next/image';
 
 import { getErrorMessage } from '../../utils';
@@ -33,7 +33,7 @@ export const ResponseMessageComponent = ({
 					<RefreshCw size={16} />
 				</Button>
 				<Button variant="outline" className="w-8 h-8 p-0">
-					<Share2 size={16} />
+					<Send size={16} />
 				</Button>
 			</div>
 		</div>

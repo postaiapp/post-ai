@@ -10,6 +10,7 @@ import {
 	ResponseMessageErrorComponent,
 	ResponseMessageLoadingComponent,
 } from './components/ResponseMessageComponent/ResponseMessageComponent';
+import { getInteractionId } from './utils/getInteractionId';
 
 interface ChatUiProps {
 	chatId?: string;
@@ -73,28 +74,31 @@ export const ChatUi = ({
 						</div>
 					) : (
 						<div className="space-y-8 w-full max-w-4xl mx-auto">
-							{data?.map((interaction, index) => (
-								<div
-									key={interaction.request.toLowerCase().replace(/\s+/g, '-') + index}
-									id={interaction.request.toLowerCase().replace(/\s+/g, '-') + index}
-									className={'flex flex-col gap-6 w-full px-4'}
-								>
-									<RequestMessageComponent request={interaction.request} />
-									{interaction.response ? (
-										<ResponseMessageComponent
-											response={interaction.response}
-											onRegenerate={() => handleRegenerate(interaction._id)}
-										/>
-									) : isPendingSendMessage ? (
-										<ResponseMessageLoadingComponent />
-									) : (
-										<ResponseMessageErrorComponent
-											onTryAgain={() => handleSendMessage(interaction.request, chatId)}
-											errorMessage={errorSendMessage?.message}
-										/>
-									)}
-								</div>
-							))}
+							{data?.map((interaction, index) => {
+								const id = getInteractionId(interaction);
+								return (
+									<div
+										key={interaction._id + index}
+										id={id}
+										className={'flex flex-col gap-6 w-full px-4'}
+									>
+										<RequestMessageComponent request={interaction.request} />
+										{interaction.response ? (
+											<ResponseMessageComponent
+												response={interaction.response}
+												onRegenerate={() => handleRegenerate(interaction._id)}
+											/>
+										) : isErrorSendMessage ? (
+											<ResponseMessageErrorComponent
+												onTryAgain={() => handleSendMessage(interaction.request, chatId)}
+												errorMessage={errorSendMessage?.message}
+											/>
+										) : (
+											<ResponseMessageLoadingComponent />
+										)}
+									</div>
+								);
+							})}
 						</div>
 					)}
 				</div>

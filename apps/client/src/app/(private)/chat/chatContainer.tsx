@@ -9,6 +9,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChatUi } from './chatUi';
 import useChatStore from './store/useChatStore';
 import { getErrorMessage, NOT_TRY_AGAIN_ERROR_MESSAGES } from './utils';
+import { getInteractionId } from './utils/getInteractionId';
+
+const scrollToMessage = (id: string) => {
+	const lastMessage = document.querySelector(`#${id}`);
+	if (lastMessage) {
+		lastMessage.scrollIntoView({ behavior: 'smooth' });
+	}
+};
 
 const ChatContainer = () => {
 	const router = useRouter();
@@ -86,13 +94,6 @@ const ChatContainer = () => {
 		scrollToMessage(id);
 	};
 
-	const scrollToMessage = (id: string) => {
-		const lastMessage = document.querySelector(`#${id}`);
-		if (lastMessage) {
-			lastMessage.scrollIntoView({ behavior: 'smooth' });
-		}
-	};
-
 	// Treat scenario of user reloading the page when image is loading
 	useEffect(() => {
 		if (pendingPrompt && !isPendingSendMessage && !isErrorSendMessage) {
@@ -106,8 +107,8 @@ const ChatContainer = () => {
 		if (typeof window !== 'undefined') {
 			if (data?.data?.length) {
 				const interaction = data.data.slice(-1)[0];
-				const finalIndex = data.data.length - 1;
-				scrollToMessage(`${interaction.request.toLowerCase().replace(/\s+/g, '-') + finalIndex}`);
+				const id = getInteractionId(interaction);
+				scrollToMessage(id);
 			}
 		}
 	}, [data?.data]);
