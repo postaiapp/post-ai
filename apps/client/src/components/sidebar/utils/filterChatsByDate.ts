@@ -12,10 +12,6 @@ export const filterChatsByDate = (chats: Chat[]) => {
 	chats.forEach((element) => {
 		const daysDifference = differenceInDays(today, new Date(element.createdAt));
 
-		console.log({
-			daysDifference,
-		});
-
 		if (daysDifference === 0) {
 			todayChats.push(element);
 		} else if (daysDifference === 1) {
