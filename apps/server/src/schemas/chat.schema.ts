@@ -13,11 +13,14 @@ export class Chat {
 	@Prop({ type: [InteractionSchema], default: [] })
 	interactions: Interaction[];
 
-	@Prop({ default: null, required: true })
+	@Prop({ required: true })
 	first_message: string;
 
-	@Prop({ default: new Date(), required: false })
-	created_at: Date;
+	@Prop({ required: true })
+	createdAt: Date;
+
+	@Prop({ required: true })
+	updatedAt: Date;
 }
 
 export type ChatDocument = HydratedDocument<Chat>;

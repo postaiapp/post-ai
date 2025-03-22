@@ -1,10 +1,11 @@
 import { Meta } from '@decorators/meta.decorator';
+import { Paginate } from '@decorators/pagination.decorator';
 import { AuthGuard } from '@guards/auth.guard';
 import { Body, Controller, Get, Param, Post, Response, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { CreateChatDto, CreateChatParamsDto } from '../dto/chats.dto';
+import { CreateChatDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 
 @UseGuards(AuthGuard)
@@ -26,13 +27,34 @@ export class ChatsController extends BaseController {
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
+			console.log(error);
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Post('interactions/regenerate')
+	async regenerateMessage(
+		@Body() data: RegenerateMessageDto,
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse
+	) {
+		console.log('regenerateMessage', data);
+		try {
+			const response = await this.chatService.regenerateMessage({
+				data,
+				meta,
+			});
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			console.log(error);
 			return this.sendError({ error, res });
 		}
 	}
 
 	@Get('interactions/:chatId')
 	async listChatInteractions(
-		@Param() params: CreateChatParamsDto,
+		@Param() params: ListChatInteractionsParamsDto,
 		@Meta() meta: MetaType,
 		@Response() res: ExpressResponse
 	) {
@@ -43,6 +65,20 @@ export class ChatsController extends BaseController {
 
 		try {
 			const response = await this.chatService.listChatInteractions(options);
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Get()
+	async listUserChats(@Meta() meta: MetaType, @Paginate() pagination, @Response() res: ExpressResponse) {
+		try {
+			const response = await this.chatService.listUserChats({
+				userId: meta.userId.toString(),
+				pagination,
+			});
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {

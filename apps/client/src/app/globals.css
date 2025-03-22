@@ -94,17 +94,38 @@ body {
 
 /* Estiliza a barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 8px; /* Largura da scrollbar */
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Cor do fundo */
-  border-radius: 10px; /* Bordas arredondadas */
+  width: 12px; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b4afb6; /* Cor do "botão" da scrollbar */
-  border-radius: 10px; /* Bordas arredondadas */
+  background-color: #999999;
+  border-radius: 2px; 
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: #999999;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px; 
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #999999;
+  border-radius: 4px; 
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:horizontal {
+  background-color: #999999;
+  height: 6px;
 }
 
 .thin-scrollbar::-webkit-scrollbar {

@@ -1,3 +1,4 @@
+import { PaginationDto } from '@common/dto/pagination.dto';
 import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
@@ -15,8 +16,24 @@ export class CreateChatDto {
 	chatId: string;
 }
 
-export class CreateChatParamsDto {
-	@IsOptional()
+export class RegenerateMessageDto {
+	@IsNotEmpty()
+	@IsString()
+	message: string;
+
+	@IsNotEmpty()
+	@IsString()
+	chatId: string;
+
+	@IsNotEmpty()
+	@IsString()
+	interactionId: string;
+}
+
+export class ListChatInteractionsParamsDto {
+	@IsNotEmpty()
 	@IsString()
 	chatId: string;
 }
+
+export class ListUserChatsQueryDto extends PaginationDto {}

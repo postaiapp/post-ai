@@ -24,6 +24,13 @@ type CanceledPostBody = {
 	postId: string;
 };
 
+type GetUserPostsProps = {
+	query: {
+		page?: number;
+		limit?: number;
+	};
+	meta: Meta
+}
 type VerifyPostPublishProps = {
 	postId: string;
 	caption: string;
@@ -32,12 +39,25 @@ type VerifyPostPublishProps = {
 	img: string;
 };
 
-type GetUserPostsProps = {
-	query: {
-		page?: number;
-		limit?: number;
-	};
-	meta: Meta
-}
+type GenerateImageOptions = {
+	prompt: string;
+	n?: number;
+	size?: string;
+	style?: string;
+};
 
-export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps, GetUserPostsProps };
+type GeneratedImage = {
+	url: string;
+};
+
+export type {
+	CanceledPostBody,
+	DefaultPostBodyCreate,
+	GeneratedImage,
+	GenerateImageOptions,
+	PostBodyCreate,
+	PublishedPostProps,
+	VerifyPostPublishProps,
+	GetUserPostsProps
+};
+

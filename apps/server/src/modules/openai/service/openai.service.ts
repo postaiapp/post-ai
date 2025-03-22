@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { R2Storage } from '@storages/r2-storage';
 import { OpenAI } from 'openai';
 import { CreateOpenaiDto } from '../dto/openai.dto';
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 
 @Injectable()
 export class OpenaiService {
@@ -11,7 +12,8 @@ export class OpenaiService {
 
 	constructor(
 		private configService: ConfigService,
-		private storageService: R2Storage
+		private storageService: R2Storage,
+		private imageGenerationService: ImageGenerationService
 	) {
 		const apiKey = this.configService.get<string>('OPENAI_API_KEY');
 		this.openai = new OpenAI({ apiKey });
@@ -26,15 +28,11 @@ export class OpenaiService {
 
 		const mountedPrompt = this.generatePrompt(prompt);
 
-		const response = await this.openai.images.generate({
-			model: 'dall-e-3',
+		const response = await this.imageGenerationService.generateImage({
 			prompt: mountedPrompt,
-			n: 1,
-			quality: 'standard',
-			size: '1024x1024',
 		});
 
-		const url = response.data[0].url;
+		const url = response.url;
 
 		const uploadedImage = await this.storageService.downloadAndUploadImage(url);
 

@@ -3,20 +3,18 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { TextAreaProps } from '@common/interfaces/ui';
+import { Button } from '@components/button';
 import { cn } from '@lib/utils';
 import clsx from 'clsx';
-import { ArrowUp, Square } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 
-import { Button } from '../ui/button';
-
-const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
+const ChatTextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 	(
 		{
 			info,
 			error,
 			size = 'default',
 			disabled = false,
-			loading = false,
 			maxLength,
 			numberOfLines = 2,
 			maxNumberOfLines = 4,
@@ -31,7 +29,6 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 		ref
 	) => {
 		const [isFocused, setIsFocused] = useState(false);
-		const [length, setLength] = useState(value?.toString().length || 0);
 		const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
 		const handleChange = useCallback(
@@ -41,8 +38,6 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 					textarea.style.height = 'auto';
 					textarea.style.height = `${Math.min(textarea.scrollHeight, maxNumberOfLines * 1.5 * 16)}px`;
 				}
-
-				setLength(e.target.value.length);
 				onChange?.(e);
 			},
 			[onChange, maxNumberOfLines]
@@ -99,7 +94,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 						onClick={onEnter}
 						className={'flex mt-auto bg-purple-400 border-none shadow-none justify-center w-8 h-8 m-1'}
 					>
-						{loading ? <Square className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+						<ArrowUp className="h-4 w-4" />
 					</Button>
 				</div>
 
@@ -108,7 +103,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 					{error && <p className="text-red-500 text-sm">{error}</p>}
 					{showCount && maxLength && (
 						<p className="text-gray-500 text-sm">
-							{length}/{maxLength}
+							{value?.toString().length}/{maxLength}
 						</p>
 					)}
 				</div>
@@ -117,6 +112,6 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 	}
 );
 
-TextArea.displayName = 'TextArea';
+ChatTextArea.displayName = 'TextArea';
 
-export default TextArea;
+export default ChatTextArea;

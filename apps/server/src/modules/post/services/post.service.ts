@@ -45,7 +45,7 @@ export class PostService {
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
 		}
 
-		return true;
+		return published;
 	}
 
 	async publishNow({ data, meta }: PublishedPostProps) {
@@ -69,19 +69,25 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		const { id, code } = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
+		const published = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
 
-		const post = await this.postModel.create({
-			code,
-			postId: id,
+		if (!published) {
+			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
+		}
+
+		const postCreate = {
+			code: published.code,
+			postId: published.id,
 			caption,
 			imageUrl: data.img,
 			userId: meta.userId,
 			accountId: account.accountId,
 			canceledAt: null,
-			publishedAt: new Date(),
-			scheduledAt: null
-		});
+			publishedAt: dayjs().toDate(),
+			scheduledAt: null,
+		};
+
+		const post = await this.postModel.create(postCreate);
 
 		return {
 			post: {
@@ -185,17 +191,17 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
-		const published = await this.verifyPostPublish({ caption, username, session, postId: id, img: data.img });
-
-		if (!published) {
-			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
-		}
-
-		const {id: postId, code} = await this.publishPhotoOnInstagram(caption, username, session, data.img);
+		const { code, id: postId } = await this.verifyPostPublish({
+			postId: id,
+			caption,
+			username,
+			session,
+			img: data.img
+		});
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
-			{ _id: id },
-			{ publishedAt: new Date(), postId, code },
+			{ _id: postId },
+			{ publishedAt: dayjs().toDate() },
 			{ new: true }
 		);
 
@@ -207,8 +213,8 @@ export class PostService {
 
 		return {
 			post: {
-				code,
-				postId,
+				code: code,
+				postId: postId,
 				caption: updatedPost.caption,
 				imageUrl: updatedPost.imageUrl,
 				publishedAt: updatedPost.publishedAt,
@@ -218,18 +224,22 @@ export class PostService {
 		};
 	}
 
-	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<{id: string, code: string}> {
-		const restored = await this.instagramAuthService.restoreSession(username, session);
+	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<{id: string, code: string} | false> {
+		try {
+			const restored = await this.instagramAuthService.restoreSession(username, session);
 
-		if (!restored) {
-			throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
+			if (!restored) {
+				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
+			}
+
+			const imageBuffer = await get({ url: img, encoding: null });
+			const post = await this.ig.publish.photo({ file: imageBuffer, caption });
+
+			return {id: post.media.id, code: post.media.code};
+		} catch (error) {
+			this.logger.error(`Failed to publish photo on Instagram from username: ${username}`, { caption, error });
+			return false;
 		}
-
-		const imageBuffer = await get({ url: img, encoding: null });
-
-		const post = await this.ig.publish.photo({ file: imageBuffer, caption });
-
-		return { id: post.media.id, code: post.media.code };
 	}
 
 	async getInstagramPostInfo(postId: string, username: string, session: Session) {
@@ -244,7 +254,7 @@ export class PostService {
 			const insights = (await this.ig.insights.post(postId)).data.media;
 			const comments = (await this.ig.feed.mediaComments(postId).items()).slice(-5)
 
-			const recentComments = comments?.map(comment => ({	
+			const recentComments = comments?.map(comment => ({
 				text: comment.text,
 				user: {
 					username: comment.user.username,
