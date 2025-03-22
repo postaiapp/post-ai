@@ -1,15 +1,11 @@
 import { Meta } from '@decorators/meta.decorator';
+import { Paginate } from '@decorators/pagination.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Get, Param, Post, Query, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Response, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import {
-	CreateChatDto,
-	ListChatInteractionsParamsDto,
-	ListUserChatsQueryDto,
-	RegenerateMessageDto,
-} from '../dto/chats.dto';
+import { CreateChatDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 
 @UseGuards(AuthGuard)
@@ -77,15 +73,11 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get()
-	async listUserChats(
-		@Query() query: ListUserChatsQueryDto,
-		@Meta() meta: MetaType,
-		@Response() res: ExpressResponse
-	) {
+	async listUserChats(@Meta() meta: MetaType, @Paginate() pagination, @Response() res: ExpressResponse) {
 		try {
 			const response = await this.chatService.listUserChats({
 				userId: meta.userId.toString(),
-				pagination: { limit: query.limit, page: query.page },
+				pagination,
 			});
 
 			return this.sendSuccess({ data: response, res });

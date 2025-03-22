@@ -1,5 +1,5 @@
+import { Pagination } from '@common/dto/pagination.dto';
 import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
-import { OpenaiService } from '@modules/openai/service/openai.service';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
@@ -11,7 +11,6 @@ import { Model } from 'mongoose';
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private openaiService: OpenaiService,
 		private readonly imageGenerationService: ImageGenerationService
 	) {}
 
@@ -30,13 +29,10 @@ export class ChatsService {
 	}
 
 	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
-		const chat = await this.chatModel.findOne({
-			_id: data.chatId,
-			user_id: data.userId,
-		});
+		const chat = await this.findChat(data.chatId, data.userId);
 
 		if (!chat) {
-			return new this.chatModel({
+			return this.chatModel.create({
 				user_id: data.userId,
 				finished_at: null,
 				first_message: data.message,
@@ -123,8 +119,11 @@ export class ChatsService {
 			updatedAt: new Date(),
 		};
 
-		await this.chatModel.findOneAndUpdate(
-			{ _id: chatId, 'interactions._id': interactionId },
+		await this.chatModel.updateOne(
+			{
+				_id: chatId,
+				'interactions._id': interactionId,
+			},
 			{
 				$set: {
 					'interactions.$.user_id': partialInteractionBody.user_id,
@@ -133,8 +132,7 @@ export class ChatsService {
 					'interactions.$.is_regenerated': partialInteractionBody.is_regenerated,
 					'interactions.$.updatedAt': partialInteractionBody.updatedAt,
 				},
-			},
-			{ new: true }
+			}
 		);
 
 		return {
@@ -160,26 +158,21 @@ export class ChatsService {
 			.join('\n');
 	}
 
-	async listChatInteractions(options: ListChatInteractionsOptions) {
-		const { params, meta } = options;
-
+	async listChatInteractions({ params, meta }: ListChatInteractionsOptions) {
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
 		return chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 	}
 
-	async listUserChats({ userId, pagination }: { userId: string; pagination?: { page: number; limit: number } }) {
-		const { page, limit } = pagination || {};
+	async listUserChats({ userId, pagination }: { userId: string; pagination?: Pagination }) {
+		const { page, perPage, offset } = pagination;
 
-		const query = this.chatModel.find({ user_id: userId.toString() }).sort({ createdAt: -1, _id: -1 });
-
-		if (pagination) {
-			const skip = pagination ? (page - 1) * limit : undefined;
-			query.skip(skip);
-			query.limit(limit);
-		}
-
-		const chats = await query.lean();
+		const chats = await this.chatModel
+			.find({ user_id: userId.toString() })
+			.sort({ createdAt: -1, _id: -1 })
+			.skip(offset)
+			.limit(perPage)
+			.lean();
 
 		const allUserChatsCount = await this.chatModel
 			.countDocuments({
@@ -198,7 +191,7 @@ export class ChatsService {
 			meta: {
 				total: allUserChatsCount,
 				page,
-				limit,
+				limit: perPage,
 			},
 		};
 	}

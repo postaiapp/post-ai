@@ -1,27 +1,25 @@
+import { DEFAULT_PROMPT } from '@constants/ai';
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
-import {
-	ImageGenerationService,
-	GenerateImageOptions,
-	GeneratedImage,
-} from '@modules/image-generation/service/image-generation.service';
-import { DEFAULT_PROMPT } from '@constants/ai';
 import { R2Storage } from '@storages/r2-storage';
+import { GeneratedImage, GenerateImageOptions } from '@type/post';
+import axios from 'axios';
 
 @Injectable()
 export class IdeogramRepository implements ImageGenerationService {
 	private readonly apiKey: string;
-	private readonly baseUrl = 'https://api.ideogram.ai';
+	private readonly baseUrl: string;
 
 	constructor(
 		private configService: ConfigService,
 		private storageService: R2Storage
 	) {
 		this.apiKey = this.configService.get<string>('IDEOGRAM_API_KEY');
+		this.baseUrl = this.configService.get<string>('IDEOGRAM_BASE_URL');
 	}
 
-	generatePrompt(prompt: string): string {
+	private generatePrompt(prompt: string): string {
 		return `${DEFAULT_PROMPT}\n${prompt}`;
 	}
 

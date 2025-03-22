@@ -32,4 +32,24 @@ type VerifyPostPublishProps = {
 	session: Session;
 };
 
-export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps };
+type GenerateImageOptions = {
+	prompt: string;
+	n?: number;
+	size?: string;
+	style?: string;
+};
+
+type GeneratedImage = {
+	url: string;
+};
+
+export type {
+	CanceledPostBody,
+	DefaultPostBodyCreate,
+	GeneratedImage,
+	GenerateImageOptions,
+	PostBodyCreate,
+	PublishedPostProps,
+	VerifyPostPublishProps
+};
+

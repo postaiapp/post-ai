@@ -52,7 +52,6 @@ const ChatContainer = () => {
 			const finalError = getErrorMessage(error.message);
 			if (NOT_TRY_AGAIN_ERROR_MESSAGES.includes(finalError)) {
 				setPendingPrompt('');
-				// the user wont be able to try again
 			}
 		},
 	});
@@ -91,7 +90,6 @@ const ChatContainer = () => {
 
 		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
 			const oldDataWithoutRequestsWithNoResponse = old?.data?.filter((item) => !!item.response) ?? [];
-			// THIS CASE WAS FOR THE TREATMENT IN THE CASE THE OLD MESSAGE WAS AN ERROR
 
 			return {
 				...old,
@@ -107,7 +105,7 @@ const ChatContainer = () => {
 		mutateRegenerateMessage({ message, chatId, interactionId });
 		queryClient.setQueryData(['chats', chatId], (old: { data?: Interaction[] }) => {
 			const oldDataWithoutRequestsWithNoResponse = old?.data?.filter((item) => !!item.response) ?? [];
-			// THIS CASE WAS FOR THE TREATMENT IN THE CASE THE OLD MESSAGE WAS AN ERROR
+
 
 			return {
 				...old,
@@ -117,16 +115,12 @@ const ChatContainer = () => {
 			};
 		});
 	};
-
-	// Treat scenario of user reloading the page when image is loading
 	useEffect(() => {
 		if (pendingPrompt && !isPendingSendMessage && !isErrorSendMessage) {
 			setPendingPrompt('');
 			setPrompt(pendingPrompt);
 		}
 	}, [pendingPrompt, isPendingSendMessage, setPendingPrompt, isErrorSendMessage, setPrompt]);
-
-	// Route to bottom when a message is sent by user or by bot, or when page is mounted
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			if (data?.data?.length) {

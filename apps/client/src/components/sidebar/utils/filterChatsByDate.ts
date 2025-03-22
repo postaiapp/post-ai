@@ -1,32 +1,30 @@
 import { Chat } from '@common/interfaces/chat';
 import { differenceInDays } from 'date-fns';
 
-export const filterChatsByDate = (chats: Chat[]) => {
+type FilteredChats = {
+	today: Chat[];
+	yesterday: Chat[];
+	last7Days: Chat[];
+	last30Days: Chat[];
+};
+
+export const filterChatsByDate = (chats: Chat[]): FilteredChats => {
 	const today = new Date();
 
-	const todayChats: Chat[] = [];
-	const yesterdayChats: Chat[] = [];
-	const last7DaysChats: Chat[] = [];
-	const last30DaysChats: Chat[] = [];
+	return chats.reduce<FilteredChats>(
+		(acc, chat) => {
+			const daysDifference = differenceInDays(today, new Date(chat.createdAt));
 
-	chats.forEach((element) => {
-		const daysDifference = differenceInDays(today, new Date(element.createdAt));
+			const categoryMap: Record<string, keyof FilteredChats> = {
+				'0': 'today',
+				'1': 'yesterday',
+			};
 
-		if (daysDifference === 0) {
-			todayChats.push(element);
-		} else if (daysDifference === 1) {
-			yesterdayChats.push(element);
-		} else if (daysDifference <= 7) {
-			last7DaysChats.push(element);
-		} else {
-			last30DaysChats.push(element);
-		}
-	});
+			const category = categoryMap[daysDifference] || (daysDifference <= 7 ? 'last7Days' : 'last30Days');
+			acc[category].push(chat);
 
-	return {
-		today: todayChats,
-		yesterday: yesterdayChats,
-		last7Days: last7DaysChats,
-		last30Days: last30DaysChats,
-	};
+			return acc;
+		},
+		{ today: [], yesterday: [], last7Days: [], last30Days: [] }
+	);
 };

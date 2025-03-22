@@ -9,3 +9,9 @@ export class PaginationDto {
 	@IsNumber()
 	limit: number;
 }
+
+export type Pagination = {
+	page: number;
+	perPage: number;
+	offset: number;
+};
