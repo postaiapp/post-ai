@@ -46,7 +46,7 @@ export default function PostDetailsUI({
 
 				<Separator />
 
-				<div className="flex flex-col gap-6 p-6 overflow-y-auto max-h-[calc(100vh-170px)]">
+				<div className="flex flex-col gap-6 p-6 overflow-y-auto max-h-[calc(100vh-170px)] thin-scrollbar">
 					<div className="p-6 border-[1px] shadow-xs rounded-xl border-gray-200 flex justify-between items-center">
 						<div className="flex items-center gap-4">
 							<Image
