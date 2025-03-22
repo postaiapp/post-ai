@@ -38,7 +38,6 @@ export class ChatsController extends BaseController {
 		@Meta() meta: MetaType,
 		@Response() res: ExpressResponse
 	) {
-		console.log('regenerateMessage', data);
 		try {
 			const response = await this.chatService.regenerateMessage({
 				data,

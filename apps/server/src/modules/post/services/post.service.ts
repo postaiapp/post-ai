@@ -213,8 +213,8 @@ export class PostService {
 
 		return {
 			post: {
-				code: code,
-				postId: postId,
+				code,
+				postId,
 				caption: updatedPost.caption,
 				imageUrl: updatedPost.imageUrl,
 				publishedAt: updatedPost.publishedAt,
@@ -422,7 +422,6 @@ export class PostService {
     const postsWithInstagramInfo = await Promise.all(
         posts.map(async (post) => {
             try {
-				
                 const instagramInfo = post.postId ? (await this.getInstagramPostInfo(post.postId, post.account.username, post.account.session)) : null
 
 								const postWithoutAccountSession = {
@@ -437,7 +436,6 @@ export class PostService {
 										...postWithoutAccountSession,
 										...(instagramInfo ?? [])
 								};
-               
             } catch (error) {
                 console.log(error)
                 this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
