@@ -7,7 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { DefaultPostBodyCreate, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
+import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
 import { IgApiClient } from 'instagram-private-api';
@@ -69,22 +69,19 @@ export class PostService {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		const published = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
+		const { id, code } = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
 
-		if (!published) {
-			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
-		}
-
-		const postCreate = {
+		const post = await this.postModel.create({
+			code,
+			postId: id,
 			caption,
 			imageUrl: data.img,
-			userId: account.accountId,
+			userId: meta.userId,
+			accountId: account.accountId,
 			canceledAt: null,
-			publishedAt: dayjs().toDate(),
-			scheduledAt: null,
-		};
-
-		const post = await this.postModel.create(postCreate);
+			publishedAt: new Date(),
+			scheduledAt: null
+		});
 
 		return {
 			post: {
@@ -121,7 +118,8 @@ export class PostService {
 		const postCreate = {
 			caption,
 			imageUrl: IMAGE_TEST_URL,
-			userId: instagramAccount.accountId,
+			accountId: instagramAccount.accountId,
+			userId: meta.userId,
 			canceledAt: null,
 			publishedAt: null,
 			jobId,
@@ -193,9 +191,11 @@ export class PostService {
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
 		}
 
+		const {id: postId, code} = await this.publishPhotoOnInstagram(caption, username, session, data.img);
+
 		const updatedPost = await this.postModel.findOneAndUpdate(
 			{ _id: id },
-			{ publishedAt: dayjs().toDate() },
+			{ publishedAt: new Date(), postId, code },
 			{ new: true }
 		);
 
@@ -207,6 +207,8 @@ export class PostService {
 
 		return {
 			post: {
+				code,
+				postId,
 				caption: updatedPost.caption,
 				imageUrl: updatedPost.imageUrl,
 				publishedAt: updatedPost.publishedAt,
@@ -216,48 +218,70 @@ export class PostService {
 		};
 	}
 
-	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<boolean> {
+	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<{id: string, code: string}> {
+		const restored = await this.instagramAuthService.restoreSession(username, session);
+
+		if (!restored) {
+			throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
+		}
+
+		const imageBuffer = await get({ url: img, encoding: null });
+
+		const post = await this.ig.publish.photo({ file: imageBuffer, caption });
+
+		return { id: post.media.id, code: post.media.code };
+	}
+
+	async getInstagramPostInfo(postId: string, username: string, session: Session) {
 		try {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
 			if (!restored) {
-				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
+				throw new TokenExpiredError('SESSION_REQUIRED', new Date());
 			}
 
-			const imageBuffer = await get({ url: img, encoding: null });
+			const mediaInfo = (await this.ig.media.info(postId)).items[0];
+			const insights = (await this.ig.insights.post(postId)).data.media;
+			const comments = (await this.ig.feed.mediaComments(postId).items()).slice(-5)
 
-			await this.ig.publish.photo({ file: imageBuffer, caption });
+			const recentComments = comments?.map(comment => ({	
+				text: comment.text,
+				user: {
+					username: comment.user.username,
+					profile_pic_url: comment.user.profile_pic_url,
+					verified: comment.user.is_verified
+				},
+				created_at: new Date(comment.created_at * 1000),
+				like_count: comment.comment_like_count,
+				reply_count: comment.child_comment_count
+			})) ?? [];
 
-			return true;
+			return {
+				code: mediaInfo.code,
+				caption: mediaInfo.caption.text,
+				engagement: {
+				hasLiked: mediaInfo.has_liked,
+					likes: insights.like_count,
+					comments: insights.comment_count,
+				},
+				comments: {
+					recent: recentComments,
+					has_more: mediaInfo.comment_count > 5
+				},
+			};
 		} catch (error) {
-			this.logger.error('Failed to publish photo on Instagram', { caption, error });
-			return false;
+			this.logger.error('Failed to get Instagram post info', { postId, error });
+			throw new BadRequestException('FAILED_GET_INSTAGRAM_POST_INFO');
 		}
 	}
 
-	async cancelScheduledPost({ query, meta }: DefaultPostBodyCreate) {
-		const { postId, username } = query;
-
-		const account = await this.userModel
-			.findOne(
-				{
-					_id: meta.userId,
-					'InstagramAccounts.username': username,
-				},
-				{
-					_id: 0,
-					InstagramAccounts: 1,
-				}
-			)
-			.lean()
-			.then((user) => user?.InstagramAccounts[0]);
-
+	async cancelScheduledPost({ postId , userId}: { postId: string, userId: string }) {
 		const post = await this.postModel
 			.findOne(
 				{
 					_id: postId,
+					userId: userId,
 					scheduledAt: { $ne: null },
-					userId: account.accountId,
 				},
 				{ jobId: 1 }
 			)
@@ -284,5 +308,142 @@ export class PostService {
 		this.cleanupJob(post.jobId);
 
 		return true;
+	}
+
+	async getUserPostsWithDetails({ query, meta }: GetUserPostsProps) {
+    const userId = meta.userId;
+
+		const accountsIds = await this.userModel.findOne(
+			{ _id: userId },
+			{
+				 _id: 0,
+				 InstagramAccounts: 1
+			 }
+			).then((accounts) => accounts?.InstagramAccounts.map(account => account.accountId) ?? []);
+
+    const { page, limit } = query;
+    const skip = page && limit ? (page - 1) * limit : undefined;
+
+    const [posts, total] = await Promise.all([
+        this.postModel.aggregate([
+            { 
+                $match: { accountId: { $in: accountsIds } } 
+            },
+            { 
+                $lookup: {  
+                    from: "users",
+                    let: { userId: "$userId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { 
+                                    $eq: ["$_id", { $toObjectId: "$$userId" }] 
+                                }
+                            }
+                        }
+                    ],
+                    as: "user"
+                }
+            },
+            { 
+                $unwind: { path: "$user", preserveNullAndEmptyArrays: true },  
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    let: { accountId: "$accountId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", { $toObjectId: meta.userId }] }
+                            }
+                        },
+                        {
+                            $unwind: "$InstagramAccounts"
+                        },
+                        {
+                            $match: {
+                                $expr: { $eq: ["$InstagramAccounts.accountId", "$$accountId"] }
+                            }
+                        }
+                    ],
+                    as: "accountInfo"
+                }
+            },
+            {
+                $unwind: { path: "$accountInfo", preserveNullAndEmptyArrays: true }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    caption: 1,
+                    imageUrl: 1,
+                    createdAt: 1,
+                    scheduledAt: 1,
+                    publishedAt: 1,
+                    canceledAt: 1,
+                    userId: 1,
+                    accountId: 1,
+                    postId: 1,
+                    user: {
+                        name: "$user.name",
+                        email: "$user.email",
+                        profilePicUrl: "$user.profilePicUrl"
+                    },
+                    account: {
+                        username: "$accountInfo.InstagramAccounts.username",
+                        profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl",
+												session: "$accountInfo.InstagramAccounts.session",
+												fullName: "$accountInfo.InstagramAccounts.fullName",
+												isPrivate: "$accountInfo.InstagramAccounts.isPrivate",
+												isVerified: "$accountInfo.InstagramAccounts.isVerified"
+                    }
+                }
+            },
+            ...(skip !== undefined ? [{ $skip: skip }] : []),
+            ...(limit !== undefined ? [{ $limit: limit }] : [])
+        ]),
+
+        this.postModel.countDocuments({
+            accountId: { $in: accountsIds }
+        })
+    ]);
+
+    const postsWithInstagramInfo = await Promise.all(
+        posts.map(async (post) => {
+            try {
+				
+                const instagramInfo = post.postId ? (await this.getInstagramPostInfo(post.postId, post.account.username, post.account.session)) : null
+
+								const postWithoutAccountSession = {
+									...post,
+									account: {
+										...post.account,
+										session: undefined
+									}
+								}
+
+								return {
+										...postWithoutAccountSession,
+										...(instagramInfo ?? [])
+								};
+               
+            } catch (error) {
+                console.log(error)
+                this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
+                return post;
+            }
+        })
+    );
+
+    return {
+        success: true,
+        data: postsWithInstagramInfo,
+        meta: {
+            total,
+            page,
+            limit,
+        },
+    };
 	}
 }

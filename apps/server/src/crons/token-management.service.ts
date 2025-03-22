@@ -44,6 +44,7 @@ export class TokenManagement {
 				$gte: new Date(),
 				$lte: nextWeekDate,
 			},
+			canceledAt: { $exists: false }
 		});
 
 		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts);

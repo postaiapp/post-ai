@@ -1,6 +1,6 @@
 import { CreatePostDto } from '@modules/post/dto/post.dto';
-import { Session } from '@schemas/token';
 import { Meta } from './meta';
+import { Session } from '@schemas/token';
 
 type DefaultPostBodyCreate = {
 	data?: CreatePostDto;
@@ -22,7 +22,6 @@ type PostBodyCreate = {
 
 type CanceledPostBody = {
 	postId: string;
-	username: string;
 };
 
 type VerifyPostPublishProps = {
@@ -33,4 +32,12 @@ type VerifyPostPublishProps = {
 	img: string;
 };
 
-export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps };
+type GetUserPostsProps = {
+	query: {
+		page?: number;
+		limit?: number;
+	};
+	meta: Meta
+}
+
+export type { CanceledPostBody, DefaultPostBodyCreate, PostBodyCreate, PublishedPostProps, VerifyPostPublishProps, GetUserPostsProps };
