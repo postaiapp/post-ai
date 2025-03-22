@@ -14,8 +14,12 @@ import { getInteractionId } from './utils/getInteractionId';
 
 const scrollToMessage = (id: string) => {
 	const lastMessage = document.querySelector(`#${id}`);
+
 	if (lastMessage) {
-		lastMessage.scrollIntoView({ behavior: 'smooth' });
+		lastMessage.scrollIntoView({
+			behavior: 'smooth',
+			block: 'end'
+		});
 	}
 };
 
@@ -115,12 +119,14 @@ const ChatContainer = () => {
 			};
 		});
 	};
+
 	useEffect(() => {
 		if (pendingPrompt && !isPendingSendMessage && !isErrorSendMessage) {
 			setPendingPrompt('');
 			setPrompt(pendingPrompt);
 		}
 	}, [pendingPrompt, isPendingSendMessage, setPendingPrompt, isErrorSendMessage, setPrompt]);
+
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			if (data?.data?.length) {

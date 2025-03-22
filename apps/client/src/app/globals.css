@@ -92,6 +92,7 @@ body {
   color: #ffffff;
 }
 
+/* Estiliza a barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 12px; 
 }

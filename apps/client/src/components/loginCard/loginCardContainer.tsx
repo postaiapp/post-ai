@@ -40,9 +40,6 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 
 			setUser(data.user);
 
-			localStorageSet('token', data.token);
-			localStorageSet('user', data.user);
-
 			setTimeout(() => {
 				successToast('Login efetuado com sucesso!');
 			}, 1000);
