@@ -4,7 +4,12 @@ import { Body, Controller, Get, Param, Post, Query, Response, UseGuards } from '
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { CreateChatDto, ListChatInteractionsParamsDto, ListUserChatsQueryDto } from '../dto/chats.dto';
+import {
+	CreateChatDto,
+	ListChatInteractionsParamsDto,
+	ListUserChatsQueryDto,
+	RegenerateMessageDto,
+} from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 
 @UseGuards(AuthGuard)
@@ -26,6 +31,27 @@ export class ChatsController extends BaseController {
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
+			console.log(error);
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Post('interactions/regenerate')
+	async regenerateMessage(
+		@Body() data: RegenerateMessageDto,
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse
+	) {
+		console.log('regenerateMessage', data);
+		try {
+			const response = await this.chatService.regenerateMessage({
+				data,
+				meta,
+			});
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			console.log(error);
 			return this.sendError({ error, res });
 		}
 	}

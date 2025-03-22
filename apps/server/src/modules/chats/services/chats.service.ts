@@ -4,7 +4,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
-import { ListChatInteractionsOptions, SendMessageData } from '@type/chats';
+import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -72,6 +72,8 @@ export class ChatsService {
 			request: message,
 			response: url,
 			is_regenerated: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		};
 
 		chat.interactions.push(interactionBody);
@@ -94,9 +96,66 @@ export class ChatsService {
 		};
 	}
 
+	async regenerateMessage({ data, meta }: RegenerateMessageData) {
+		const { chatId, message, interactionId } = data;
+
+		const chat: ChatDocument = await this.findOrCreateChat({
+			userId: meta.userId.toString(),
+			message,
+			chatId,
+		});
+
+		const context = await this.getChatContext(chat.interactions);
+
+		const { url } = await this.imageGenerationService.generateImage({
+			prompt: `${data.message}\n\nContext: ${context}`,
+		});
+
+		if (!url) {
+			throw new BadRequestException('IMAGE_GENERATION_FAILED');
+		}
+
+		const partialInteractionBody = {
+			user_id: meta.userId.toString(),
+			request: message,
+			response: url,
+			is_regenerated: true,
+			updatedAt: new Date(),
+		};
+
+		await this.chatModel.findOneAndUpdate(
+			{ _id: chatId, 'interactions._id': interactionId },
+			{
+				$set: {
+					'interactions.$.user_id': partialInteractionBody.user_id,
+					'interactions.$.request': partialInteractionBody.request,
+					'interactions.$.response': partialInteractionBody.response,
+					'interactions.$.is_regenerated': partialInteractionBody.is_regenerated,
+					'interactions.$.updatedAt': partialInteractionBody.updatedAt,
+				},
+			},
+			{ new: true }
+		);
+
+		return {
+			chat: {
+				userId: chat.user_id,
+				interactions: chat.interactions,
+				firstMessage: chat.first_message,
+				id: chat._id,
+				createdAt: chat.createdAt,
+			},
+			interaction: {
+				request: partialInteractionBody.request,
+				response: partialInteractionBody.response,
+				isRegenerated: partialInteractionBody.is_regenerated,
+			},
+		};
+	}
+
 	async getChatContext(interactions: Interaction[]) {
 		return interactions
-			.slice(0, 10)
+			.slice(-10)
 			.map((interaction) => `Request: ${interaction.request} | Response: ${interaction.response}`)
 			.join('\n');
 	}
@@ -106,7 +165,7 @@ export class ChatsService {
 
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
-		return chat.interactions.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+		return chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 	}
 
 	async listUserChats({ userId, pagination }: { userId: string; pagination?: { page: number; limit: number } }) {

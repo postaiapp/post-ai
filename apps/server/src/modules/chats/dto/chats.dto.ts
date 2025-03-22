@@ -3,6 +3,7 @@ import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
+// import { Multer } from 'multer';
 
 export class CreateChatDto {
 	@IsNotEmpty()
@@ -14,6 +15,20 @@ export class CreateChatDto {
 	@IsOptional()
 	@IsString()
 	chatId: string;
+}
+
+export class RegenerateMessageDto {
+	@IsNotEmpty()
+	@IsString()
+	message: string;
+
+	@IsNotEmpty()
+	@IsString()
+	chatId: string;
+
+	@IsNotEmpty()
+	@IsString()
+	interactionId: string;
 }
 
 export class ListChatInteractionsParamsDto {

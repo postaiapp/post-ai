@@ -16,7 +16,10 @@ export class Interaction {
 	is_regenerated: boolean;
 
 	@Prop({ required: false })
-	created_at?: Date;
+	createdAt: Date;
+
+	@Prop({ required: false })
+	updatedAt: Date;
 }
 
 export type InteractionDocument = HydratedDocument<Interaction>;

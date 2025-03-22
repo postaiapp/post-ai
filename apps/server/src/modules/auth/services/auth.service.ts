@@ -33,7 +33,7 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
-		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
+		const accessToken = await this.generateToken({ user, expiresIn: '1d' });
 
 		const refreshToken = await this.generateToken({ user, expiresIn: '1d' });
 

@@ -14,31 +14,34 @@ import { getInteractionId } from './utils/getInteractionId';
 
 interface ChatUiProps {
 	chatId?: string;
-	isPendingInteractions: boolean;
-	isPendingSendMessage: boolean;
-	isErrorSendMessage: boolean;
-	isSuccessSendMessage: boolean;
 	data: Interaction[];
-	errorSendMessage: Error | null;
-	handleSendMessage: (prompt: string, chatId?: string) => void;
-	handleRegenerate: (id: string) => void;
 	prompt: string;
 	setPrompt: (prompt: string) => void;
+	sendMessage: {
+		isPendingInteractions: boolean;
+		isPendingSendMessage: boolean;
+		isErrorSendMessage: boolean;
+		isSuccessSendMessage: boolean;
+		errorSendMessage: Error | null;
+		handleSendMessage: (prompt: string, chatId?: string) => void;
+	};
+	regenerate: {
+		isPendingRegenerateMessage: boolean;
+		handleRegenerate: (message: string, chatId: string, interactionId: string) => void;
+	};
 }
 
-export const ChatUi = ({
-	chatId,
-	isPendingSendMessage,
-	isSuccessSendMessage,
-	isErrorSendMessage,
-	isPendingInteractions,
-	data,
-	errorSendMessage,
-	handleSendMessage,
-	handleRegenerate,
-	prompt,
-	setPrompt,
-}: ChatUiProps) => {
+export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPrompt }: ChatUiProps) => {
+	const {
+		isPendingSendMessage,
+		isSuccessSendMessage,
+		isErrorSendMessage,
+		isPendingInteractions,
+		errorSendMessage,
+		handleSendMessage,
+	} = sendMessage;
+	const { isPendingRegenerateMessage, handleRegenerate } = regenerate;
+
 	return (
 		<div className="relative flex flex-col justify-between items-center w-full h-screen overflow-hidden">
 			<div className="w-full h-full overflow-auto mt-6 mb-4 thin-scrollbar">
@@ -86,11 +89,29 @@ export const ChatUi = ({
 										{interaction.response ? (
 											<ResponseMessageComponent
 												response={interaction.response}
-												onRegenerate={() => handleRegenerate(interaction._id)}
+												isLast={index === data.length - 1}
+												onRegenerate={async () => {
+													handleRegenerate(
+														interaction.request,
+														chatId || '',
+														interaction._id
+													);
+												}}
+												onRegenerateDisabled={isPendingRegenerateMessage}
 											/>
-										) : isErrorSendMessage ? (
+										) : !isPendingSendMessage && isErrorSendMessage ? (
 											<ResponseMessageErrorComponent
-												onTryAgain={() => handleSendMessage(interaction.request, chatId)}
+												onTryAgain={() => {
+													if (chatId) {
+														handleRegenerate(
+															interaction.request,
+															chatId || '',
+															interaction._id
+														);
+													} else {
+														handleSendMessage(interaction.request, chatId);
+													}
+												}}
 												errorMessage={errorSendMessage?.message}
 											/>
 										) : (
@@ -116,7 +137,7 @@ export const ChatUi = ({
 
 						handleSendMessage(prompt, chatId);
 					}}
-					disabled={(!!chatId && isPendingInteractions) || isPendingSendMessage}
+					disabled={(!!chatId && isPendingInteractions) || isPendingSendMessage || isPendingRegenerateMessage}
 					showCount
 					maxLength={200}
 				/>

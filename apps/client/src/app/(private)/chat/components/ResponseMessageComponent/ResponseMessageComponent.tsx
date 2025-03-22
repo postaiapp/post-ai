@@ -10,9 +10,13 @@ import { getErrorMessage } from '../../utils';
 export const ResponseMessageComponent = ({
 	response,
 	onRegenerate,
+	onRegenerateDisabled,
+	isLast,
 }: {
 	response: Interaction['response'];
 	onRegenerate: () => void;
+	onRegenerateDisabled: boolean;
+	isLast: boolean;
 }) => {
 	return (
 		<div className="flex flex-col gap-2">
@@ -29,9 +33,16 @@ export const ResponseMessageComponent = ({
 				/>
 			</div>
 			<div className="flex gap-2">
-				<Button variant="outline" className="w-8 h-8 p-0" onClick={onRegenerate}>
-					<RefreshCw size={16} />
-				</Button>
+				{isLast && (
+					<Button
+						variant="outline"
+						className="w-8 h-8 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={onRegenerate}
+						disabled={onRegenerateDisabled}
+					>
+						<RefreshCw size={16} />
+					</Button>
+				)}
 				<Button variant="outline" className="w-8 h-8 p-0">
 					<Send size={16} />
 				</Button>
