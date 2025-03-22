@@ -164,7 +164,7 @@ export default function PostDetailsUI({
 
 				<Separator />
 
-				<div className="px-12 pt-6 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+				<div className="py-6 px-12 flex-1 overflow-y-auto thin-scrollbar">
 					<div className="p-6 border-[1px] shadow-sm rounded-xl border-gray-200 max-w-[500px] mx-auto">
 						<div className="flex items-center justify-between mb-4">
 							<div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export default function PostDetailsUI({
 							</div>
 						</div>
 
-						<div className="text-sm">
+						<div className="text-sm min-h-[120px]">
 							{loading && (
 								<div>
 									<div className="w-full h-4 bg-gray-200 animate-pulse rounded-md" />
@@ -212,10 +212,12 @@ export default function PostDetailsUI({
 								</div>
 							)}
 							{!loading && (
-								<p className="text-gray-500 text-justify break-words overflow-wrap-anywhere">
-									<span className="font-semibold">@{selectedAccount?.username}</span>{' '}
-									{caption || 'Aqui vai a legenda do post.'}
-								</p>
+								<div className="flex flex-col gap-1">
+									<span className="font-semibold">@{selectedAccount?.username}</span>
+									<p className="text-gray-500 text-justify break-words overflow-wrap-anywhere">
+										{caption || 'Aqui vai a legenda do post.'}
+									</p>
+								</div>
 							)}
 						</div>
 					</div>

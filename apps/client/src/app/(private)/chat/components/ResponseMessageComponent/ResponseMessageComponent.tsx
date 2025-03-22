@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 
 import { Interaction } from '@common/interfaces/chat';
@@ -6,24 +7,24 @@ import { AlertCircle, RefreshCw, Send } from 'lucide-react';
 import Image from 'next/image';
 
 import { getErrorMessage } from '../../utils';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export const ResponseMessageComponent = ({
 	response,
 	onRegenerate,
 	onRegenerateDisabled,
-	isLast,
+	isLastMessage,
 }: {
 	response: Interaction['response'];
 	onRegenerate: () => void;
 	onRegenerateDisabled: boolean;
-	isLast: boolean;
+	isLastMessage: boolean;
 }) => {
 	const router = useRouter();
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="bg-purple-100 p-4 rounded-lg max-w-[80%]">
+			<div className="bg-purple-100 p-4 rounded-lg w-fit">
                 <Image
                     onContextMenu={(e) => e.preventDefault()}
                     draggable={false}
@@ -43,7 +44,7 @@ export const ResponseMessageComponent = ({
                 </Button>
             </div>
 			<div className="flex gap-2">
-				{isLast && (
+				{isLastMessage && (
 					<Button
 						variant="outline"
 						className="w-8 h-8 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -53,9 +54,6 @@ export const ResponseMessageComponent = ({
 						<RefreshCw size={16} />
 					</Button>
 				)}
-				<Button variant="outline" className="w-8 h-8 p-0">
-					<Send size={16} />
-				</Button>
 			</div>
 		</div>
 	);

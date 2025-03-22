@@ -14,18 +14,12 @@ export class ChatsService {
 		private readonly imageGenerationService: ImageGenerationService
 	) {}
 
-	async findChat(chatId: string, userId: string) {
-		const chat = await this.chatModel.findOne({
+	findChat(chatId: string, userId: string) {
+		return this.chatModel.findOne({
 			_id: chatId,
 			user_id: userId,
 			finished_at: null,
 		});
-
-		if (!chat) {
-			throw new NotFoundException('CHAT_NOT_FOUND');
-		}
-
-		return chat;
 	}
 
 	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
@@ -47,17 +41,34 @@ export class ChatsService {
 	async sendMessage({ data, meta }: SendMessageData) {
 		const { chatId, message } = data;
 
+		console.log({
+			chatId,
+			message,
+		}, 'sendMessage');
+
 		const chat: ChatDocument = await this.findOrCreateChat({
 			userId: meta.userId.toString(),
 			message,
 			chatId,
 		});
 
+		console.log({
+			chat,
+		}, 'chat');
+
 		const context = await this.getChatContext(chat.interactions);
+
+		console.log({
+			context,
+		}, 'context');
 
 		const { url } = await this.imageGenerationService.generateImage({
 			prompt: `${data.message}\n\nContext: ${context}`,
 		});
+
+		console.log({
+			url,
+		}, 'url');
 
 		if (!url) {
 			throw new BadRequestException('IMAGE_GENERATION_FAILED');

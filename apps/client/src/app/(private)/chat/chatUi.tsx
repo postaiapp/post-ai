@@ -89,7 +89,7 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 										{interaction.response ? (
 											<ResponseMessageComponent
 												response={interaction.response}
-												isLast={index === data.length - 1}
+												isLastMessage={index === data.length - 1}
 												onRegenerate={async () => {
 													handleRegenerate(
 														interaction.request,
