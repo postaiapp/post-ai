@@ -1,16 +1,16 @@
-import { CreatePostDto, GetAllPostsQueryDto } from '@modules/post/dto/post.dto';
-import { Meta } from './meta';
+import { CreatePostDto } from '@modules/post/dto/post.dto';
 import { Session } from '@schemas/token';
+import { Meta } from './meta';
 
-export type DefaultPostBodyCreate = {
+type DefaultPostBodyCreate = {
 	data?: CreatePostDto;
 	meta?: Meta;
 	query?: CanceledPostBody;
 };
 
-export type PublishedPostProps = DefaultPostBodyCreate & { id?: string; session?: Session };
+type PublishedPostProps = DefaultPostBodyCreate & { id?: string; session?: Session };
 
-export type PostBodyCreate = {
+type PostBodyCreate = {
 	caption: string;
 	imageUrl: Buffer | string;
 	userId: string;
@@ -20,7 +20,7 @@ export type PostBodyCreate = {
 	jobId?: string;
 };
 
-export type CanceledPostBody = {
+type CanceledPostBody = {
 	postId: string;
 };
 
@@ -31,3 +31,31 @@ export type GetUserPostsProps = {
 	};
 	meta: Meta
 }
+type VerifyPostPublishProps = {
+	postId: string;
+	caption: string;
+	username: string;
+	session: Session;
+};
+
+type GenerateImageOptions = {
+	prompt: string;
+	n?: number;
+	size?: string;
+	style?: string;
+};
+
+type GeneratedImage = {
+	url: string;
+};
+
+export type {
+	CanceledPostBody,
+	DefaultPostBodyCreate,
+	GeneratedImage,
+	GenerateImageOptions,
+	PostBodyCreate,
+	PublishedPostProps,
+	VerifyPostPublishProps
+};
+

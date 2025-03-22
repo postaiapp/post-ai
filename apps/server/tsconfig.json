@@ -18,20 +18,8 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@config/*": ["./src/config/*"],
-      "@crons/*": ["./src/crons/*"],
-      "@database/*": ["./src/database/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@middlewares/*": ["./src/middlewares/*"],
-      "@common/*": ["./src/common/*"],
-      "@auth/*": ["src/modules/auth*"],
-      "@modules/*": ["./src/modules/*"],
-      "@storages/*": ["./src/storages/*"],
-      "@guards/*": ["./src/guards/*"],
-      "@schemas/*": ["./src/schema/*"],
-      "@constants/*": ["./src/constants/*"],
-      "@decorators/*": ["./src/decorators/*"],
-      "@type/*": ["src/types/*"],
+      "@type/*": ["./src/types/*"],
+      "@*": ["./src/*"],
     }
   }
 }

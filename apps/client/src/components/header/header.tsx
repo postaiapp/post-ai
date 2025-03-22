@@ -48,6 +48,7 @@ export default function Header({
 						}
 					}}
 				>
+					<DialogTitle></DialogTitle>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<CircleUserRound size={24} className="cursor-pointer" />

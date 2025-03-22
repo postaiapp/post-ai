@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+		"node": ">= 20"
+	},
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -37,6 +40,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "cron": "^3.5.0",
+    "dayjs": "^1.11.13",
     "helmet": "^8.0.0",
     "http-status": "^2.1.0",
     "instagram-private-api": "^1.46.1",

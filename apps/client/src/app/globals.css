@@ -93,20 +93,38 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 12px; /* Largura da barra de rolagem */
+  width: 12px; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #190041; /* Cor do "negócio" que mexe */
-  border-radius: 2px; /* Borda arredondada */
+  background-color: #999999;
+  border-radius: 2px; 
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* Fundo transparente */
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:horizontal {
-  background-color: #190041;
+  background-color: #999999;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px; 
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #999999;
+  border-radius: 4px; 
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:horizontal {
+  background-color: #999999;
+  height: 6px;
 }
 
 .thin-scrollbar::-webkit-scrollbar {
