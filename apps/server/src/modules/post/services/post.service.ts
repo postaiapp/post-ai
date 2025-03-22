@@ -200,7 +200,7 @@ export class PostService {
 		});
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
-			{ _id: postId },
+			{ _id: id },
 			{ publishedAt: dayjs().toDate() },
 			{ new: true }
 		);
