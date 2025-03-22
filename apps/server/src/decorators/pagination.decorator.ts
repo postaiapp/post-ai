@@ -8,7 +8,7 @@ export const Paginate = createParamDecorator((options: PaginationOptions = {}, c
 	const { perPage = 15 } = options;
 	const req = ctx.switchToHttp().getRequest();
 
-	const page = Number(req.query.limit) || 1;
+	const page = Number(req.query.page) || 1;
 
 	return {
 		offset: (page - 1) * perPage,

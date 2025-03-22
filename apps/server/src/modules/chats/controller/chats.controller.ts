@@ -7,6 +7,7 @@ import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
 import { CreateChatDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
+import { Pagination } from '@common/dto/pagination.dto';
 
 @UseGuards(AuthGuard)
 @Controller('chats')
@@ -72,7 +73,7 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get()
-	async listUserChats(@Meta() meta: MetaType, @Paginate() pagination, @Response() res: ExpressResponse) {
+	async listUserChats(@Meta() meta: MetaType, @Paginate() pagination: Pagination, @Response() res: ExpressResponse) {
 		try {
 			const response = await this.chatService.listUserChats({
 				userId: meta.userId.toString(),

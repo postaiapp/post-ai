@@ -11,10 +11,11 @@ import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import PostDetailsUI from './postDetailsUi';
+import dayjs from 'dayjs';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
 	const user = userStore((state) => state.user);
@@ -30,7 +31,9 @@ export default function PostDetailsContainer() {
 		},
 	});
 
-	const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+	const TODAY = dayjs().toDate();
+
+	const [selectedDate, setSelectedDate] = useState<Date | undefined>(TODAY);
 	const [selectedTime, setSelectedTime] = useState<string>('');
 
 	const caption = watch('caption');
@@ -41,6 +44,8 @@ export default function PostDetailsContainer() {
 			setSelectedAccount(firstAccount);
 			setValue('username', firstAccount.username);
 		}
+
+		setLoading(false);
 	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
@@ -74,10 +79,14 @@ export default function PostDetailsContainer() {
 			return;
 		}
 
+		console.log(data, 'data');
+
 		const formattedData = {
 			...data,
 			post_date: data.post_date === '' ? null : data.post_date,
 		};
+
+		console.log(formattedData, 'formattedData')
 
 		await createPost(formattedData);
 

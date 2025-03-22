@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@components/ui/input';
 import { Separator } from '@components/ui/separator';
 import { Textarea } from '@components/ui/textarea';
+import dayjs from 'dayjs';
 import { Instagram, Heart, MessageCircle, Send, Calendar, ChevronDown, Link, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Controller } from 'react-hook-form';
@@ -133,7 +134,13 @@ export default function PostDetailsUI({
 									<span className="font-semibold">horário</span> para o agendamento do post.
 								</p>
 
-								<ShadCalendar mode="single" selected={selectedDate} onSelect={handleDateChange} />
+								<ShadCalendar 
+									mode="single"
+									selected={selectedDate}
+									onSelect={handleDateChange}
+									disabled={{ before: dayjs().toDate() }}
+									defaultMonth={dayjs().toDate()}
+								/>
 
 								<div className="w-full mt-4 flex flex-col">
 									<p className="text-sm text-gray-700 mb-1">Escolha o horário:</p>
@@ -142,8 +149,9 @@ export default function PostDetailsUI({
 
 								<Button
 									type="submit"
+									disabled={!selectedDate || !selectedTime}
 									className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
-								> 
+								>
 									Agendar Post para {selectedDate ? selectedDate.toLocaleDateString() : ' - '} às{' '}
 									{selectedTime || ' - '}
 									{loadingSubmit && <LoaderCircle className="animate-spin" />}

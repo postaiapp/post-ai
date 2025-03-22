@@ -3,11 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { R2Storage } from '@storages/r2-storage';
 import {
-	ImageGenerationService,
-	GenerateImageOptions,
-	GeneratedImage,
+	ImageGenerationService
 } from '@modules/image-generation/service/image-generation.service';
 import { DEFAULT_PROMPT } from '@constants/ai';
+import { GenerateImageOptions, GeneratedImage } from '@type/post';
 
 @Injectable()
 export class OpenAIRepository implements ImageGenerationService {
