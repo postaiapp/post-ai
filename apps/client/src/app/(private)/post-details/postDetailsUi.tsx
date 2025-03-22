@@ -30,7 +30,7 @@ export default function PostDetailsUI({
 	image,
 }: PostDetailsUIProps) {
 	return (
-		<div className="flex gap-6 items-center w-full h-screen bg-gray-100 p-6 overflow-y-hidden">
+		<div className="flex gap-6 items-center w-full h-screen bg-gray-100 p-6 overflow-hidden">
 			<form
 				onSubmit={handleSubmit(onSubmit)}
 				className="w-[60%] bg-white rounded-lg h-full shadow-md flex flex-col"
@@ -143,7 +143,7 @@ export default function PostDetailsUI({
 								<Button
 									type="submit"
 									className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
-								>
+								> 
 									Agendar Post para {selectedDate ? selectedDate.toLocaleDateString() : ' - '} às{' '}
 									{selectedTime || ' - '}
 									{loadingSubmit && <LoaderCircle className="animate-spin" />}
@@ -154,7 +154,7 @@ export default function PostDetailsUI({
 				</div>
 			</form>
 
-			<div className="w-[40%] bg-white rounded-lg h-full shadow-md">
+			<div className="w-[40%] bg-white rounded-lg h-full shadow-md flex flex-col">
 				<div className="p-6">
 					<p className="text-xl font-semibold text-gray-900">Pré-visualização</p>
 					<p className="text-sm text-gray-500">
@@ -164,8 +164,8 @@ export default function PostDetailsUI({
 
 				<Separator />
 
-				<div className="p-6 overflow-y-auto max-h-[calc(100vh-170px)]">
-					<div className="p-6 border-[1px] shadow-sm rounded-xl border-gray-200">
+				<div className="px-12 pt-6 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+					<div className="p-6 border-[1px] shadow-sm rounded-xl border-gray-200 max-w-[500px] mx-auto">
 						<div className="flex items-center justify-between mb-4">
 							<div className="flex items-center gap-2">
 								<Image
@@ -212,7 +212,7 @@ export default function PostDetailsUI({
 								</div>
 							)}
 							{!loading && (
-								<p className="text-gray-500">
+								<p className="text-gray-500 text-justify break-words overflow-wrap-anywhere">
 									<span className="font-semibold">@{selectedAccount?.username}</span>{' '}
 									{caption || 'Aqui vai a legenda do post.'}
 								</p>

@@ -6,7 +6,7 @@ import type { InstagramAccountStore } from '@common/interfaces/instagramAccount'
 import type { PostFormData } from '@common/interfaces/post';
 import { useCreatePost } from '@hooks/post';
 import userStore from '@stores/userStore';
-import { successToast, errorToast } from '@utils/toast';
+import { successToast, errorToast, warningToast } from '@utils/toast';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
@@ -14,7 +14,7 @@ import PostDetailsUI from './postDetailsUi';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
 	const user = userStore((state) => state.user);
@@ -36,13 +36,12 @@ export default function PostDetailsContainer() {
 	const caption = watch('caption');
 
 	useEffect(() => {
-		if (user?.InstagramAccounts?.length && !selectedAccount) {
+		if (user?.InstagramAccounts?.length) {
 			const firstAccount = user.InstagramAccounts[0];
 			setSelectedAccount(firstAccount);
 			setValue('username', firstAccount.username);
-			setLoading(false);
 		}
-	}, [user, selectedAccount, setValue]);
+	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
 		if (!date || !time) return null;
@@ -70,6 +69,11 @@ export default function PostDetailsContainer() {
 	};
 
 	const handleCreatePost = async (data: PostFormData) => {
+		if (!data.caption) {
+			warningToast('A legenda do post é obrigatória.');
+			return;
+		}
+
 		const formattedData = {
 			...data,
 			post_date: data.post_date === '' ? null : data.post_date,

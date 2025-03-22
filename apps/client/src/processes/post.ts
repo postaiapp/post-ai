@@ -6,7 +6,7 @@ import client from './api';
 export const createPost = async (filter: PostFormData) => {
 	const { data, error }: ClientResponse = await client({
 		method: 'POST',
-		url: `/post`,
+		url: `/posts`,
 		data: filter,
 	});
 
