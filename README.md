@@ -25,8 +25,8 @@ Este projeto visa facilitar a criação e o agendamento de posts no Instagram po
 3. Garantir integração segura com as contas do Instagram.
 
 ## 💻 Tecnologias Utilizadas
-- *Front-end*: React, Next JS, Tailwind CSS, Typescript, Zustand.
-- *Back-end*: Node JS, Prisma, Nest JS, MongoDB, Typescript.
+- *Front-end*: React, Next JS, Tailwind CSS, Typescript, Zustand, useQuery.
+- *Back-end*: Node JS, Nest JS, MongoDB, Typescript.
 - *Monorepo*.
 - *Versionamento*: Git.
 
@@ -57,9 +57,9 @@ CONTRIBUTING.m src/: Código-fonte do projeto.
 3. Execute o ambiente de desenvolvimento: npm run dev.
 
 ## 🔗 Links Importantes
-- [Documentação oficial do tRPC](https://trpc.io/)
+- [Documentação oficial do useQuery](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
 - [Documentação oficial do Next.js](https://nextjs.org/)
-- [Documentação oficial do Prisma](https://www.prisma.io/)
+- [Documentação oficial do Mongoose](https://mongoosejs.com/)
 - [Documentação oficial do NestJS](https://nestjs.com/)
 
 ## ✅ Tarefas Iniciais
