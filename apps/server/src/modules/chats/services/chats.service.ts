@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
+import { R2Storage } from '@storages/r2-storage';
 import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
 import dayjs from 'dayjs';
 import { Model } from 'mongoose';
@@ -12,7 +13,9 @@ import { Model } from 'mongoose';
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private readonly imageGenerationService: ImageGenerationService
+		private readonly imageGenerationService: ImageGenerationService,
+		private readonly uploaderService: R2Storage,
+
 	) {}
 
 	findChat(chatId: string, userId: string) {
@@ -83,7 +86,7 @@ export class ChatsService {
 			},
 			interaction: {
 				request: interactionBody.request,
-				response: interactionBody.response,
+				response: await this.uploaderService.getSignedImageUrl(url),
 				isRegenerated: interactionBody.is_regenerated,
 			},
 		};
@@ -158,7 +161,16 @@ export class ChatsService {
 	async listChatInteractions({ params, meta }: ListChatInteractionsOptions) {
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
-		return chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+		const interactions = await Promise.all(
+			chat.interactions
+				.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+				.map(async (interaction) => ({
+					...interaction,
+					response: await this.uploaderService.getSignedImageUrl(interaction.response),
+				}))
+		);
+
+		return interactions;
 	}
 
 	async listUserChats({ userId, pagination }: { userId: string; pagination?: Pagination }) {
