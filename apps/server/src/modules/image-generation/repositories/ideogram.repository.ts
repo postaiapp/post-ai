@@ -1,4 +1,4 @@
-import { DEFAULT_PROMPT } from '@constants/ai';
+import { DEFAULT_PROMPT, INITIAL_PROMPT } from '@constants/ai';
 import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -20,17 +20,19 @@ export class IdeogramRepository implements ImageGenerationService {
 	}
 
 	private generatePrompt(prompt: string): string {
-		return `${DEFAULT_PROMPT}\n${prompt}`;
+		return `${INITIAL_PROMPT}\n\n"${prompt.toUpperCase()}"\n\n${DEFAULT_PROMPT}`;
 	}
 
 	async generateImage(options: GenerateImageOptions): Promise<GeneratedImage> {
 		const mountedPrompt = this.generatePrompt(options.prompt);
 
+		console.log(mountedPrompt, 'mountedPrompt');
+
 		const mountedGenerateImagePayload = {
 			image_request: {
 				prompt: mountedPrompt,
 				model: 'V_2',
-				magic_prompt_option: 'AUTO',
+				magic_prompt_option: 'OFF',
 				num_images: options.n || 1,
 				resolution: 'RESOLUTION_1024_1024',
 			},
