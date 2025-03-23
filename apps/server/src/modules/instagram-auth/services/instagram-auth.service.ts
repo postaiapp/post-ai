@@ -4,6 +4,7 @@ import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
+import axios from 'axios';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
@@ -196,15 +197,31 @@ export class InstagramAuthService {
 		};
 	}
 
-	async getAccounts(meta: Meta) {
-		const user = await this.userModel.findOne({ _id: meta.userId }, { InstagramAccounts: 1, _id: 0 }).lean();
+	async validateProfilePicUrl(url: string): Promise<string | null> {
+		try {
+			await axios.get(url);
+			return url;
+		} catch {
+			return null;
+		}
+	}
 
-		const accounts =
-			user?.InstagramAccounts?.map((account: InstagramAccount) => ({
-				...account,
-				id: account._id.toString(),
-				_id: undefined,
-			})) || [];
+	async getAccounts(meta: Meta) {
+		const user = await this.userModel.findOne(
+			{ _id: meta.userId },
+			{ InstagramAccounts: 1, _id: 0 }
+		).lean();
+
+		const accounts = await Promise.all(
+			user?.InstagramAccounts.map(async (account: InstagramAccount) => {
+				return {
+					...account,
+					id: account._id.toString(),
+					_id: undefined,
+					profilePicUrl: await this.validateProfilePicUrl(account.profilePicUrl),
+				};
+			})
+		);
 
 		return {
 			accounts,

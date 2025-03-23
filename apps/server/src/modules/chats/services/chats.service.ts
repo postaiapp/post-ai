@@ -1,10 +1,11 @@
 import { Pagination } from '@common/dto/pagination.dto';
 import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
 import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import dayjs from 'dayjs';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -62,11 +63,12 @@ export class ChatsService {
 			request: message,
 			response: url,
 			is_regenerated: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
+			createdAt: dayjs().toDate(),
+			updatedAt: dayjs().toDate(),
 		};
 
 		chat.interactions.push(interactionBody);
+		chat.updatedAt = dayjs().toDate();
 
 		await chat.save();
 
@@ -77,6 +79,7 @@ export class ChatsService {
 				firstMessage: chat.first_message,
 				id: chat._id,
 				createdAt: chat.createdAt,
+				updatedAt: chat.updatedAt,
 			},
 			interaction: {
 				request: interactionBody.request,
@@ -163,7 +166,7 @@ export class ChatsService {
 
 		const chats = await this.chatModel
 			.find({ user_id: userId.toString() })
-			.sort({ createdAt: -1, _id: -1 })
+			.sort({ updatedAt: -1, _id: -1 })
 			.skip(offset)
 			.limit(perPage)
 			.lean();

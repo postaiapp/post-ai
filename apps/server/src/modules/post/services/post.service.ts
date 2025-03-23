@@ -24,7 +24,7 @@ export class PostService {
 		@InjectModel(Post.name) private readonly postModel: Model<Post>,
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
-		private schedulerRegistry: SchedulerRegistry
+		private schedulerRegistry: SchedulerRegistry,
 	) {}
 
 	async create({ data, meta }: DefaultPostBodyCreate) {
@@ -427,7 +427,8 @@ export class PostService {
 								const postWithoutAccountSession = {
 									...post,
 									account: {
-										...post.account,
+											...post.account,
+											profilePicUrl: await this.instagramAuthService.validateProfilePicUrl(post.account.profilePicUrl),
 										session: undefined
 									}
 								}
@@ -437,7 +438,6 @@ export class PostService {
 										...(instagramInfo ?? [])
 								};
             } catch (error) {
-                console.log(error)
                 this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
                 return post;
             }
