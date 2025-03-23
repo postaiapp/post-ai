@@ -17,8 +17,8 @@ interface HistoryUiProps {
 
 export const HistoryUi = ({ totalItems, isError, isPending, allPagesLoaded, allPagesData, pageSize, sorting, columnFilters, setSorting, setColumnFilters }: HistoryUiProps) => {
   return (
-    <div className='p-8 px-10 space-y-8'>
-      <h1 className='text-2xl font-bold'>Histórico de Posts</h1>
+    <div className='p-6 bg-gray-100'>
+      <h1 className='text-2xl font-bold mb-6'>Histórico de Posts</h1>
       {isError ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
           <div className="text-red-500 mb-4">

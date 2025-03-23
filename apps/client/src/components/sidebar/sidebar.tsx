@@ -59,10 +59,10 @@ export default function Sidebar() {
 	const filteredChats = filterChatsByDate(allPagesData);
 
 	return (
-		<UiSideBar collapsible="icon">
+		<UiSideBar collapsible="icon" className="bg-white">
 			<SidebarContent className="overflow-hidden">
 				<SidebarGroup>
-					<SidebarGroupLabel className="pb-2">Post AI</SidebarGroupLabel>
+					<SidebarGroupLabel className="pb-2 text-gray-900">Post AI</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{itemsSideBar.map((item) => (

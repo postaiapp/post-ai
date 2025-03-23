@@ -24,7 +24,7 @@ export const ResponseMessageComponent = ({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="bg-purple-100 p-4 rounded-lg w-fit">
+			<div className="bg-purple-200 shadow-sm rounded-bl-none p-4 rounded-lg w-fit">
                 <Image
                     onContextMenu={(e) => e.preventDefault()}
                     draggable={false}
@@ -70,7 +70,7 @@ export const ResponseMessageErrorComponent = ({
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="w-[400px] h-[400px] bg-red-50 rounded-md relative overflow-hidden flex flex-col items-center justify-center">
+			<div className="w-[400px] h-[400px] bg-red-100 rounded-md shadow-sm rounded-bl-none relative overflow-hidden flex flex-col items-center justify-center">
 				<AlertCircle size={48} className="text-red-500 mb-4" />
 				<p className="text-lg font-medium text-red-600">Ops! Algo deu errado</p>
 				<p className="text-sm text-red-500 text-center max-w-[300px] mb-4">{finalErrorMessage} </p>
@@ -99,7 +99,7 @@ export const ResponseMessageLoadingComponent = () => {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="w-[400px] h-[400px] animate-pulse bg-gradient-to-r from-gray-200 to-gray-300 rounded-md relative overflow-hidden">
+			<div className="w-[400px] h-[400px] animate-pulse bg-gradient-to-r from-gray-200 to-gray-300 rounded-md rounded-bl-none shadow-sm relative overflow-hidden">
 				<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
 			</div>
 			<p className="text-sm text-gray-500 animate-pulse">Gerando resposta... ({timeString})</p>

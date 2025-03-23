@@ -24,7 +24,8 @@ import {
 import { useState } from "react"
 import { Input } from "@components/ui/input"
 import { Button } from "@components/ui/button"
-import { ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Instagram, Calendar, User, FileText } from "lucide-react"
+import { Separator } from "@components/ui/separator"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -39,6 +40,17 @@ interface DataTableProps<TData, TValue> {
   isPending: boolean
   allPagesLoaded: boolean
 }
+
+const getIconByHeader = (header: string) => {
+  const iconMap = {
+    'Conta': <Instagram size={16} className="text-gray-500" />,
+    'Data': <Calendar size={16} className="text-gray-500" />,
+    'Legenda': <FileText size={16} className="text-gray-500" />,
+    'Usuário': <User size={16} className="text-gray-500" />,
+  };
+
+  return iconMap[header as keyof typeof iconMap] || null;
+};
 
 export function DataTable<TData, TValue>({
   isPending,
@@ -86,26 +98,31 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="rounded-md border">
-      <div className="flex items-center justify-between">
-        <div className="px-4 py-2 text-sm text-gray-600">
-          Quantidade de itens: {data.length}
+    <div className="rounded-lg bg-white shadow-md">
+      <div className="flex items-center justify-between p-6">
+        <div className="text-sm text-gray-600">
+          Quantidade de posts: {data.length}
           {!allPagesLoaded &&
             " (Carregando mais)"
           }
         </div>
-        <div className="flex items-center py-4 px-4">
+
+        <div className="flex items-center gap-6">
           {table.getAllColumns().map((column) => {
+            const header = column.columnDef.header as string;
+            const icon = getIconByHeader(header);
+
             if (column.getCanFilter()) {
               return (
                 <Input
                   key={column.id}
-                  placeholder={`Filtrar por ${column.columnDef.header?.toString().toLocaleLowerCase()}`}
+                  placeholder={`Filtrar ${header.toLowerCase()}`}
                   value={(column.getFilterValue() ?? '') as string}
                   onChange={(event) =>
                     column.setFilterValue(event.target.value)
                   }
-                  className="max-w-sm mr-4"
+                  className="max-w-sm"
+                  icon={icon}
                   disabled={isPending}
                 />
               )
@@ -114,70 +131,75 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <div className="flex items-center">
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {header.column.getCanSort() && (
-                          <Button
-                            variant="ghost"
-                            onClick={() => header.column.toggleSorting()}
-                            disabled={isPending}
-                          >
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {isPending ? (
-            Array.from({ length: pageSize }).map((_, index) => (
-              <TableRow key={index}>
-                {Array.from({ length: columns.length }).map((_, cellIndex) => (
-                  <TableCell key={cellIndex}>
-                    <div className="h-6 bg-gray-200 animate-pulse rounded" />
-                  </TableCell>
-                ))}
+      <Separator />
+
+      <div className="px-6 pt-2">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="bg-white hover:bg-white">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <div className="flex items-center">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {header.column.getCanSort() && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => header.column.toggleSorting()}
+                              disabled={isPending}
+                            >
+                              <ArrowUpDown className="ml-2 h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
-            ))
-          ) : table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isPending ? (
+              Array.from({ length: pageSize }).map((_, index) => (
+                <TableRow key={index}>
+                  {Array.from({ length: columns.length }).map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <div className="h-6 bg-gray-200 animate-pulse rounded" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="truncate max-w-[200px]">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Sem resultados.
+                </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                Sem resultados.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <div className="flex items-center justify-center space-x-2 my-4 text-sm text-gray-500">
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-center p-6 text-sm text-gray-500">
         <Button
           variant="ghost"
           size="sm"

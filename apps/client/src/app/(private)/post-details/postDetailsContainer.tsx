@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 
 import PostDetailsUI from './postDetailsUi';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
@@ -21,7 +22,7 @@ export default function PostDetailsContainer() {
 	const user = userStore((state) => state.user);
 	const [selectedAccount, setSelectedAccount] = useState(user?.InstagramAccounts[0]);
 	const { createPost, isLoading, isError } = useCreatePost();
-
+	const router = useRouter();
 	const { control, handleSubmit, setValue, watch } = useForm<PostFormData>({
 		defaultValues: {
 			username: user?.InstagramAccounts[0]?.username || '',
@@ -96,6 +97,8 @@ export default function PostDetailsContainer() {
 		}
 
 		successToast('Post criado com sucesso.');
+
+		router.push('/history');
 	};
 
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
