@@ -21,7 +21,7 @@ export class CreatePostDto {
 
 	@IsOptional()
 	@IsDate()
-	@Transform((obj) => new Date(obj.value))
+	@Transform((obj) => obj.value && new Date(obj.value))
 	post_date: Date;
 }
 
