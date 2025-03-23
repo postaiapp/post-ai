@@ -29,7 +29,7 @@ export class IdeogramRepository implements ImageGenerationService {
 		const mountedGenerateImagePayload = {
 			image_request: {
 				prompt: mountedPrompt,
-				model: 'V_2',
+				model: 'V_2A',
 				magic_prompt_option: 'AUTO',
 				num_images: options.n || 1,
 				resolution: 'RESOLUTION_1024_1024',
