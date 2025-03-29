@@ -4,17 +4,21 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
+import { R2Storage } from '@storages/r2-storage';
 import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private readonly imageGenerationService: ImageGenerationService
+		private readonly imageGenerationService: ImageGenerationService,
+		private readonly r2Storage: R2Storage
 	) {}
 
 	findChat(chatId: string, userId: string) {
+		console.log(chatId, userId, 'chatId, userId');
 		return this.chatModel.findOne({
 			_id: chatId,
 			user_id: userId,
@@ -60,7 +64,7 @@ export class ChatsService {
 		const interactionBody = {
 			user_id: meta.userId.toString(),
 			request: message,
-			response: url,
+			response: FileUtils.getUnsignedUrl(url),
 			is_regenerated: false,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -108,7 +112,7 @@ export class ChatsService {
 		const partialInteractionBody = {
 			user_id: meta.userId.toString(),
 			request: message,
-			response: url,
+			response: FileUtils.getUnsignedUrl(url),
 			is_regenerated: true,
 			updatedAt: new Date(),
 		};
@@ -155,24 +159,36 @@ export class ChatsService {
 	async listChatInteractions({ params, meta }: ListChatInteractionsOptions) {
 		const chat = await this.findChat(params.chatId, meta.userId.toString());
 
-		return chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+		if (!chat) {
+			throw new NotFoundException('CHAT_NOT_FOUND');
+		}
+
+		const interactions = chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+		const mountedInteractions = await Promise.all(
+			interactions.map(async (interaction) => ({
+				...interaction,
+				response: await this.r2Storage.getSignedImageUrl(interaction.response),
+			}))
+		);
+
+		console.log(mountedInteractions, 'mountedInteractions');
+
+		return mountedInteractions;
 	}
 
 	async listUserChats({ userId, pagination }: { userId: string; pagination?: Pagination }) {
 		const { page, perPage, offset } = pagination;
 
-		const chats = await this.chatModel
-			.find({ user_id: userId.toString() })
-			.sort({ createdAt: -1, _id: -1 })
-			.skip(offset)
-			.limit(perPage)
-			.lean();
-
-		const allUserChatsCount = await this.chatModel
-			.countDocuments({
-				user_id: userId,
-			})
-			.lean();
+		const [chats, allUserChatsCount] = await Promise.all([
+			this.chatModel
+				.find({ user_id: userId.toString() })
+				.sort({ createdAt: -1, _id: -1 })
+				.skip(offset)
+				.limit(perPage)
+				.lean(),
+			this.chatModel.countDocuments({ user_id: userId }),
+		]);
 
 		return {
 			results: chats.map((chat) => ({

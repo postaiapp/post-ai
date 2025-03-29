@@ -7,6 +7,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
+import { R2Storage } from '@storages/r2-storage';
 import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
@@ -24,7 +25,8 @@ export class PostService {
 		@InjectModel(Post.name) private readonly postModel: Model<Post>,
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
-		private schedulerRegistry: SchedulerRegistry
+		private schedulerRegistry: SchedulerRegistry,
+		private readonly r2Storage: R2Storage
 	) {}
 
 	async create({ data, meta }: DefaultPostBodyCreate) {
@@ -232,10 +234,13 @@ export class PostService {
 				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
 			}
 
-			const imageBuffer = await get({ url: img, encoding: null });
+			const signedUrl = await this.r2Storage.getSignedImageUrl(img);
+
+			const imageBuffer = await get({ url: signedUrl, encoding: null });
+
 			const post = await this.ig.publish.photo({ file: imageBuffer, caption });
 
-			return {id: post.media.id, code: post.media.code};
+			return { id: post.media.id, code: post.media.code };
 		} catch (error) {
 			this.logger.error(`Failed to publish photo on Instagram from username: ${username}`, { caption, error });
 			return false;
@@ -443,6 +448,8 @@ export class PostService {
             }
         })
     );
+
+	console.log(postsWithInstagramInfo, 'postsWithInstagramInfo');
 
     return {
         success: true,

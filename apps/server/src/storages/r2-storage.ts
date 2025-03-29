@@ -43,12 +43,22 @@ export class R2Storage implements Uploader {
 		};
 	}
 
-	async getSignedImageUrl(fileName: string): Promise<string> {
+	async getSignedImageUrl(fileUrl: string): Promise<string> {
+		const unsignedUrl = fileUrl.split('?')[0];
+
+		const parts = unsignedUrl.split('/');
+
+		const path = parts.pop();
+
+		return this.getSignedImageUrlByPath(path);
+	}
+
+	async getSignedImageUrlByPath(path: string): Promise<string> {
 		const bucketName = this.configService.get<string>('AWS_BUCKET_NAME');
 
 		const command = new GetObjectCommand({
 			Bucket: bucketName,
-			Key: fileName,
+			Key: path,
 		});
 
 		return getSignedUrl(this.client, command, { expiresIn: 3600 });
@@ -65,7 +75,11 @@ export class R2Storage implements Uploader {
 			body: response.data,
 		});
 
-		const signedUrl = await this.getSignedImageUrl(uploadedFileKey.url);
+		console.log(uploadedFileKey, 'uploadedFileKey');
+
+		const signedUrl = await this.getSignedImageUrlByPath(uploadedFileKey.url);
+
+		console.log(signedUrl, 'signedUrl');
 
 		return {
 			url: signedUrl,
