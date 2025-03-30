@@ -2,11 +2,11 @@ import { ClientResponse } from '@common/interfaces/api';
 
 import client from './api';
 
-export const getUserPostsWithDetails = async ({ page, limit} : {page?: number, limit?: number}	) => {
+export const getUserPostsWithDetails = async ({ page, limit } : { page?: number, limit?: number }	) => {
 	const { data }: ClientResponse = await client.get(`/posts`, {
 		params: {
 			page,
-			limit
+			perPage: limit
 		},
 	});
 

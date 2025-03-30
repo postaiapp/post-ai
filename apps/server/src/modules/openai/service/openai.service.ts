@@ -37,7 +37,7 @@ export class OpenaiService {
 		const uploadedImage = await this.storageService.downloadAndUploadImage(url);
 
 		return {
-			url: uploadedImage.key,
+			url: uploadedImage.url,
 		};
 	}
 }

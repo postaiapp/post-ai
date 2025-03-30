@@ -8,7 +8,9 @@ import { Meta } from '@type/meta';
 import axios from 'axios';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
+import * as dayjs from 'dayjs';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
+import FileUtils from '@utils/file';
 
 @Injectable()
 export class InstagramAuthService {
@@ -71,9 +73,9 @@ export class InstagramAuthService {
 
 		return {
 			state: compressedState,
-			lastChecked: new Date(),
+			lastChecked: dayjs().toDate(),
 			isValid: true,
-			lastRefreshed: new Date(),
+			lastRefreshed: dayjs().toDate(),
 		};
 	}
 
@@ -101,7 +103,7 @@ export class InstagramAuthService {
 
 		const [account, session] = await Promise.all([this.ig.user.info(user.pk), this.getToken()]);
 
-		const fileKeyProfilePic = (await this.uploaderService.downloadAndUploadImage(account.profile_pic_url)).key;
+		const { url } = await this.uploaderService.downloadAndUploadImage(account.profile_pic_url);
 
 		const accountData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -111,8 +113,8 @@ export class InstagramAuthService {
 			followerCount: account.follower_count,
 			followingCount: account.following_count,
 			postCount: account.media_count,
-			profilePicUrl: fileKeyProfilePic,
-			lastLogin: new Date(),
+			profilePicUrl: FileUtils.getUnsignedUrl(url),
+			lastLogin: dayjs().toDate(),
 			isPrivate: account.is_private,
 			isVerified: account.is_verified,
 			session,
@@ -141,8 +143,8 @@ export class InstagramAuthService {
 			followerCount: account.follower_count,
 			followingCount: account.following_count,
 			postCount: account.media_count,
-			profilePicUrl: await this.uploaderService.getSignedImageUrl(fileKeyProfilePic),
-			lastLogin: new Date(),
+			profilePicUrl: url,
+			lastLogin: dayjs().toDate(),
 			accountId: user.pk.toString(),
 			isPrivate: account.is_private,
 			isVerified: account.is_verified,
@@ -156,9 +158,12 @@ export class InstagramAuthService {
 
 		const user = await this.ig.account.login(username, password);
 
-		const userInfo = await this.ig.user.info(user.pk);
+		const [userInfo, session] = await Promise.all([
+			this.ig.user.info(user.pk),
+			this.getToken()
+		]);
 
-		const session = await this.getToken();
+		const { url } = await this.uploaderService.downloadAndUploadImage(userInfo.profile_pic_url);
 
 		const userData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -168,8 +173,8 @@ export class InstagramAuthService {
 			followerCount: userInfo.follower_count,
 			followingCount: userInfo.following_count,
 			postCount: userInfo.media_count,
-			profilePicUrl: userInfo.profile_pic_url,
-			lastLogin: new Date(),
+			profilePicUrl: FileUtils.getUnsignedUrl(url),
+			lastLogin: dayjs().toDate(),
 			isPrivate: userInfo.is_private,
 			isVerified: userInfo.is_verified,
 			session,

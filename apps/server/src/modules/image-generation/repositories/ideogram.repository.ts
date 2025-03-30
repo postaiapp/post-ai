@@ -26,6 +26,8 @@ export class IdeogramRepository implements ImageGenerationService {
 	async generateImage(options: GenerateImageOptions): Promise<GeneratedImage> {
 		const mountedPrompt = this.generatePrompt(options.prompt);
 
+		console.log(mountedPrompt, 'mountedPrompt');
+
 		const mountedGenerateImagePayload = {
 			image_request: {
 				prompt: mountedPrompt,
@@ -43,12 +45,14 @@ export class IdeogramRepository implements ImageGenerationService {
 			},
 		});
 
+		console.log(response.data, 'response');
+
 		const url = response.data.data[0].url;
 
 		const uploadedImage = await this.storageService.downloadAndUploadImage(url);
 
 		return {
-			url: uploadedImage.key,
+			url: uploadedImage.url,
 		};
 	}
 }

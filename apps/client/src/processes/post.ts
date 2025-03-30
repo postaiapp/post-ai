@@ -15,3 +15,19 @@ export const createPost = async (filter: PostFormData) => {
 		error,
 	};
 };
+
+export const getUserPostsWithDetails = async ({ page, limit }: { page: number; limit: number }) => {
+	const { data, error }: ClientResponse = await client({
+		method: 'GET',
+		url: `/posts`,
+		params: {
+			page,
+			perPage: limit
+		}
+	});
+
+	return {
+		data,
+		error
+	};
+};

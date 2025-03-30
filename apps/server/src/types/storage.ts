@@ -9,5 +9,5 @@ export abstract class Uploader {
 
     abstract getSignedImageUrl(fileName: string): Promise<string>;
 
-    abstract downloadAndUploadImage(url: string): Promise<{ key: string }>;
+    abstract downloadAndUploadImage(url: string): Promise<{ url: string }>;
 }

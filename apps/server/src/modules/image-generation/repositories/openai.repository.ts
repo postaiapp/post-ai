@@ -38,7 +38,7 @@ export class OpenAIRepository implements ImageGenerationService {
 		const uploadedImage = await this.storageService.downloadAndUploadImage(url);
 
 		return {
-			url: uploadedImage.key,
+			url: uploadedImage.url,
 		};
 	}
 }

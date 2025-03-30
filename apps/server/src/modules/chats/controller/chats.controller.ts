@@ -28,6 +28,7 @@ export class ChatsController extends BaseController {
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
+			console.log(error, 'errpr');
 			return this.sendError({ error, res });
 		}
 	}
@@ -46,6 +47,7 @@ export class ChatsController extends BaseController {
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
+			console.log(error, 'error');
 			return this.sendError({ error, res });
 		}
 	}

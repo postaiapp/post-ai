@@ -43,26 +43,42 @@ export class R2Storage implements Uploader {
 		};
 	}
 
-	async getSignedImageUrl(fileName: string): Promise<string> {
+	async getSignedImageUrl(fileUrl: string): Promise<string> {
+		const unsignedUrl = fileUrl.split('?')[0];
+
+		const parts = unsignedUrl.split('/');
+
+		const path = parts.pop();
+
+		return this.getSignedImageUrlByPath(path);
+	}
+
+	async getSignedImageUrlByPath(path: string): Promise<string> {
 		const bucketName = this.configService.get<string>('AWS_BUCKET_NAME');
 
 		const command = new GetObjectCommand({
 			Bucket: bucketName,
-			Key: fileName,
+			Key: path,
 		});
 
 		return getSignedUrl(this.client, command, { expiresIn: 3600 });
 	}
 
-	async downloadAndUploadImage(url: string): Promise<{ key: string }> {
+	async downloadAndUploadImage(url: string): Promise<{ url: string }> {
 		const response = await axios.get(url, { responseType: 'arraybuffer' });
 
 		const mimeType = response.headers['content-type'];
 
-		return await this.upload({
+		const uploadedFileKey =  await this.upload({
 			fileType: mimeType,
 			fileName: 'image.jpg',
 			body: response.data,
 		});
+
+		const signedUrl = await this.getSignedImageUrlByPath(uploadedFileKey.key);
+
+		return {
+			url: signedUrl,
+		};
 	}
 }

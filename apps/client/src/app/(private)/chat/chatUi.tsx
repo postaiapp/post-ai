@@ -61,6 +61,7 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 								{defaultPrompts.map((prompt, index) => (
 									<Button
 										key={index}
+										onClick={() => setPrompt(prompt.message)}
 										className="bg-white border-[1px] border-gray-200 hover:bg-gray-50 shadow-sm rounded-2xl w-52 flex items-center justify-center text-gray-500 font-regular p-3"
 										variant="outline"
 									>
