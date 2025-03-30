@@ -1,44 +1,37 @@
-import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
-import { Transform, TransformFnParams } from 'class-transformer';
+import { Sanitize } from '@decorators/sanitize.decorator';
 import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
 
 export class LoginDto {
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
     @MaxLength(20)
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
+    @Sanitize()
     password: string;
 
     @IsString()
     @IsNotEmpty()
     @IsEmail()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
+    @Sanitize()
     email: string;
 }
 
 export class RegisterDto {
     @IsString()
     @IsNotEmpty()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
+    @Sanitize()
     name: string;
 
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
     @MaxLength(20)
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
+    @Sanitize()
     password: string;
 
     @IsString()
     @IsEmail()
     @IsNotEmpty()
-    @Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-    @Escape()
+    @Sanitize()
     email: string;
 }
