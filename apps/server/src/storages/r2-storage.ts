@@ -24,7 +24,7 @@ export class R2Storage implements Uploader {
 		});
 	}
 
-	async upload({ fileName, fileType, body }: UploadParams): Promise<{ url: string }> {
+	async upload({ fileName, fileType, body }: UploadParams): Promise<{ key: string }> {
 		const uploadId = randomUUID();
 
 		const uniqueFileName = `${uploadId}-${fileName}`;
@@ -39,7 +39,7 @@ export class R2Storage implements Uploader {
 		);
 
 		return {
-			url: uniqueFileName,
+			key: uniqueFileName,
 		};
 	}
 
@@ -69,17 +69,13 @@ export class R2Storage implements Uploader {
 
 		const mimeType = response.headers['content-type'];
 
-		const uploadedFileKey = await this.upload({
+		const uploadedFileKey =  await this.upload({
 			fileType: mimeType,
 			fileName: 'image.jpg',
 			body: response.data,
 		});
 
-		console.log(uploadedFileKey, 'uploadedFileKey');
-
-		const signedUrl = await this.getSignedImageUrlByPath(uploadedFileKey.url);
-
-		console.log(signedUrl, 'signedUrl');
+		const signedUrl = await this.getSignedImageUrlByPath(uploadedFileKey.key);
 
 		return {
 			url: signedUrl,

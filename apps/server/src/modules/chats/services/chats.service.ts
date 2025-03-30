@@ -6,6 +6,7 @@ import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
 import { R2Storage } from '@storages/r2-storage';
 import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import * as dayjs from 'dayjs';
 import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
 
@@ -65,11 +66,12 @@ export class ChatsService {
 			request: message,
 			response: FileUtils.getUnsignedUrl(url),
 			is_regenerated: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
+			createdAt: dayjs().toDate(),
+			updatedAt: dayjs().toDate(),
 		};
 
 		chat.interactions.push(interactionBody);
+		chat.updatedAt = dayjs().toDate();
 
 		await chat.save();
 
@@ -80,10 +82,11 @@ export class ChatsService {
 				firstMessage: chat.first_message,
 				id: chat._id,
 				createdAt: chat.createdAt,
+				updatedAt: chat.updatedAt,
 			},
 			interaction: {
 				request: interactionBody.request,
-				response: interactionBody.response,
+				response: await this.r2Storage.getSignedImageUrl(url),
 				isRegenerated: interactionBody.is_regenerated,
 			},
 		};
@@ -170,8 +173,6 @@ export class ChatsService {
 				response: await this.r2Storage.getSignedImageUrl(interaction.response),
 			}))
 		);
-
-		console.log(mountedInteractions, 'mountedInteractions');
 
 		return mountedInteractions;
 	}
