@@ -40,9 +40,9 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
     filterFn: "arrIncludes",
     cell: ({ row }) => (
       <div className="min-w-[180px] max-w-[200px]">
-        <SimpleUserAvatar 
-          image={row.original?.user?.profilePicUrl} 
-          username={row.original?.user?.name ?? "Desconhecido"} 
+        <SimpleUserAvatar
+          image={row.original?.user?.profilePicUrl}
+          username={row.original?.user?.name ?? "Desconhecido"}
         />
       </div>
     )
