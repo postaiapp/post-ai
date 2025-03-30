@@ -5,6 +5,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
 import * as dayjs from 'dayjs';
+import { isEmpty } from 'lodash';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -22,7 +23,7 @@ export class PublishedMissedPostsCron {
 		this.logger.log('Checking for missed posts');
 
 		const postsScheduledMissed = await this.getPostsMissed();
-		
+
 		await Promise.all(
 			postsScheduledMissed.map(async (post) => {
 				const { userId, accountId, caption, imageUrl } = post;
@@ -35,7 +36,7 @@ export class PublishedMissedPostsCron {
 					{ 'InstagramAccounts.$': 1 }
 				).lean();
 
-				if (!user || !user.InstagramAccounts?.length) {
+				if (!user || isEmpty(user.InstagramAccounts)) {
 					this.logger.warn(`No Instagram account found for user ${userId}`);
 					return;
 				}
@@ -72,7 +73,7 @@ export class PublishedMissedPostsCron {
 			})
 			.lean();
 
-		if (!postsScheduledMissed.length) {
+		if (isEmpty(postsScheduledMissed)) {
 			this.logger.log('No missed posts found');
 			return;
 		}
