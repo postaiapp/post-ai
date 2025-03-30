@@ -391,10 +391,11 @@ export class PostService {
 			return {
 				...omit(post, ['userId.InstagramAccounts.session', 'userId']),
 				...instagramInfo,
+				imageUrl: await this.r2Storage.getSignedImageUrl(post.imageUrl),
 				user: userInfo,
 				account: {
 					username: account.username,
-					profilePicUrl: account.profilePicUrl,
+					profilePicUrl: await this.r2Storage.getSignedImageUrl(account.profilePicUrl),
 					fullName: account.fullName,
 					isPrivate: account.isPrivate,
 					isVerified: account.isVerified
