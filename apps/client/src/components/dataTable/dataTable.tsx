@@ -9,7 +9,6 @@ import {
   SortingState,
   getFilteredRowModel,
   ColumnFiltersState,
-  getPaginationRowModel,
   OnChangeFn,
 } from "@tanstack/react-table"
 
@@ -62,19 +61,28 @@ export function DataTable<TData, TValue>({
   sorting,
   columnFilters,
   setColumnFilters,
-  setSorting
+  setSorting,
+  onPageChange
 }: DataTableProps<TData, TValue>) {
   const [currentPage, setCurrentPage] = useState(0);
+  const [isChangingPage, setIsChangingPage] = useState(false);
+
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   const table = useReactTable({
-    data: data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: (value) => { if (currentPage !== 0 && setCurrentPage) { setCurrentPage(0) }; setColumnFilters?.(value) },
+    onColumnFiltersChange: (value) => { 
+      if (currentPage !== 0) { 
+        setCurrentPage(0);
+      }
+      setColumnFilters?.(value);
+    },
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
     state: {
       sorting,
       columnFilters,
@@ -83,28 +91,29 @@ export function DataTable<TData, TValue>({
         pageSize,
       },
     },
-    pageCount: Math.ceil(totalItems / pageSize),
-    onPaginationChange: (updater) => {
-      if (typeof updater === 'function') {
-        const newPagination = updater({
-          pageIndex: currentPage,
-          pageSize,
-        });
-        if (newPagination.pageIndex !== currentPage) {
-          setCurrentPage(newPagination.pageIndex);
-        }
-      }
+    pageCount: totalPages,
+  });
+
+  const handlePageChange = async (newPage: number) => {
+    if (newPage < 0 || newPage >= totalPages) return;
+    
+    try {
+      setIsChangingPage(true);
+      setCurrentPage(newPage);
+      await onPageChange?.(newPage + 1);
+    } finally {
+      setIsChangingPage(false);
     }
-  })
+  };
+
+  const isLoading = isPending || isChangingPage;
 
   return (
     <div className="rounded-lg bg-white shadow-md">
       <div className="flex items-center justify-between p-6">
         <div className="text-sm text-gray-600">
-          Quantidade de posts: {data.length}
-          {!allPagesLoaded &&
-            " (Carregando mais)"
-          }
+          Total de posts: {totalItems}
+          {isLoading && " (Carregando...)"}
         </div>
 
         <div className="flex items-center gap-6">
@@ -123,7 +132,7 @@ export function DataTable<TData, TValue>({
                   }
                   className="max-w-sm"
                   icon={icon}
-                  disabled={isPending}
+                  disabled={isLoading}
                 />
               )
             }
@@ -138,34 +147,33 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-white hover:bg-white">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder ? null : (
-                        <div className="flex items-center">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                          {header.column.getCanSort() && (
-                            <Button
-                              variant="ghost"
-                              onClick={() => header.column.toggleSorting()}
-                              disabled={isPending}
-                            >
-                              <ArrowUpDown className="ml-2 h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : (
+                      <div className="flex items-center">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {header.column.getCanSort() && (
+                          <Button
+                            variant="ghost"
+                            className="p-2 ml-2"
+                            onClick={() => header.column.toggleSorting()}
+                            disabled={isLoading}
+                          >
+                            <ArrowUpDown className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {isPending ? (
+            {isLoading ? (
               Array.from({ length: pageSize }).map((_, index) => (
                 <TableRow key={index}>
                   {Array.from({ length: columns.length }).map((_, cellIndex) => (
@@ -175,7 +183,7 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
-            ) : table.getRowModel().rows?.length ? (
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -203,8 +211,8 @@ export function DataTable<TData, TValue>({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => table.firstPage()}
-          disabled={!table.getCanPreviousPage() || isPending}
+          onClick={() => handlePageChange(0)}
+          disabled={!table.getCanPreviousPage() || isLoading}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -212,35 +220,31 @@ export function DataTable<TData, TValue>({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage() || isPending}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={!table.getCanPreviousPage() || isLoading}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="flex items-center gap-1 text-xs">
           <div className="text-muted-foreground">Página</div>
-          {isPending ? (
+          {isLoading ? (
             <div className="h-4 w-6 bg-gray-200 animate-pulse rounded" />
           ) : (
             <strong className="font-medium">
-              {table.getState().pagination.pageIndex + 1}
+              {currentPage + 1}
             </strong>
           )}
           <div className="text-muted-foreground">de</div>
-          {isPending ? (
-            <div className="h-4 w-6 bg-gray-200 animate-pulse rounded" />
-          ) : (
-            <strong className="font-medium">
-              {table.getPageCount()}
-            </strong>
-          )}
+          <strong className="font-medium">
+            {totalPages}
+          </strong>
         </span>
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage() || isPending}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={!table.getCanNextPage() || isLoading}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronRight className="h-4 w-4" />
@@ -248,8 +252,8 @@ export function DataTable<TData, TValue>({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => table.lastPage()}
-          disabled={!table.getCanNextPage() || isPending}
+          onClick={() => handlePageChange(totalPages - 1)}
+          disabled={!table.getCanNextPage() || isLoading}
           className="hover:bg-gray-100 disabled:opacity-40"
         >
           <ChevronsRight className="h-4 w-4" />

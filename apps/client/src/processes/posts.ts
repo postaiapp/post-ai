@@ -2,12 +2,12 @@ import { ClientResponse } from '@common/interfaces/api';
 
 import client from './api';
 
-export const getUserPostsWithDetails = async ({ page, limit} : {page?: number, limit?: number}	) => {
+export const getUserPostsWithDetails = async ({ page, limit } : { page?: number, limit?: number }	) => {
 	const { data }: ClientResponse = await client.get(`/posts`, {
 		params: {
 			page,
-			limit
-		},	
+			perPage: limit
+		},
 	});
 
 	return {
@@ -17,7 +17,7 @@ export const getUserPostsWithDetails = async ({ page, limit} : {page?: number, l
 
 export const cancelPost = async ({ postId,  }: { postId: string }) => {
   const { data }: ClientResponse = await client.post(`/posts/cancel/${postId}`);
-	
+
 	return {
 		data,
 	};

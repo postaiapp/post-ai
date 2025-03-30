@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 @Schema({ versionKey: false })
 export class Post {
@@ -17,8 +18,8 @@ export class Post {
 	@Prop({ required: false, type: Date })
 	canceledAt: Date;
 
-	@Prop({ required: true, type: String })
-	userId: string;
+	@Prop({ required: true, type: Types.ObjectId, ref: 'User' })
+    userId: Types.ObjectId;
 
 	@Prop({ required: true, type: String })
 	accountId: string;

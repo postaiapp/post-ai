@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
 				hostname: 'i.imgur.com'
 			},
 			{
-				hostname: 'instagram.frec3-1.fna.fbcdn.net'
+				hostname: 'instagram.flad4-1.fna.fbcdn.net'
 			}
 		],
 	},

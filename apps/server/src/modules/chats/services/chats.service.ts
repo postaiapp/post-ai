@@ -18,12 +18,11 @@ export class ChatsService {
 	) {}
 
 	findChat(chatId: string, userId: string) {
-		console.log(chatId, userId, 'chatId, userId');
 		return this.chatModel.findOne({
 			_id: chatId,
 			user_id: userId,
 			finished_at: null,
-		});
+		}).lean();
 	}
 
 	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
