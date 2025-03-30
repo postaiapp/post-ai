@@ -45,7 +45,7 @@ export const HistoryUi = ({
   onPreviousPage
 }: HistoryUiProps) => {
   return (
-    <div className='p-6 bg-gray-100'>
+    <div className='p-6 h-full bg-gray-100'>
       <h1 className='text-2xl font-bold mb-6'>Histórico de Posts</h1>
       {isError ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
