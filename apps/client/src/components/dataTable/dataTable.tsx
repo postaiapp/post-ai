@@ -39,6 +39,14 @@ interface DataTableProps<TData, TValue> {
 	setColumnFilters?: OnChangeFn<ColumnFiltersState>
 	isPending: boolean
 	allPagesLoaded: boolean
+	currentPage: number;
+	totalPages: number;
+	hasNextPage: boolean;
+	hasPreviousPage: boolean;
+	onFirstPage: () => void;
+	onLastPage: () => void;
+	onNextPage: () => void;
+	onPreviousPage: () => void;
 }
 
 const getIconByHeader = (header: string) => {

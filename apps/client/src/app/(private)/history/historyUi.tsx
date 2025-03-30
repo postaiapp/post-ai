@@ -1,6 +1,7 @@
 import { DataTable } from "@components/dataTable/dataTable";
 import { columns } from "./historyTable/columns";
 import { ColumnFiltersState, OnChangeFn, SortingState } from "@tanstack/react-table";
+import { PostEntityWithDetails } from "@common/interfaces/post";
 
 interface HistoryUiProps {
   totalItems: number;
@@ -29,6 +30,7 @@ export const HistoryUi = ({
   isError,
   isPending,
   allPagesData,
+  allPagesLoaded,
   pageSize,
   sorting,
   columnFilters,
@@ -64,9 +66,10 @@ export const HistoryUi = ({
           </button>
         </div>
       ) : (
-        <DataTable
+        <DataTable<PostEntityWithDetails, any>
           isPending={isPending}
           columns={columns}
+          allPagesLoaded={allPagesLoaded}
           data={allPagesData}
           pageSize={pageSize}
           totalItems={totalItems}
