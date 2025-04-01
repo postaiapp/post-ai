@@ -24,7 +24,7 @@ const SidebarFooterContainer = () => {
 	}, []);
 
 	const handleNavigateUserDetails = useCallback(() => {
-		return router.push(`/user?userId=${user?._id}`);
+		return router.push(`/settings`);
 	}, [user]);
 
 	return <SidebarFooter handleLogout={handleLogout} handleNavigateUserDetails={handleNavigateUserDetails} />;

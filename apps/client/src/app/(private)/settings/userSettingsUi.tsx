@@ -1,12 +1,20 @@
 'use client';
 
 import { ItemSideBarUserSettings, itemsSideBarUserSettings } from "@common/constants/user";
+import { User } from "@common/interfaces/user";
+import { DeleteModal } from "@components/dataTable/deleteModal";
 import { Separator } from "@components/ui/separator";
 import { cn } from "@lib/utils";
 import { JSX, useMemo, useState } from "react";
 import ProfileDetails from "./components/userDetails";
 
-export default function UserSettingsUi() {
+export default function UserSettingsUi({
+	user,
+	handleDeleteAccount,
+}: {
+	user: User | null;
+	handleDeleteAccount: () => Promise<void>;
+}) {
   	const [activeItem, setActiveItem] = useState<string>("profile");
 
 	const renderContent = useMemo(() => {
@@ -20,34 +28,45 @@ export default function UserSettingsUi() {
 	}, [activeItem]);
 
 	const itemSideBar = useMemo(() => (item: ItemSideBarUserSettings) => (
-		<div
-			key={item.value}
-			onClick={() => setActiveItem(item.value)}
-			className={cn(
-			"flex items-center justify-between p-4 cursor-pointer transition-all duration-200 rounded-lg mx-2",
-			{
-				"bg-purple-100 border-l-4 border-purple-500": activeItem === item.value,
-				"hover:bg-gray-100 hover:text-gray-900": activeItem !== item.value,
-			})}
-		>
-			<div className="flex items-center gap-4">
-				<item.icon
-					className={cn("text-gray-900 font-medium text-lg", {
-					"text-red-500": item.value === "delete" })}
-				/>
+		item.value === "delete" ? (
+			<DeleteModal
+				key={item.value}
+				textButton="Excluir Conta"
+				icon={item.icon}
+				modalTitle="Você tem certeza?"
+				modalDescription="Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta e removerá seus dados de nossos servidores."
+				onClick={handleDeleteAccount}
+			/>
+		) : (
+			<div
+				key={item.value}
+				onClick={() => setActiveItem(item.value)}
+				className={cn(
+					"flex items-center justify-between p-4 cursor-pointer transition-all duration-200 rounded-lg mx-2",
+					{
+						"bg-purple-100 border-l-4 border-purple-500": activeItem === item.value,
+						"hover:bg-gray-100 hover:text-gray-900": activeItem !== item.value,
+					}
+				)}
+			>
+				<div className="flex items-center gap-4">
+					<item.icon
+						className={cn("text-gray-900 font-medium text-lg", {
+							"text-red-500": item.value === "delete",
+						})}
+					/>
 					<p
 						className={cn("text-gray-900", {
-						"text-red-500": item.value === "delete",
-						"font-semibold": activeItem === item.value,
+							"text-red-500": item.value === "delete",
+							"font-semibold": activeItem === item.value,
 						})}
 					>
 						{item.title}
 					</p>
+				</div>
 			</div>
-		</div>
-
-		),[activeItem]
-	);
+		)
+	), [activeItem]);
 
 	return (
 		<div className="flex gap-6 items-center w-full h-screen bg-gray-100 p-6 overflow-hidden">
