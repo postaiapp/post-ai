@@ -1,13 +1,12 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { R2Storage } from '@storages/r2-storage';
 import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
@@ -15,6 +14,7 @@ import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
 import { omit, map, isEmpty } from 'lodash';
+import { Uploader } from '@type/storage';
 
 @Injectable()
 export class PostService {
@@ -27,7 +27,7 @@ export class PostService {
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
 		private schedulerRegistry: SchedulerRegistry,
-		private readonly r2Storage: R2Storage
+		@Inject(Uploader) private readonly storageService: Uploader
 	) {}
 
 	async create({ data, meta }: DefaultPostBodyCreate) {
@@ -240,7 +240,7 @@ export class PostService {
 				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
 			}
 
-			const signedUrl = await this.r2Storage.getSignedImageUrl(img);
+			const signedUrl = await this.storageService.getSignedImageUrl(img);
 
 			const imageBuffer = await get({ url: signedUrl, encoding: null });
 
@@ -391,11 +391,11 @@ export class PostService {
 			return {
 				...omit(post, ['userId.InstagramAccounts.session', 'userId']),
 				...instagramInfo,
-				imageUrl: await this.r2Storage.getSignedImageUrl(post.imageUrl),
+				imageUrl: await this.storageService.getSignedImageUrl(post.imageUrl),
 				user: userInfo,
 				account: {
 					username: account.username,
-					profilePicUrl: await this.r2Storage.getSignedImageUrl(account.profilePicUrl),
+					profilePicUrl: await this.storageService.getSignedImageUrl(account.profilePicUrl),
 					fullName: account.fullName,
 					isPrivate: account.isPrivate,
 					isVerified: account.isVerified

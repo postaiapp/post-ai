@@ -52,8 +52,6 @@ export class ChatsService {
 			chatId,
 		});
 
-		console.log(chat, 'chat');
-
 		const context = await this.getChatContext(chat.interactions);
 
 		const { url } = await this.imageGenerationService.generateImage({
@@ -73,8 +71,6 @@ export class ChatsService {
 			updatedAt: dayjs().toDate(),
 		};
 
-
-		console.log(interactionBody, 'interactionBody');
 		chat.interactions.push(interactionBody);
 		chat.updatedAt = dayjs().toDate();
 
