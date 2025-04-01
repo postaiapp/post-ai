@@ -2,11 +2,12 @@
 
 
 import userStore from '@stores/userStore';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import UserSettingsUi from './userSettingsUi';
 
 export default function UserSettingsContainer() {
 	const { user } = userStore();
+	const [activeItem, setActiveItem] = useState<string>("profile");
 
 	const handleDeleteAccount = useCallback(async () => {
 		console.log('Delete account');
@@ -16,6 +17,8 @@ export default function UserSettingsContainer() {
 	return (
 		<UserSettingsUi
 			user={user}
+			activeItem={activeItem}
+			setActiveItem={setActiveItem}
 			handleDeleteAccount={handleDeleteAccount}
 		/>
 	);

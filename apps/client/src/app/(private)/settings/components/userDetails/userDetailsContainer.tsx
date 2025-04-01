@@ -1,27 +1,54 @@
 'use client';
 
 
-import { User } from '@common/interfaces/user';
-import ProfileDetailsUi from './page';
+import { UpdateUserData, User } from '@common/interfaces/user';
+import { useUserMutations } from '@hooks/user';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import UserDetailsUi from './userDetailsUi';
 
-export default function UserSettingsContainer({ user }: { user: User | null }) {
+export default function UserDetailsContainer({ user }: { user: User | null }) {
+    const router = useRouter();
+    const [activeState, setActiveState] = useState<string>("profile");
 
-	// const { data, isPending } = useQuery({
-    //     queryKey: ['user', user?._id],
-    //     queryFn: async () => {
-    //         const response = await fetch('/api/user');
+    const handleEditState = useCallback((state: string) => {
+        setActiveState(state);
+    }, []);
 
-    //         if (!response.ok) {
-    //             throw new Error('Network response was not ok');
-    //         }
+    const { control, handleSubmit, reset } = useForm<UpdateUserData>({
+            defaultValues: {
+                city: '',
+                country: '',
+                cpf: '',
+                email: user?.email || '',
+                name: user?.name || '',
+                phone: '',
+            },
+    });
 
-    //         return response.json();
-    //     },
-    // });
+    const { updateUserMutate } = useUserMutations();
 
+    const handleUpdateUser = useCallback(async (data: UpdateUserData) => {
+		await updateUserMutate.updateUserMutationAsync(data);
+
+		router.back();
+	}, [updateUserMutate, router]);
+
+    const handleCancel = useCallback(() => {
+        handleEditState("profile");
+        reset()
+      }, [handleEditState]);
 
 	return (
-		<ProfileDetailsUi
+		<UserDetailsUi
+            user={user}
+            control={control}
+            handleCancel={handleCancel}
+            onSubmit={handleSubmit(handleUpdateUser)}
+            activeState={activeState}
+            handleEditState={handleEditState}
+            setActiveState={setActiveState}
 		/>
 	);
 }

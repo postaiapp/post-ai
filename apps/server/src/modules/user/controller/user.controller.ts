@@ -1,6 +1,6 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Delete, Get, HttpStatus, Patch, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Put, Res, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response } from 'express';
@@ -41,7 +41,7 @@ export class UserController extends BaseController{
 		}
 	}
 
-	@Patch()
+	@Put()
 	async update(
 		@Meta() meta: MetaType,
 		@Body() data: UpdateUserDto,

@@ -6,3 +6,12 @@ export type User = {
 	email: string;
 	InstagramAccounts: InstagramAccountStore[];
 };
+
+export type UpdateUserData = {
+	name: string;
+	email: string;
+	cpf: string;
+	phone: string;
+	city: string;
+	country: string;
+};

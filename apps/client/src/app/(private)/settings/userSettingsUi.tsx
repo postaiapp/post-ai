@@ -5,26 +5,28 @@ import { User } from "@common/interfaces/user";
 import { DeleteModal } from "@components/dataTable/deleteModal";
 import { Separator } from "@components/ui/separator";
 import { cn } from "@lib/utils";
-import { JSX, useMemo, useState } from "react";
-import ProfileDetails from "./components/userDetails";
+import { JSX, useMemo } from "react";
+import UserDetailsContainer from "./components/userDetails";
 
 export default function UserSettingsUi({
 	user,
+	activeItem,
+	setActiveItem,
 	handleDeleteAccount,
 }: {
 	user: User | null;
 	handleDeleteAccount: () => Promise<void>;
+	activeItem: string;
+	setActiveItem: (item: string) => void;
 }) {
-  	const [activeItem, setActiveItem] = useState<string>("profile");
-
 	const renderContent = useMemo(() => {
 		const contentMap: Record<string, JSX.Element> = {
-			profile: <ProfileDetails />,
+			profile: <UserDetailsContainer user={user} />,
 			security: <div>Security Settings</div>,
 			delete: <div>Delete Account Confirmation</div>,
 		};
 
-		return contentMap[activeItem] || <ProfileDetails />;
+		return contentMap[activeItem] || <UserDetailsContainer user={user} />;
 	}, [activeItem]);
 
 	const itemSideBar = useMemo(() => (item: ItemSideBarUserSettings) => (
