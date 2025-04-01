@@ -1,5 +1,6 @@
 'use client';
 
+import { SideBarFooterProps } from '@common/interfaces/sidebar';
 import { Button } from '@components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@components/ui/dropdown-menu';
 import {
@@ -10,7 +11,7 @@ import {
 } from '@components/ui/sidebar';
 import { ChevronUp, LogOut, Settings, User2 } from 'lucide-react';
 
-export default function SidebarFooter({ handleLogout }: { handleLogout: () => void }) {
+export default function SidebarFooter({ handleLogout, handleNavigateUserDetails }: SideBarFooterProps) {
 	return (
 		<UiSidebarFooter>
 			<SidebarMenu>
@@ -24,7 +25,11 @@ export default function SidebarFooter({ handleLogout }: { handleLogout: () => vo
 						</DropdownMenuTrigger>
 						<DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
 							<DropdownMenuItem>
-								<Button className="text-xs w-full" variant="outline">
+								<Button
+									className="text-xs w-full"
+									variant="outline"
+									onClick={handleNavigateUserDetails}
+								>
 									<User2 /> Account
 								</Button>
 							</DropdownMenuItem>
