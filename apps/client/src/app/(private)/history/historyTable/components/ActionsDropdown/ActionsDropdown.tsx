@@ -2,7 +2,7 @@ import { mappedErrors } from "@common/constants/error";
 import { PostEntityWithDetails } from "@common/interfaces/post";
 import { Button } from "@components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
-import { cancelPost } from "@processes/posts";
+import { cancelPost } from "@processes/post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@utils/toast";
 import { MoreVertical } from "lucide-react";

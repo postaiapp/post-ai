@@ -1,8 +1,8 @@
 import { DEFAULT_PROMPT } from '@constants/ai';
 import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { R2Storage } from '@storages/r2-storage';
+import { Uploader } from '@type/storage';
 import { OpenAI } from 'openai';
 import { CreateOpenaiDto } from '../dto/openai.dto';
 
@@ -11,9 +11,9 @@ export class OpenaiService {
 	private readonly openai: OpenAI;
 
 	constructor(
-		private configService: ConfigService,
-		private storageService: R2Storage,
-		private imageGenerationService: ImageGenerationService
+		private readonly configService: ConfigService,
+		@Inject(Uploader) private readonly storageService: Uploader,
+		private readonly imageGenerationService: ImageGenerationService
 	) {
 		const apiKey = this.configService.get<string>('OPENAI_API_KEY');
 		this.openai = new OpenAI({ apiKey });

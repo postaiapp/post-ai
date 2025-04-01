@@ -1,4 +1,4 @@
-import { getInitials, getColorByInitials } from "@utils/utils";
+import { getInitials, getColorByInitials } from "@utils/avatar";
 import Image from "next/image";
 
 interface SimpleUserAvatarProps {

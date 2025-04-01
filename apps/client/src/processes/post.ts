@@ -4,30 +4,34 @@ import { PostFormData } from '@common/interfaces/post';
 import client from './api';
 
 export const createPost = async (filter: PostFormData) => {
-	const { data, error }: ClientResponse = await client({
+	const { data }: ClientResponse = await client({
 		method: 'POST',
 		url: `/posts`,
 		data: filter,
 	});
 
 	return {
-		data,
-		error,
+		data
 	};
 };
 
-export const getUserPostsWithDetails = async ({ page, limit }: { page: number; limit: number }) => {
-	const { data, error }: ClientResponse = await client({
-		method: 'GET',
-		url: `/posts`,
+export const getUserPostsWithDetails = async ({ page, limit } : { page?: number, limit?: number }	) => {
+	const { data }: ClientResponse = await client.get(`/posts`, {
 		params: {
 			page,
 			perPage: limit
-		}
+		},
 	});
 
 	return {
-		data,
-		error
+		data
+	};
+};
+
+export const cancelPost = async ({ postId }: { postId: string }) => {
+  const { data }: ClientResponse = await client.post(`/posts/cancel/${postId}`);
+
+	return {
+		data
 	};
 };

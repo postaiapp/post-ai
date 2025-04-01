@@ -3,9 +3,9 @@ import { InstagramAuthService } from '@modules/instagram-auth/services/instagram
 import { Module } from '@nestjs/common';
 import { Post, PostSchema } from '@schemas/post.schema';
 import { User, UserSchema } from '@schemas/user.schema';
-import { R2Storage } from '@storages/r2-storage';
 import { IgApiClient } from 'instagram-private-api';
 import { TokenManagement } from './token-management.service';
+import { StorageModule } from '@storages/storage.module';
 
 @Module({
 	imports: [
@@ -13,7 +13,8 @@ import { TokenManagement } from './token-management.service';
 			{ name: User.name, schema: UserSchema },
 			{ name: Post.name, schema: PostSchema },
 		]),
+		StorageModule,
 	],
-	providers: [TokenManagement, InstagramAuthService, IgApiClient, R2Storage],
+	providers: [TokenManagement, InstagramAuthService, IgApiClient],
 })
 export class CronModule {}

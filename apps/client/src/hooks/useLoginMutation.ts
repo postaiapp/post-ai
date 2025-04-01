@@ -13,10 +13,6 @@ export function useLoginMutation() {
         mutationFn: async (data: AuthLoginType) => {
             const response = await login(data);
 
-            if (response.error) {
-                throw new Error(response.error.message);
-            }
-
             return response.data;
         },
         onSuccess: (data) => {

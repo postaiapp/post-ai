@@ -25,7 +25,7 @@ import { Input } from "@components/ui/input"
 import { Button } from "@components/ui/button"
 import { ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Instagram, Calendar, User, FileText } from "lucide-react"
 import { Separator } from "@components/ui/separator"
-import { getInitials, getColorByInitials } from "@utils/utils"
+import { getInitials, getColorByInitials } from "@utils/avatar"
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]

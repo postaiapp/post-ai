@@ -4,18 +4,19 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
-import { R2Storage } from '@storages/r2-storage';
 import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
 import * as dayjs from 'dayjs';
 import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
+import { Uploader } from '@type/storage';
+import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
 		private readonly imageGenerationService: ImageGenerationService,
-		private readonly r2Storage: R2Storage
+		@Inject(Uploader) private readonly storageService: Uploader
 	) {}
 
 	findChat(chatId: string, userId: string) {
@@ -23,7 +24,7 @@ export class ChatsService {
 			_id: chatId,
 			user_id: userId,
 			finished_at: null,
-		}).lean();
+		});
 	}
 
 	async findOrCreateChat(data: { chatId: string; userId: string; message: string }) {
@@ -51,6 +52,8 @@ export class ChatsService {
 			chatId,
 		});
 
+		console.log(chat, 'chat');
+
 		const context = await this.getChatContext(chat.interactions);
 
 		const { url } = await this.imageGenerationService.generateImage({
@@ -70,6 +73,8 @@ export class ChatsService {
 			updatedAt: dayjs().toDate(),
 		};
 
+
+		console.log(interactionBody, 'interactionBody');
 		chat.interactions.push(interactionBody);
 		chat.updatedAt = dayjs().toDate();
 
@@ -86,7 +91,7 @@ export class ChatsService {
 			},
 			interaction: {
 				request: interactionBody.request,
-				response: await this.r2Storage.getSignedImageUrl(url),
+				response: await this.storageService.getSignedImageUrl(url),
 				isRegenerated: interactionBody.is_regenerated,
 			},
 		};
@@ -159,7 +164,7 @@ export class ChatsService {
 	}
 
 	async listChatInteractions({ params, meta }: ListChatInteractionsOptions) {
-		const chat = await this.findChat(params.chatId, meta.userId.toString());
+		const chat = await this.findChat(params.chatId, meta.userId.toString()).lean();
 
 		if (!chat) {
 			throw new NotFoundException('CHAT_NOT_FOUND');
@@ -170,7 +175,7 @@ export class ChatsService {
 		const mountedInteractions = await Promise.all(
 			interactions.map(async (interaction) => ({
 				...interaction,
-				response: await this.r2Storage.getSignedImageUrl(interaction.response),
+				response: await this.storageService.getSignedImageUrl(interaction.response),
 			}))
 		);
 

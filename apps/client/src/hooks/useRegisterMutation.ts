@@ -10,10 +10,6 @@ export function useRegisterMutation(onSuccess?: () => void) {
         mutationFn: async (data: AuthRegisterType) => {
             const response = await registerUser(data);
 
-            if (response.error) {
-                throw new Error(response.error.message);
-            }
-
             return response.data;
         },
         onSuccess: () => {

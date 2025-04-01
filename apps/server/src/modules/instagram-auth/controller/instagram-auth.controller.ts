@@ -18,7 +18,6 @@ export class InstagramAuthController {
 		try {
 			return await this.instagramAuthService.createAccount(body, meta);
 		} catch (error) {
-			console.log(error, 'error');
 			const { logger, Exception, status, exceptionMessage } = mappingIntegrationsErrors(error, body.username);
 
 			this.logger.error(logger);

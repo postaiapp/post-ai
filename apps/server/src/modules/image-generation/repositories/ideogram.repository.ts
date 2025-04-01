@@ -26,8 +26,6 @@ export class IdeogramRepository implements ImageGenerationService {
 	async generateImage(options: GenerateImageOptions): Promise<GeneratedImage> {
 		const mountedPrompt = this.generatePrompt(options.prompt);
 
-		console.log(mountedPrompt, 'mountedPrompt');
-
 		const mountedGenerateImagePayload = {
 			image_request: {
 				prompt: mountedPrompt,
@@ -44,8 +42,6 @@ export class IdeogramRepository implements ImageGenerationService {
 				'Content-Type': 'application/json',
 			},
 		});
-
-		console.log(response.data, 'response');
 
 		const url = response.data.data[0].url;
 

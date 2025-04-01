@@ -1,6 +1,6 @@
 "use client";
 import { PostEntityWithDetails } from '@common/interfaces/post';
-import { getUserPostsWithDetails } from '@processes/posts';
+import { getUserPostsWithDetails } from '@processes/post';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 import { useState } from 'react';

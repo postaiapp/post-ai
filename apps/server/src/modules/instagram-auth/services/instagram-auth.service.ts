@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { InjectModel } from '@nestjs/mongoose';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { R2Storage } from '@storages/r2-storage';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
 import axios from 'axios';
@@ -11,6 +10,8 @@ import { Model } from 'mongoose';
 import * as dayjs from 'dayjs';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import FileUtils from '@utils/file';
+import { Uploader } from '@type/storage';
+import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class InstagramAuthService {
@@ -18,7 +19,7 @@ export class InstagramAuthService {
 
 	constructor(
 		private readonly ig: IgApiClient,
-		private readonly uploaderService: R2Storage,
+		@Inject(Uploader) private readonly storageService: Uploader,
 		@InjectModel(User.name) private readonly userModel: Model<User>
 	) {}
 
@@ -103,7 +104,7 @@ export class InstagramAuthService {
 
 		const [account, session] = await Promise.all([this.ig.user.info(user.pk), this.getToken()]);
 
-		const { url } = await this.uploaderService.downloadAndUploadImage(account.profile_pic_url);
+		const { url } = await this.storageService.downloadAndUploadImage(account.profile_pic_url);
 
 		const accountData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -163,7 +164,7 @@ export class InstagramAuthService {
 			this.getToken()
 		]);
 
-		const { url } = await this.uploaderService.downloadAndUploadImage(userInfo.profile_pic_url);
+		const { url } = await this.storageService.downloadAndUploadImage(userInfo.profile_pic_url);
 
 		const userData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -223,7 +224,7 @@ export class InstagramAuthService {
 
 		const accounts = await Promise.all(
 			user?.InstagramAccounts.map(async (account: InstagramAccount) => {
-				const profilePicUrl = await this.uploaderService.getSignedImageUrl(account.profilePicUrl);
+				const profilePicUrl = await this.storageService.getSignedImageUrl(account.profilePicUrl);
 
 				return {
 					...account,
