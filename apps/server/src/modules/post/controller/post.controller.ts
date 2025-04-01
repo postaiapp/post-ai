@@ -4,6 +4,8 @@ import { Body, Controller, Post, Query, UseGuards, Get, Param } from '@nestjs/co
 import { Meta as MetaType } from '@type/meta';
 import { CancelPostQueryDto, CreatePostDto, GetAllPostsQueryDto } from '../dto/post.dto';
 import { PostService } from '../services/post.service';
+import { Paginate } from '@decorators/pagination.decorator';
+import { Pagination } from '@common/dto/pagination.dto';
 
 @UseGuards(AuthGuard)
 @Controller('posts')
@@ -25,9 +27,9 @@ export class PostController {
 
 	@Get()
 	getUserPosts(
-		@Query() query: GetAllPostsQueryDto,
+		@Paginate({ perPage: 10 }) pagination: Pagination,
 		@Meta() meta: MetaType
 	) {
-		return this.postService.getUserPostsWithDetails({query, meta});
+		return this.postService.getUserPostsWithDetails({ pagination, meta });
 	}
 }

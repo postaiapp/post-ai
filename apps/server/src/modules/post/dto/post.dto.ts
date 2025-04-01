@@ -1,3 +1,4 @@
+import FileUtils from '@utils/file';
 import { Escape } from 'class-sanitizer';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, IsNumber } from 'class-validator';
@@ -16,6 +17,7 @@ export class CreatePostDto {
 
 	@IsOptional()
 	@IsString()
+	@Transform((obj) => obj.value && FileUtils.getUnsignedUrl(obj.value))
 	@IsUrl()
 	img: string;
 

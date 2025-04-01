@@ -1,24 +1,16 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-
-import { mappedErrors } from '@common/constants/error';
 import { AuthLoginType, AuthCardProps } from '@common/interfaces/auth';
 import { LoginSchema } from '@common/schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { login } from '@processes/auth';
-import { userStore } from '@stores/index';
-import { localStorageSet } from '@utils/storage';
-import { errorToast, successToast } from '@utils/toast';
+import { useLoginMutation } from '@hooks/useLoginMutation';
+import { useForm } from 'react-hook-form';
 import { redirect } from 'next/navigation';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import LoginCard from './loginCard';
 
 const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
-	const setUser = userStore((state) => state.setUser);
-	const [loading, setLoading] = useState(false);
-
 	const {
 		register,
 		handleSubmit,
@@ -27,32 +19,21 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 		resolver: zodResolver(LoginSchema),
 	});
 
-	const onSubmit = useCallback<SubmitHandler<AuthLoginType>>(
-		async (user: AuthLoginType) => {
-			setLoading(true);
-			const { data, error } = await login(user);
+	const { mutate: loginUser, isPending, isSuccess } = useLoginMutation();
 
-			if (error) {
-				setLoading(false);
-				errorToast(mappedErrors[error.message] || 'Algo de errado aconteceu, tente novamente.');
-				return;
-			}
+	const onSubmit = (data: AuthLoginType) => {
+		loginUser(data);
+	};
 
-			setUser(data.user);
-
-			setTimeout(() => {
-				successToast('Login efetuado com sucesso!');
-			}, 1000);
-
-			setLoading(false);
+	useEffect(() => {
+		if (isSuccess) {
 			redirect('/chat');
-		},
-		[setUser]
-	);
+		}
+	}, [isSuccess]);
 
 	return (
 		<LoginCard
-			loading={loading}
+			loading={isPending}
 			register={register}
 			handleSubmit={handleSubmit}
 			errors={errors}
