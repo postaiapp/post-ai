@@ -437,7 +437,6 @@ export class PostService {
 										...(instagramInfo ?? [])
 								};
             } catch (error) {
-                console.log(error)
                 this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
                 return post;
             }

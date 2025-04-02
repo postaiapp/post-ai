@@ -7,35 +7,27 @@ import EditUser from "./editUser/editUserUi";
 import LoadingPage from "./loadingUserDetails/loadingUserDetails";
 
 const UserDetailsContainer = ({
-    isLoading = false,
+    isLoading,
+    user,
     activeState,
     handleEditState,
     handleCancel,
     onSubmit,
-    control
+    control,
+    lastName,
+    firstName
   }: {
-    isLoading?: boolean;
-    user: User | null;
+    isLoading: boolean;
+    user: User | null | undefined;
     activeState: string;
     setActiveState: (state: string) => void;
     handleEditState: (state: string) => void;
     onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>;
     handleCancel: () => void;
     control: any;
+    lastName: string | null;
+    firstName: string | null;
   }) => {
-    const user = {
-      firstName: 'Jane',
-      lastName: 'Cooper',
-      email: 'janecooper@gmail.com',
-      phone: '(239) 555-0108',
-      country: 'New Jersey',
-      cityState: '2464 Royal Ln. Mesa',
-      postalCode: 'RTX 8908',
-      taxId: 'AS55550108',
-      role: 'Web Designer',
-      cpf: '123.456.789-00',
-    };
-
     return (
       isLoading ? (
         <LoadingPage />
@@ -52,7 +44,7 @@ const UserDetailsContainer = ({
               />
               <div>
                 <h2 className="text-lg font-semibold text-gray-800">
-                  {user.firstName} {user.lastName}
+                  {firstName} {lastName}
                 </h2>
                 <p className="text-sm text-gray-500">Usuário</p>
               </div>
@@ -70,6 +62,7 @@ const UserDetailsContainer = ({
 
           { activeState === 'edit' ? (
             <EditUser
+              isLoading={isLoading}
               user={user}
               onSubmit={onSubmit}
               handleEditState={handleEditState}
@@ -86,23 +79,23 @@ const UserDetailsContainer = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Nome</p>
-                      <p className="text-gray-800">{user.firstName}</p>
+                      <p className="text-gray-800">{firstName}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Sobrenome</p>
-                      <p className="text-gray-800">{user.lastName}</p>
+                      <p className="text-gray-800">{lastName || '-'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-gray-800">{user.email}</p>
+                      <p className="text-gray-800">{user!.email}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Telefone</p>
-                      <p className="text-gray-800">{user.phone || '-'}</p>
+                      <p className="text-gray-800">{user!.phone || '-'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">CPF</p>
-                      <p className="text-gray-800">{user.cpf || '-'}</p>
+                      <p className="text-gray-800">{user!.cpf || '-'}</p>
                     </div>
                   </div>
               </div>
@@ -115,11 +108,11 @@ const UserDetailsContainer = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-500">País</p>
-                      <p className="text-gray-800">{user.country || '-'}</p>
+                      <p className="text-gray-800">{user!.country || '-'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Cidade / Estado</p>
-                      <p className="text-gray-800">{user.cityState || '-'}</p>
+                      <p className="text-gray-800">{user!.city || '-'}</p>
                     </div>
                   </div>
               </div>

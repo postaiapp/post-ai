@@ -4,6 +4,10 @@ export type User = {
 	_id: string;
 	name: string;
 	email: string;
+	cpf?: string;
+	phone?: string;
+	city?: string;
+	country?: string;
 	InstagramAccounts: InstagramAccountStore[];
 };
 

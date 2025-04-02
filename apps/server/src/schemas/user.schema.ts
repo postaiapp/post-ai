@@ -6,6 +6,18 @@ export class User {
 	@Prop({ required: true, type: String })
 	name: string;
 
+	@Prop({ required: false, type: String, default: '' })
+	cpf?: string;
+
+	@Prop({ required: false, type: String, default: '' })
+	phone?: string;
+
+	@Prop({ required: false, type: String, default: '' })
+	city?: string;
+
+	@Prop({ required: false, type: String, default: '' })
+	country?: string;
+
 	@Prop({ required: true, unique: true, type: String })
 	email: string;
 

@@ -1,4 +1,5 @@
 // components/editUser/editUserUi.jsx
+import { User } from "@common/interfaces/user";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
@@ -9,12 +10,14 @@ const EditUser = ({
   onSubmit,
   handleCancel,
   control,
+  isLoading
 }: {
-  user: any;
+  user: User | null | undefined;
   onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>;
   handleEditState: (state: string) => void;
   handleCancel: () => void;
   control: any;
+  isLoading: boolean;
 }) => {
 
   return (
@@ -31,6 +34,7 @@ const EditUser = ({
               render={({ field }) => (
                 <Input
                   id="name"
+                  disabled={isLoading}
                   {...field}
                   className="mt-1"
                 />
@@ -46,6 +50,7 @@ const EditUser = ({
               control={control}
               render={({ field }) => (
                 <Input
+                  disabled={isLoading}
                   id="email"
                   type="email"
                   {...field}
@@ -63,6 +68,7 @@ const EditUser = ({
               control={control}
               render={({ field }) => (
                 <Input
+                  disabled={isLoading}
                   id="phone"
                   {...field}
                   className="mt-1"
@@ -79,6 +85,7 @@ const EditUser = ({
               control={control}
               render={({ field }) => (
                 <Input
+                  disabled={isLoading}
                   id="cpf"
                   {...field}
                   className="mt-1"
@@ -92,7 +99,7 @@ const EditUser = ({
       {/* Seção "Endereço" */}
       <div className="border-t border-gray-200 pt-4 mt-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Address</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Endereço</h3>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -105,6 +112,7 @@ const EditUser = ({
               control={control}
               render={({ field }) => (
                 <Input
+                  disabled={isLoading}
                   id="country"
                   {...field}
                   className="mt-1"
@@ -121,6 +129,7 @@ const EditUser = ({
               control={control}
               render={({ field }) => (
                 <Input
+                  disabled={isLoading}
                   id="city"
                   {...field}
                   className="mt-1"
@@ -136,11 +145,16 @@ const EditUser = ({
           type="button"
           variant="outline"
           onClick={() => handleCancel()}
+          disabled={isLoading}
           className="border-gray-300 text-gray-700 hover:bg-gray-100"
         >
           Cancelar
         </Button>
-        <Button type="submit" className="bg-purple-500 hover:bg-purple-600">
+        <Button
+          type="submit"
+          className="bg-purple-500 hover:bg-purple-600"
+          disabled={isLoading}
+        >
           Salvar
         </Button>
       </div>
