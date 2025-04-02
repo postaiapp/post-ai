@@ -78,7 +78,7 @@ export default function UserSettingsUi({
 				</div>
 
 				<div className="bg-white shadow-md rounded-lg py-6 flex w-full h-[80%] justify-around items-start">
-					<div className="flex flex-col h-full w-1/5 py-4 px-2 gap-3">
+					<div className="flex flex-col h-full w-1/5 p-4 gap-3">
 						{itemsSideBarUserSettings.map((item) => itemSideBar(item))}
 					</div>
 
