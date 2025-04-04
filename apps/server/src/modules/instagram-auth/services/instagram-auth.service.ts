@@ -4,9 +4,14 @@ import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
+import axios from 'axios';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
+import * as dayjs from 'dayjs';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
+import FileUtils from '@utils/file';
+import { Uploader } from '@type/storage';
+import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class InstagramAuthService {
@@ -14,6 +19,7 @@ export class InstagramAuthService {
 
 	constructor(
 		private readonly ig: IgApiClient,
+		@Inject(Uploader) private readonly storageService: Uploader,
 		@InjectModel(User.name) private readonly userModel: Model<User>
 	) {}
 
@@ -68,9 +74,9 @@ export class InstagramAuthService {
 
 		return {
 			state: compressedState,
-			lastChecked: new Date(),
+			lastChecked: dayjs().toDate(),
 			isValid: true,
-			lastRefreshed: new Date(),
+			lastRefreshed: dayjs().toDate(),
 		};
 	}
 
@@ -98,6 +104,8 @@ export class InstagramAuthService {
 
 		const [account, session] = await Promise.all([this.ig.user.info(user.pk), this.getToken()]);
 
+		const { url } = await this.storageService.downloadAndUploadImage(account.profile_pic_url);
+
 		const accountData: InstagramAccount = {
 			accountId: user.pk.toString(),
 			username: account.username,
@@ -106,8 +114,8 @@ export class InstagramAuthService {
 			followerCount: account.follower_count,
 			followingCount: account.following_count,
 			postCount: account.media_count,
-			profilePicUrl: account.profile_pic_url,
-			lastLogin: new Date(),
+			profilePicUrl: FileUtils.getUnsignedUrl(url),
+			lastLogin: dayjs().toDate(),
 			isPrivate: account.is_private,
 			isVerified: account.is_verified,
 			session,
@@ -136,8 +144,8 @@ export class InstagramAuthService {
 			followerCount: account.follower_count,
 			followingCount: account.following_count,
 			postCount: account.media_count,
-			profilePicUrl: account.profile_pic_url,
-			lastLogin: new Date(),
+			profilePicUrl: url,
+			lastLogin: dayjs().toDate(),
 			accountId: user.pk.toString(),
 			isPrivate: account.is_private,
 			isVerified: account.is_verified,
@@ -151,9 +159,12 @@ export class InstagramAuthService {
 
 		const user = await this.ig.account.login(username, password);
 
-		const userInfo = await this.ig.user.info(user.pk);
+		const [userInfo, session] = await Promise.all([
+			this.ig.user.info(user.pk),
+			this.getToken()
+		]);
 
-		const session = await this.getToken();
+		const { url } = await this.storageService.downloadAndUploadImage(userInfo.profile_pic_url);
 
 		const userData: InstagramAccount = {
 			accountId: user.pk.toString(),
@@ -163,8 +174,8 @@ export class InstagramAuthService {
 			followerCount: userInfo.follower_count,
 			followingCount: userInfo.following_count,
 			postCount: userInfo.media_count,
-			profilePicUrl: userInfo.profile_pic_url,
-			lastLogin: new Date(),
+			profilePicUrl: FileUtils.getUnsignedUrl(url),
+			lastLogin: dayjs().toDate(),
 			isPrivate: userInfo.is_private,
 			isVerified: userInfo.is_verified,
 			session,
@@ -196,15 +207,33 @@ export class InstagramAuthService {
 		};
 	}
 
-	async getAccounts(meta: Meta) {
-		const user = await this.userModel.findOne({ _id: meta.userId }, { InstagramAccounts: 1, _id: 0 }).lean();
+	async validateProfilePicUrl(url: string): Promise<string | null> {
+		try {
+			await axios.get(url);
+			return url;
+		} catch {
+			return null;
+		}
+	}
 
-		const accounts =
-			user?.InstagramAccounts?.map((account: InstagramAccount) => ({
-				...account,
-				id: account._id.toString(),
-				_id: undefined,
-			})) || [];
+	async getAccounts(meta: Meta) {
+		const user = await this.userModel.findOne(
+			{ _id: meta.userId },
+			{ InstagramAccounts: 1, _id: 0 }
+		).lean();
+
+		const accounts = await Promise.all(
+			user?.InstagramAccounts.map(async (account: InstagramAccount) => {
+				const profilePicUrl = await this.storageService.getSignedImageUrl(account.profilePicUrl);
+
+				return {
+					...account,
+					id: account._id.toString(),
+					_id: undefined,
+					profilePicUrl: await this.validateProfilePicUrl(profilePicUrl),
+				};
+			})
+		);
 
 		return {
 			accounts,

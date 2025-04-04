@@ -7,6 +7,7 @@ import { User, UserSchema } from '@schemas/user.schema';
 import { IgApiClient } from 'instagram-private-api';
 import { PublishedMissedPostsCron } from './publish-missed-posts.service';
 import { TokenManagementCron } from './token-management.service';
+import { StorageModule } from '@storages/storage.module';
 
 @Module({
 	imports: [
@@ -14,6 +15,7 @@ import { TokenManagementCron } from './token-management.service';
 			{ name: User.name, schema: UserSchema },
 			{ name: Post.name, schema: PostSchema },
 		]),
+		StorageModule,
 	],
 	providers: [TokenManagementCron, PublishedMissedPostsCron, InstagramAuthService, IgApiClient, PostService],
 })

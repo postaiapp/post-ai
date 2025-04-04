@@ -47,7 +47,7 @@ export class TokenManagementCron {
 			canceledAt: { $exists: false }
 		});
 
-		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts);
+		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts.map(String));
 
 		const users = await this.userModel
 			.find(whereCondition, {
