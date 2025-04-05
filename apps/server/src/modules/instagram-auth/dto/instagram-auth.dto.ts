@@ -1,21 +1,17 @@
-import { Escape } from 'class-sanitizer/decorators/sanitizers/escape.decorator';
-import { Transform, TransformFnParams } from 'class-transformer';
+import { Sanitize } from '@decorators/sanitize.decorator';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
 
 export class InstagramAuthDto {
 	@IsString()
 	@IsNotEmpty()
 	@MinLength(6)
 	@MaxLength(20)
-	@Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-	@Escape()
+	@Sanitize()
 	password: string;
 
 	@IsString()
 	@IsNotEmpty()
-	@Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-	@Escape()
+	@Sanitize()
 	username: string;
 }
 export class DeleteInstagramAuthDto {
