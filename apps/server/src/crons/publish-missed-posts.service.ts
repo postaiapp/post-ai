@@ -41,21 +41,29 @@ export class PublishedMissedPostsCron {
 					return;
 				}
 
-				const account = user.InstagramAccounts[0];
+				const account = user.InstagramAccounts.filter(account => account.accountId === accountId)[0];
+
 				const { username, session } = account;
 
-				await this.postService.publishPhotoOnInstagram(caption, username, session, imageUrl);
+				const isPosted = await this.postService.publishPhotoOnInstagram(caption, username, session, imageUrl);
+
+				if (!isPosted) {
+					this.logger.warn(`Failed to publish post ${post._id}`);
+					return;
+				}
+
+				const changes = isPosted ? {
+					publishedAt: dayjs().toDate()
+				} : {
+					failedToPost: true,
+				};
 
 				await this.postModel.updateOne(
 					{ _id: post._id },
-					{
-						$set: {
-							publishedAt: dayjs().toDate(),
-						},
-					}
+					changes
 				);
 
-				console.log(`Post ${post._id} published successfully`);
+				this.logger.log(`Post ${post._id} ${isPosted ? 'published successfully' : 'failed to publish'}`);
 			})
 		);
 
@@ -68,8 +76,11 @@ export class PublishedMissedPostsCron {
 				scheduledAt: {
 					$lt: dayjs().toDate(),
 				},
-				canceledAt: { $eq: null },
-				publishedAt: { $eq: null },
+				canceledAt: null,
+				publishedAt: null,
+				failedToPost: {
+					$ne: true,
+				},
 			})
 			.lean();
 

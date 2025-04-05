@@ -30,6 +30,9 @@ export class Post {
 	@Prop({ required: false, type: String })
 	code: string;
 
+	@Prop({ required: false, type: Boolean })
+	failedToPost: boolean;
+
 	@Prop({ required: false, type: String })
 	jobId: string;
 }
