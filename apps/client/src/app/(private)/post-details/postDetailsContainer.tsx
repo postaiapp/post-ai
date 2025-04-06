@@ -5,20 +5,21 @@ import { useEffect, useState } from 'react';
 import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
 import { useCreatePost } from '@hooks/post';
+import { generateCaption as generateCaptionProcess } from '@processes/chat';
 import userStore from '@stores/userStore';
 import { errorToast, successToast, warningToast } from '@utils/toast';
-import { useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import PostDetailsUI from './postDetailsUi';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const [loadingCaption, setLoadingCaption] = useState(false);
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
+	const chatId = searchParams.get('chatId') || '';
 	const user = userStore((state) => state.user);
 	const [selectedAccount, setSelectedAccount] = useState(user?.InstagramAccounts[0]);
 	const { createPost, isLoading, isError } = useCreatePost();
@@ -50,7 +51,7 @@ export default function PostDetailsContainer() {
 	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
-		if (!date || !time) return null;
+	if (!date || !time) return null;
 
 		const [hours, minutes] = time.split(':').map(Number);
 		const isoDate = new Date(date);
@@ -99,6 +100,16 @@ export default function PostDetailsContainer() {
 
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
+	const generateCaption = async () => {
+		setLoadingCaption(true);
+
+		const data = await generateCaptionProcess({ chatId });
+
+		setValue('caption', data.data.caption);
+
+		setLoadingCaption(false);
+	}
+
 	return (
 		<PostDetailsUI
 			control={control}
@@ -117,6 +128,8 @@ export default function PostDetailsContainer() {
 			user={user}
 			caption={caption}
 			image={image}
+			generateCaption={generateCaption}
+			loadingCaption={loadingCaption}
 		/>
 	);
 }

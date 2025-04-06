@@ -27,6 +27,8 @@ export interface PostDetailsUIProps {
 	user: User | null;
 	caption: string;
 	image: string;
+	generateCaption: () => void;
+	loadingCaption: boolean;
 }
 
 export interface PostEntity {

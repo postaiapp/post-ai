@@ -1,6 +1,6 @@
 import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -8,9 +8,11 @@ import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
+import { Uploader } from '@type/storage';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
 import { IgApiClient } from 'instagram-private-api';
+import { isEmpty, map, omit } from 'lodash';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
 
@@ -24,7 +26,8 @@ export class PostService {
 		@InjectModel(Post.name) private readonly postModel: Model<Post>,
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
-		private schedulerRegistry: SchedulerRegistry
+		private schedulerRegistry: SchedulerRegistry,
+		@Inject(Uploader) private readonly storageService: Uploader
 	) {}
 
 	async create({ data, meta }: DefaultPostBodyCreate) {
@@ -196,7 +199,7 @@ export class PostService {
 			caption,
 			username,
 			session,
-			img: data.img
+			img: data.img,
 		});
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
@@ -224,7 +227,12 @@ export class PostService {
 		};
 	}
 
-	async publishPhotoOnInstagram(caption: string, username: string, session: Session, img: string): Promise<{id: string, code: string} | false> {
+	async publishPhotoOnInstagram(
+		caption: string,
+		username: string,
+		session: Session,
+		img: string
+	): Promise<{ id: string; code: string } | false> {
 		try {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
@@ -232,17 +240,20 @@ export class PostService {
 				throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
 			}
 
-			const imageBuffer = await get({ url: img, encoding: null });
+			const signedUrl = await this.storageService.getSignedImageUrl(img);
+
+			const imageBuffer = await get({ url: signedUrl, encoding: null });
+
 			const post = await this.ig.publish.photo({ file: imageBuffer, caption });
 
-			return {id: post.media.id, code: post.media.code};
+			return { id: post.media.id, code: post.media.code };
 		} catch (error) {
 			this.logger.error(`Failed to publish photo on Instagram from username: ${username}`, { caption, error });
 			return false;
 		}
 	}
 
-	async getInstagramPostInfo(postId: string, username: string, session: Session) {
+	async getInstagramPostInfo(post: Post, username: string, session: Session) {
 		try {
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
@@ -250,42 +261,55 @@ export class PostService {
 				throw new TokenExpiredError('SESSION_REQUIRED', new Date());
 			}
 
-			const mediaInfo = (await this.ig.media.info(postId)).items[0];
-			const insights = (await this.ig.insights.post(postId)).data.media;
-			const comments = (await this.ig.feed.mediaComments(postId).items()).slice(-5)
+			const mediaInfo = (await this.ig.media.info(post.postId)).items[0];
+			const insights = (await this.ig.insights.post(post.postId)).data.media;
+			const comments = (await this.ig.feed.mediaComments(post.postId).items()).slice(-5);
 
-			const recentComments = comments?.map(comment => ({
-				text: comment.text,
-				user: {
-					username: comment.user.username,
-					profile_pic_url: comment.user.profile_pic_url,
-					verified: comment.user.is_verified
-				},
-				created_at: new Date(comment.created_at * 1000),
-				like_count: comment.comment_like_count,
-				reply_count: comment.child_comment_count
-			})) ?? [];
+			const recentComments =
+				comments?.map((comment) => ({
+					text: comment.text,
+					user: {
+						username: comment.user.username,
+						profile_pic_url: comment.user.profile_pic_url,
+						verified: comment.user.is_verified,
+					},
+					created_at: new Date(comment.created_at * 1000),
+					like_count: comment.comment_like_count,
+					reply_count: comment.child_comment_count,
+				})) ?? [];
 
 			return {
 				code: mediaInfo.code,
 				caption: mediaInfo.caption.text,
 				engagement: {
-				hasLiked: mediaInfo.has_liked,
+					hasLiked: mediaInfo.has_liked,
 					likes: insights.like_count,
 					comments: insights.comment_count,
 				},
 				comments: {
 					recent: recentComments,
-					has_more: mediaInfo.comment_count > 5
+					has_more: mediaInfo.comment_count > 5,
 				},
 			};
 		} catch (error) {
-			this.logger.error('Failed to get Instagram post info', { postId, error });
-			throw new BadRequestException('FAILED_GET_INSTAGRAM_POST_INFO');
+			this.logger.error('Failed to get Instagram post info', { postId: post.postId, error });
+			return {
+				code: post.code,
+				caption: post.caption,
+				engagement: {
+					hasLiked: false,
+					likes: 0,
+					comments: 0,
+				},
+				comments: {
+					recent: [],
+					has_more: false,
+				},
+			}
 		}
 	}
 
-	async cancelScheduledPost({ postId , userId}: { postId: string, userId: string }) {
+	async cancelScheduledPost({ postId, userId }: { postId: string; userId: string }) {
 		const post = await this.postModel
 			.findOne(
 				{
@@ -320,137 +344,73 @@ export class PostService {
 		return true;
 	}
 
-	async getUserPostsWithDetails({ query, meta }: GetUserPostsProps) {
-    const userId = meta.userId;
+	async getUserPostsWithDetails({ pagination, meta }: GetUserPostsProps) {
+		const userId = meta.userId;
 
-		const accountsIds = await this.userModel.findOne(
-			{ _id: userId },
-			{
-				 _id: 0,
-				 InstagramAccounts: 1
-			 }
-			).then((accounts) => accounts?.InstagramAccounts.map(account => account.accountId) ?? []);
+		const { page, offset, perPage } = pagination;
 
-    const { page, limit } = query;
-    const skip = page && limit ? (page - 1) * limit : undefined;
+		const user = await this.userModel.findOne({ _id: userId }, { InstagramAccounts: 1 }).lean();
 
-    const [posts, total] = await Promise.all([
-        this.postModel.aggregate([
-            { 
-                $match: { accountId: { $in: accountsIds } } 
-            },
-            { 
-                $lookup: {  
-                    from: "users",
-                    let: { userId: "$userId" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: { 
-                                    $eq: ["$_id", { $toObjectId: "$$userId" }] 
-                                }
-                            }
-                        }
-                    ],
-                    as: "user"
-                }
-            },
-            { 
-                $unwind: { path: "$user", preserveNullAndEmptyArrays: true },  
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    let: { accountId: "$accountId" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: { $eq: ["$_id", { $toObjectId: meta.userId }] }
-                            }
-                        },
-                        {
-                            $unwind: "$InstagramAccounts"
-                        },
-                        {
-                            $match: {
-                                $expr: { $eq: ["$InstagramAccounts.accountId", "$$accountId"] }
-                            }
-                        }
-                    ],
-                    as: "accountInfo"
-                }
-            },
-            {
-                $unwind: { path: "$accountInfo", preserveNullAndEmptyArrays: true }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    caption: 1,
-                    imageUrl: 1,
-                    createdAt: 1,
-                    scheduledAt: 1,
-                    publishedAt: 1,
-                    canceledAt: 1,
-                    userId: 1,
-                    accountId: 1,
-                    postId: 1,
-                    user: {
-                        name: "$user.name",
-                        email: "$user.email",
-                        profilePicUrl: "$user.profilePicUrl"
-                    },
-                    account: {
-                        username: "$accountInfo.InstagramAccounts.username",
-                        profilePicUrl: "$accountInfo.InstagramAccounts.profilePicUrl",
-												session: "$accountInfo.InstagramAccounts.session",
-												fullName: "$accountInfo.InstagramAccounts.fullName",
-												isPrivate: "$accountInfo.InstagramAccounts.isPrivate",
-												isVerified: "$accountInfo.InstagramAccounts.isVerified"
-                    }
-                }
-            },
-            ...(skip !== undefined ? [{ $skip: skip }] : []),
-            ...(limit !== undefined ? [{ $limit: limit }] : [])
-        ]),
+		const accountsIds = map(user.InstagramAccounts, 'accountId');
 
-        this.postModel.countDocuments({
-            accountId: { $in: accountsIds }
-        })
-    ]);
+		if (isEmpty(accountsIds)) {
+			return {
+				success: true,
+				data: [],
+				meta: {
+					total: 0,
+					page,
+					limit: perPage
+				},
+			};
+		}
 
-    const postsWithInstagramInfo = await Promise.all(
-        posts.map(async (post) => {
-            try {
-                const instagramInfo = post.postId ? (await this.getInstagramPostInfo(post.postId, post.account.username, post.account.session)) : null
+		const [posts, total] = await Promise.all([
+			this.postModel.find({ accountId: { $in: accountsIds } })
+				.populate({
+					path: 'userId',
+					select: '_id name email InstagramAccounts'
+				})
+				.sort({ publishedAt: -1, scheduledAt: -1 })
+				.skip(offset)
+				.limit(perPage)
+				.lean(),
 
-								const postWithoutAccountSession = {
-									...post,
-									account: {
-										...post.account,
-										session: undefined
-									}
-								}
+			this.postModel.countDocuments({ accountId: { $in: accountsIds } })
+		]);
 
-								return {
-										...postWithoutAccountSession,
-										...(instagramInfo ?? [])
-								};
-            } catch (error) {
-                this.logger.error('Failed to fetch Instagram post info', { postId: post.postId, error });
-                return post;
-            }
-        })
-    );
+		const postsWithInstagramInfo = await Promise.all(map(posts, async (post) => {
+			const account = user.InstagramAccounts.find(acc => acc.accountId === post.accountId);
 
-    return {
-        success: true,
-        data: postsWithInstagramInfo,
-        meta: {
-            total,
-            page,
-            limit,
-        },
-    };
+			const { username, session } = account;
+
+			const instagramInfo = post.postId ? await this.getInstagramPostInfo(post, username, session) : {};
+
+			const userInfo = post.userId;
+
+			return {
+				...omit(post, ['userId.InstagramAccounts.session', 'userId']),
+				...instagramInfo,
+				imageUrl: await this.storageService.getSignedImageUrl(post.imageUrl),
+				user: userInfo,
+				account: {
+					username: account.username,
+					profilePicUrl: await this.storageService.getSignedImageUrl(account.profilePicUrl),
+					fullName: account.fullName,
+					isPrivate: account.isPrivate,
+					isVerified: account.isVerified
+				}
+			};
+		}));
+
+		return {
+			success: true,
+			data: postsWithInstagramInfo,
+			meta: {
+				total,
+				page,
+				limit: perPage
+			},
+		};
 	}
 }
