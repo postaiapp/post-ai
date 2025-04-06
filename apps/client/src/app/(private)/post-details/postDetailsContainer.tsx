@@ -1,17 +1,17 @@
 'use client';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+
 import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
 import { useCreatePost } from '@hooks/post';
+import { generateCaption as generateCaptionProcess } from '@processes/chat';
 import userStore from '@stores/userStore';
 import { errorToast, successToast, warningToast } from '@utils/toast';
-import { useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import PostDetailsUI from './postDetailsUi';
-import { generateCaption as generateCaptionProcess } from '@processes/chat';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
