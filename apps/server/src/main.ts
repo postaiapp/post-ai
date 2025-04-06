@@ -28,7 +28,7 @@ async function bootstrap() {
 		})
 	);
 
-	const allowedOrigins = [/https:\/\/teste\.com$/, /https:\/\/teste\.teste\.com$/];
+	const allowedOrigin = 'https://post-ai.netlify.app';
 
 	const corsOptions: CorsOptions = {
 		origin: (origin, callback) => {
@@ -36,11 +36,7 @@ async function bootstrap() {
 				return callback(null, true);
 			}
 
-			if (!origin) {
-				return callback(null, true);
-			}
-
-			if (allowedOrigins.some((regex) => regex.test(origin))) {
+			if (origin === allowedOrigin) {
 				callback(null, true);
 			} else {
 				callback(new Error('Origin not allowed by CORS'));
