@@ -36,10 +36,11 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           npx sonar-scanner \
-            -Dsonar.projectKey=my-project \
-            -Dsonar.organization=my-org \
+            -Dsonar.projectKey=postaiapp_post-ai \
+            -Dsonar.organization=postaiapp \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.sources=. \
             -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/coverage/**,**/*.md,**/tsconfig.json \
             -Dsonar.test.exclusions=**/*.spec.ts,**/*.test.ts,**/__tests__/**,**/tsconfig.json \
             -Dsonar.sourceEncoding=UTF-8
