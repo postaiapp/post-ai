@@ -58,3 +58,9 @@ export const getUserChats = async ({
 
 	return data.data;
 };
+
+export const generateCaption = async ({ chatId }: { chatId: string }): Promise<{ data: { caption: string } }> => {
+	const { data }: ClientResponse = await client.get(`/chats/${chatId}/caption`);
+
+	return data;
+};

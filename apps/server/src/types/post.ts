@@ -1,7 +1,7 @@
 import { CreatePostDto } from '@modules/post/dto/post.dto';
 import { Meta } from './meta';
 import { Session } from '@schemas/token';
-
+import { Pagination } from '@common/dto/pagination.dto';
 type DefaultPostBodyCreate = {
 	data?: CreatePostDto;
 	meta?: Meta;
@@ -25,10 +25,7 @@ type CanceledPostBody = {
 };
 
 type GetUserPostsProps = {
-	query: {
-		page?: number;
-		limit?: number;
-	};
+	pagination: Pagination;
 	meta: Meta
 }
 type VerifyPostPublishProps = {
