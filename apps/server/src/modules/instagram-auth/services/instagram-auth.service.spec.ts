@@ -71,16 +71,35 @@ describe('InstagramAuthService', () => {
       expect(mockUserModel.findOne).toHaveBeenCalledWith({ _id: mockMeta.userId });
     });
 
-    it.skip('should return null if account not found', async () => {
-      mockUserModel.findOne.mockResolvedValueOnce({ _id: 'user-id-1' });
-      mockUserModel.findOne.mockResolvedValueOnce(null);
+    it('should return null if account not found', async () => {
+      mockUserModel.findOne.mockReturnValueOnce({
+        _id: 'user-id-1'
+      });
+      
+      mockUserModel.findOne.mockReturnValueOnce({
+        lean: jest.fn().mockResolvedValueOnce(null)
+      });
 
       const result = await service.hasInstagramAccount(mockMeta, 'testuser');
+      
       expect(result).toBeNull();
+      
       expect(mockUserModel.findOne).toHaveBeenCalledTimes(2);
+      
+      expect(mockUserModel.findOne).toHaveBeenNthCalledWith(1, {
+        _id: mockMeta.userId,
+      });
+      
+      expect(mockUserModel.findOne).toHaveBeenNthCalledWith(2, {
+        _id: 'user-id-1',
+        'InstagramAccounts.username': 'testuser',
+      }, {
+        _id: 0,
+        InstagramAccounts: 1,
+      });
     });
 
-    it.skip('should return account details if account exists', async () => {
+    it('should return account details if account exists', async () => {
       const mockAccount = {
         InstagramAccounts: [
           {
@@ -90,8 +109,13 @@ describe('InstagramAuthService', () => {
         ],
       };
 
-      mockUserModel.findOne.mockResolvedValueOnce({ _id: 'user-id-1' });
-      mockUserModel.findOne.mockResolvedValueOnce(mockAccount);
+      mockUserModel.findOne.mockReturnValueOnce({
+        _id: 'user-id-1'
+      });
+      
+      mockUserModel.findOne.mockReturnValueOnce({
+        lean: jest.fn().mockResolvedValueOnce(mockAccount)
+      });
 
       const result = await service.hasInstagramAccount(mockMeta, 'testuser');
       
@@ -99,6 +123,8 @@ describe('InstagramAuthService', () => {
         accountId: 'insta-123',
         session: mockAccount.InstagramAccounts[0].session,
       });
+      
+      expect(mockUserModel.findOne).toHaveBeenCalledTimes(2);
     });
   });
 
