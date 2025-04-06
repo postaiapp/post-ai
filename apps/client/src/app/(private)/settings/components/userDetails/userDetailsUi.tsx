@@ -15,7 +15,8 @@ const UserDetailsContainer = ({
     onSubmit,
     control,
     lastName,
-    firstName
+    firstName,
+    errors
   }: {
     isLoading: boolean;
     user: User | null | undefined;
@@ -27,6 +28,7 @@ const UserDetailsContainer = ({
     control: any;
     lastName: string | null;
     firstName: string | null;
+    errors: any;
   }) => {
     return (
       isLoading ? (
@@ -68,6 +70,7 @@ const UserDetailsContainer = ({
               handleEditState={handleEditState}
               handleCancel={handleCancel}
               control={control}
+              errors={errors}
           />
           ) : (
             <>

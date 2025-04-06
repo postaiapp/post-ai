@@ -4,6 +4,7 @@ import { useUserMutations } from '@hooks/user';
 import { logout } from '@processes/auth';
 import userStore from '@stores/userStore';
 import { localStorageClear } from '@utils/storage';
+import { errorToast } from '@utils/toast';
 import { redirect } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import UserSettingsUi from './userSettingsUi';
@@ -14,12 +15,13 @@ export default function UserSettingsContainer() {
 	const { deleteUserMutate } = useUserMutations();
 
 	const handleLogout = useCallback(async () => {
-		const response = await logout();
-
-		if (response) {
+		try {
+			await logout();
+		} catch (error) {
+			errorToast('Ao tentar sair, algo deu errado. Tente novamente.');
+		} finally {
 			localStorageClear();
-			setUser(null);
-			redirect('/auth');
+			redirect('/');
 		}
 	}, [setUser]);
 
@@ -30,7 +32,7 @@ export default function UserSettingsContainer() {
 
 	return (
 		<UserSettingsUi
-			user={user}
+			user={user!}
 			activeItem={activeItem}
 			setActiveItem={setActiveItem}
 			handleDeleteAccount={handleDeleteAccount}

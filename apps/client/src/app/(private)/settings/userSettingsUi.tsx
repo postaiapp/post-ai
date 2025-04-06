@@ -14,7 +14,7 @@ export default function UserSettingsUi({
 	setActiveItem,
 	handleDeleteAccount,
 }: {
-	user: User | null;
+	user: User;
 	handleDeleteAccount: () => Promise<void>;
 	activeItem: string;
 	setActiveItem: (item: string) => void;

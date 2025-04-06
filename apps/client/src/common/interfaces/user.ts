@@ -14,8 +14,8 @@ export type User = {
 export type UpdateUserData = {
 	name: string;
 	email: string;
-	cpf: string;
-	phone: string;
-	city: string;
-	country: string;
+	cpf: string | null;
+	phone: string | null;
+	city: string | null;
+	country: string | null;
 };

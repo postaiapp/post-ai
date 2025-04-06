@@ -1,12 +1,11 @@
 import { UpdateUserData } from '@common/interfaces/user';
 import { deleteUser, updateUser } from '@processes/user';
 import userStore from '@stores/userStore';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { successToast } from '@utils/toast';
+import { useMutation } from '@tanstack/react-query';
+import { errorToast, successToast } from '@utils/toast';
 
 export function useUserMutations() {
     const { setUser } = userStore();
-	const queryClient = useQueryClient();
 
 	const {
         mutateAsync: updateUserMutationAsync,
@@ -20,13 +19,12 @@ export function useUserMutations() {
 			const response = await updateUser(data);
 			return response.data;
 		},
-		onSuccess: ({ data }) => {
-			queryClient.setQueryData(['user', data.id], data);
+		onSuccess: async ({ data }) => {
             setUser(data);
             return successToast('Usuário atualizado com sucesso!');
 		},
         onError: () => {
-            return successToast('Erro ao atualizar usuário!');
+            return errorToast('Erro ao atualizar usuário!');
         },
 	});
 
@@ -43,11 +41,11 @@ export function useUserMutations() {
             return response.data;
         },
         onSuccess: () => {
-            queryClient.removeQueries({ queryKey: ['user'] });
+            setUser(null);
             return successToast('Usuário deletado com sucesso!');
         },
         onError: () => {
-            return successToast('Erro ao deletar usuário!');
+            return errorToast('Erro ao deletar usuário!');
         },
     });
 	return {
