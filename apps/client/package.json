@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "npx eslint --fix ."
@@ -48,6 +48,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.10.3",
     "@rocketseat/eslint-config": "^2.2.2",
     "@tanstack/eslint-plugin-query": "^5.64.2",
     "@types/node": "^20",
