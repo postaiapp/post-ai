@@ -1,27 +1,29 @@
 'use client';
-import { useEffect, useState } from 'react';
 import type React from 'react';
-
+import { useEffect, useState } from 'react';
 import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
 import { useCreatePost } from '@hooks/post';
 import userStore from '@stores/userStore';
-import { successToast, errorToast, warningToast } from '@utils/toast';
+import { errorToast, successToast, warningToast } from '@utils/toast';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-
-import PostDetailsUI from './postDetailsUi';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
+import PostDetailsUI from './postDetailsUi';
+import { generateCaption as generateCaptionProcess } from '@processes/chat';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const [loadingCaption, setLoadingCaption] = useState(false);
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
+	const chatId = searchParams.get('chatId') || '';
 	const user = userStore((state) => state.user);
 	const [selectedAccount, setSelectedAccount] = useState(user?.InstagramAccounts[0]);
 	const { createPost, isLoading, isError } = useCreatePost();
-
+	const router = useRouter();
 	const { control, handleSubmit, setValue, watch } = useForm<PostFormData>({
 		defaultValues: {
 			username: user?.InstagramAccounts[0]?.username || '',
@@ -49,7 +51,7 @@ export default function PostDetailsContainer() {
 	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
-		if (!date || !time) return null;
+	if (!date || !time) return null;
 
 		const [hours, minutes] = time.split(':').map(Number);
 		const isoDate = new Date(date);
@@ -79,14 +81,10 @@ export default function PostDetailsContainer() {
 			return;
 		}
 
-		console.log(data, 'data');
-
 		const formattedData = {
 			...data,
 			post_date: data.post_date === '' ? null : data.post_date,
 		};
-
-		console.log(formattedData, 'formattedData')
 
 		await createPost(formattedData);
 
@@ -96,9 +94,21 @@ export default function PostDetailsContainer() {
 		}
 
 		successToast('Post criado com sucesso.');
+
+		router.push('/history');
 	};
 
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
+
+	const generateCaption = async () => {
+		setLoadingCaption(true);
+
+		const data = await generateCaptionProcess({ chatId });
+
+		setValue('caption', data.data.caption);
+
+		setLoadingCaption(false);
+	}
 
 	return (
 		<PostDetailsUI
@@ -118,6 +128,8 @@ export default function PostDetailsContainer() {
 			user={user}
 			caption={caption}
 			image={image}
+			generateCaption={generateCaption}
+			loadingCaption={loadingCaption}
 		/>
 	);
 }

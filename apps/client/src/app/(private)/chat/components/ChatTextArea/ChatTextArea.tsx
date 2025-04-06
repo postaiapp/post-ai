@@ -63,7 +63,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 			<div className="flex flex-col gap-2 w-full">
 				<div
 					className={clsx(
-						'border border-gray-300 rounded-md flex flex-col items-end h-[100px]',
+						'border border-gray-300 bg-white rounded-md flex flex-col items-end h-[100px]',
 						containerClassName
 					)}
 				>

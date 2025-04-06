@@ -1,14 +1,14 @@
+import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InstagramAccount } from '@schemas/instagram-account.schema';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
 import { Model } from 'mongoose';
-import { InstagramAuthService } from '../modules/instagram-auth/services/instagram-auth.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
-export class TokenManagement {
+export class TokenManagementCron {
 	private readonly logger = new Logger(InstagramAccount.name);
 	private readonly TOKEN_CHECK_INTERVAL = 7;
 	private readonly TOKEN_REFRESH_DATE = 60;
@@ -47,7 +47,7 @@ export class TokenManagement {
 			canceledAt: { $exists: false }
 		});
 
-		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts);
+		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts.map(String));
 
 		const users = await this.userModel
 			.find(whereCondition, {

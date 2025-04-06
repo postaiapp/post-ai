@@ -43,7 +43,7 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 	const { isPendingRegenerateMessage, handleRegenerate } = regenerate;
 
 	return (
-		<div className="relative flex flex-col justify-between items-center w-full h-screen overflow-hidden">
+		<div className="relative bg-gray-100 flex flex-col justify-between items-center w-full h-screen overflow-hidden">
 			<div className="w-full h-full overflow-auto mt-6 mb-4 thin-scrollbar">
 				<div className="mx-auto max-w-4xl w-full">
 					{!chatId && !isPendingSendMessage && !isSuccessSendMessage && !isErrorSendMessage && (
@@ -54,14 +54,15 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 							<p className="text-3xl text-center font-semibold bg-gradient-to-r from-purple-500 to-purple-400 text-transparent bg-clip-text mb-2">
 								Gere posts com o Post AI
 							</p>
-							<p className="text-[12px] font-light text-center mx-auto text-gray-700">
+							<p className="text-[12px] font-medium text-center mx-auto text-gray-700">
 								Escolha seu prompt abaixo ou escreva seu próprio texto para gerar um post incrível!
 							</p>
 							<div className="flex flex-wrap justify-center items-center lg:px-28 gap-4 w-full mt-8 min-[1460px]:grid min-[1460px]:grid-cols-3">
 								{defaultPrompts.map((prompt, index) => (
 									<Button
 										key={index}
-										className="rounded-2xl w-52 flex items-center justify-center text-gray-500 border-gray-300 font-regular p-3"
+										onClick={() => setPrompt(prompt.message)}
+										className="bg-white border-[1px] border-gray-200 hover:bg-gray-50 shadow-sm rounded-2xl w-52 flex items-center justify-center text-gray-500 font-regular p-3"
 										variant="outline"
 									>
 										<prompt.icon className="" />
@@ -98,6 +99,7 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 													);
 												}}
 												onRegenerateDisabled={isPendingRegenerateMessage}
+												chatId={chatId || ''}
 											/>
 										) : !isPendingSendMessage && isErrorSendMessage ? (
 											<ResponseMessageErrorComponent

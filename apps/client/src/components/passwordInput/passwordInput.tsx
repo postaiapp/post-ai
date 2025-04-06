@@ -19,7 +19,7 @@ export function PasswordInput<T extends object>({
     };
 
     return (
-        <div className={cn('relative', containerClassName)}>
+        <div className={cn('w-full relative', containerClassName)}>
             <Input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Digite sua senha"
