@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [closed]
     paths:
       - 'apps/client/**'
       - 'apps/server/**'
