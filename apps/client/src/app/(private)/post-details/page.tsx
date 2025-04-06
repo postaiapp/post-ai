@@ -1,8 +1,12 @@
 'use client';
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import PostDetailsContainer from './postDetailsContainer';
 
 export default function PostDetails() {
-	return <PostDetailsContainer />;
+	return (
+		<Suspense>
+			<PostDetailsContainer />
+		</Suspense>
+	);
 }

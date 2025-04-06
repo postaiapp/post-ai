@@ -1,6 +1,6 @@
 'use client';
 import type React from 'react';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
@@ -13,8 +13,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import PostDetailsUI from './postDetailsUi';
-
-import LoadingPage from '../settings/components/userDetails/loadingUserDetails/loadingUserDetails';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
@@ -114,27 +112,25 @@ export default function PostDetailsContainer() {
 	};
 
 	return (
-		<Suspense fallback={<LoadingPage />}>
-			<PostDetailsUI
-				control={control}
-				handleSubmit={handleSubmit}
-				onSubmit={handleCreatePost}
-				showCalendar={showCalendar}
-				toggleCalendar={toggleCalendar}
-				selectedDate={selectedDate}
-				handleDateChange={handleDateChange}
-				selectedTime={selectedTime}
-				handleTimeChange={handleTimeChange}
-				loading={loading}
-				loadingSubmit={isLoading}
-				selectedAccount={selectedAccount}
-				handleAccountChange={handleAccountChange}
-				user={user}
-				caption={caption}
-				image={image}
-				generateCaption={generateCaption}
-				loadingCaption={loadingCaption}
-			/>
-		</Suspense>
+		<PostDetailsUI
+			control={control}
+			handleSubmit={handleSubmit}
+			onSubmit={handleCreatePost}
+			showCalendar={showCalendar}
+			toggleCalendar={toggleCalendar}
+			selectedDate={selectedDate}
+			handleDateChange={handleDateChange}
+			selectedTime={selectedTime}
+			handleTimeChange={handleTimeChange}
+			loading={loading}
+			loadingSubmit={isLoading}
+			selectedAccount={selectedAccount}
+			handleAccountChange={handleAccountChange}
+			user={user}
+			caption={caption}
+			image={image}
+			generateCaption={generateCaption}
+			loadingCaption={loadingCaption}
+		/>
 	);
 }
