@@ -8,7 +8,7 @@ import { Input } from '@components/ui/input';
 import { Separator } from '@components/ui/separator';
 import { Textarea } from '@components/ui/textarea';
 import dayjs from 'dayjs';
-import { Instagram, Heart, MessageCircle, Send, Calendar, ChevronDown, Link, LoaderCircle } from 'lucide-react';
+import { Instagram, Heart, MessageCircle, Send, Calendar, ChevronDown, Link, LoaderCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { Controller } from 'react-hook-form';
 
@@ -29,6 +29,8 @@ export default function PostDetailsUI({
 	user,
 	caption,
 	image,
+	generateCaption,
+	loadingCaption
 }: PostDetailsUIProps) {
 	return (
 		<div className="flex gap-6 items-center w-full h-screen bg-gray-100 p-6 overflow-hidden">
@@ -98,12 +100,19 @@ export default function PostDetailsUI({
 					</div>
 
 					<div className="p-6 border-[1px] shadow-xs rounded-xl border-gray-200 flex flex-col gap-2">
-						<p className="font-semibold text-base">Descrição</p>
+						<div className="flex items-center justify-between">
+							<p className="font-semibold text-base">Descrição</p>
+							<Button type='button' variant="ghost" onClick={generateCaption} disabled={loadingCaption}>
+								Gerar com o Post AI Intelligence
+								{!loadingCaption && <Sparkles className="text-purple-500" size={18} fill="currentColor" />}
+								{loadingCaption && <LoaderCircle className="text-purple-500 animate-spin" />}
+							</Button>
+						</div>
 						<Controller
 							name="caption"
 							control={control}
 							render={({ field }) => (
-								<Textarea className="h-32" placeholder="Escreva a legenda do seu post..." {...field} />
+								<Textarea className="h-32" placeholder="Escreva a legenda do seu post ou gere com o Post AI Intelligence..." {...field} />
 							)}
 						/>
 					</div>
@@ -201,6 +210,7 @@ export default function PostDetailsUI({
 								src={image || '/default-profile.jpg'}
 								sizes="(max-width: 768px) 100vw, 50vw"
 								className="object-cover"
+								draggable={false}
 							/>
 						</div>
 
@@ -222,7 +232,7 @@ export default function PostDetailsUI({
 							{!loading && (
 								<div className="flex flex-col gap-1">
 									<span className="font-semibold">@{selectedAccount?.username}</span>
-									<p className="text-gray-500 text-justify break-words overflow-wrap-anywhere">
+									<p className="text-gray-500 whitespace-pre-wrap break-words">
 										{caption || 'Aqui vai a legenda do post.'}
 									</p>
 								</div>

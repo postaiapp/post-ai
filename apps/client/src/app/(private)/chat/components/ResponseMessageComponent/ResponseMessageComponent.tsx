@@ -14,11 +14,13 @@ export const ResponseMessageComponent = ({
 	onRegenerate,
 	onRegenerateDisabled,
 	isLastMessage,
+	chatId
 }: {
 	response: Interaction['response'];
 	onRegenerate: () => void;
 	onRegenerateDisabled: boolean;
 	isLastMessage: boolean;
+	chatId: string;
 }) => {
 	const router = useRouter();
 
@@ -38,7 +40,7 @@ export const ResponseMessageComponent = ({
 
                 <Button
                     className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
-                    onClick={() => router.push(`/post-details?image=${encodeURIComponent(response)}`)}
+                    onClick={() => router.push(`/post-details?image=${encodeURIComponent(response)}&chatId=${chatId}`)}
                 >
                     Postar imagem
                 </Button>

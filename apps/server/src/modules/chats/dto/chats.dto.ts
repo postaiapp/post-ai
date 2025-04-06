@@ -34,3 +34,9 @@ export class ListChatInteractionsParamsDto {
 }
 
 export class ListUserChatsQueryDto extends PaginationDto {}
+
+export class GenerateCaptionParamsDto {
+	@IsNotEmpty()
+	@IsString()
+	chatId: string;
+}
