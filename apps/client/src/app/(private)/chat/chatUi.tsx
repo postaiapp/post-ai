@@ -99,6 +99,7 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 													);
 												}}
 												onRegenerateDisabled={isPendingRegenerateMessage}
+												chatId={chatId || ''}
 											/>
 										) : !isPendingSendMessage && isErrorSendMessage ? (
 											<ResponseMessageErrorComponent

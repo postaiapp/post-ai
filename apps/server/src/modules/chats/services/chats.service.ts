@@ -4,18 +4,20 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
-import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import { GenerateCaptionOptions, ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
 import * as dayjs from 'dayjs';
 import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
 import { Uploader } from '@type/storage';
 import { Inject } from '@nestjs/common';
+import { TextGenerationService } from '@modules/text-generation/service/text-generation.service';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
 		private readonly imageGenerationService: ImageGenerationService,
+		private readonly textGenerationService: TextGenerationService,
 		@Inject(Uploader) private readonly storageService: Uploader
 	) {}
 
@@ -204,6 +206,26 @@ export class ChatsService {
 				page,
 				limit: perPage,
 			},
+		};
+	}
+
+	async generateCaption({ filter, meta }: GenerateCaptionOptions) {
+		const { chatId } = filter;
+
+		const chat = await this.findChat(chatId, meta.userId.toString());
+
+		if (!chat) {
+			throw new NotFoundException('CHAT_NOT_FOUND');
+		}
+
+		const context = await this.getChatContext(chat.interactions);
+
+		const { text } = await this.textGenerationService.generateText({
+			prompt: `${context}`,
+		});
+
+		return {
+			caption: text,
 		};
 	}
 }
