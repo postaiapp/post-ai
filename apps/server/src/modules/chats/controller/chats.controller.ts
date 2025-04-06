@@ -8,7 +8,10 @@ import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
 import { CreateChatDto, GenerateCaptionParamsDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
+import { ApiTags, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
+@ApiTags('Chats')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('chats')
 export class ChatsController extends BaseController {
@@ -17,6 +20,14 @@ export class ChatsController extends BaseController {
 	}
 
 	@Post('messages')
+	@ApiBody({
+		schema: {
+			example: {
+				message: "Generate a caption for my healthy food post",
+				chatId: "507f1f77bcf86cd799439011"
+			}
+		}
+	})
 	async sendMessage(@Body() data: CreateChatDto, @Response() res: ExpressResponse, @Meta() meta: MetaType) {
 		const options = {
 			data,
@@ -33,6 +44,15 @@ export class ChatsController extends BaseController {
 	}
 
 	@Post('interactions/regenerate')
+	@ApiBody({
+		schema: {
+			example: {
+				message: "Make it more engaging",
+				chatId: "507f1f77bcf86cd799439011",
+				interactionId: "507f1f77bcf86cd799439012"
+			}
+		}
+	})
 	async regenerateMessage(
 		@Body() data: RegenerateMessageDto,
 		@Meta() meta: MetaType,
@@ -51,6 +71,10 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get('interactions/:chatId')
+	@ApiParam({
+		name: 'chatId',
+		example: '507f1f77bcf86cd799439011'
+	})
 	async listChatInteractions(
 		@Param() params: ListChatInteractionsParamsDto,
 		@Meta() meta: MetaType,
@@ -85,6 +109,10 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get(':chatId/caption')
+	@ApiParam({
+		name: 'chatId',
+		example: '507f1f77bcf86cd799439011'
+	})
 	async generateCaption(@Param() params: GenerateCaptionParamsDto, @Meta() meta: MetaType, @Response() res: ExpressResponse) {
 		try {
 			const response = await this.chatService.generateCaption({ filter: params, meta });

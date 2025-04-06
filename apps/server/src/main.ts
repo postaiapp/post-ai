@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -51,6 +52,17 @@ async function bootstrap() {
 	};
 
 	app.enableCors(corsOptions);
+
+	const config = new DocumentBuilder()
+		.setTitle('Post AI API')
+		.setDescription('A API that generates posts for your Instagram account using AI, with a chat interface to help you generate the best posts and schedule them.')
+		.setVersion('1.0')
+		.addBearerAuth()
+		.build();
+
+	const document = SwaggerModule.createDocument(app, config);
+
+	SwaggerModule.setup('docs', app, document);
 
 	await app.listen(process.env.PORT);
 }

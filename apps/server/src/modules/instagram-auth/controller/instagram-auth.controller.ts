@@ -5,6 +5,10 @@ import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from '../services/instagram-auth.service';
 import { mappingIntegrationsErrors } from '@constants/errors';
+import { ApiTags, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+
+@ApiTags('Instagram')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('instagram')
 export class InstagramAuthController {
@@ -14,6 +18,14 @@ export class InstagramAuthController {
 
 	@Post()
 	@HttpCode(201)
+	@ApiBody({
+		schema: {
+			example: {
+				username: "instagramuser",
+				password: "instagrampass"
+			}
+		}
+	})
 	async create(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.createAccount(body, meta);
@@ -27,6 +39,14 @@ export class InstagramAuthController {
 
 	@Post('login')
 	@HttpCode(200)
+	@ApiBody({
+		schema: {
+			example: {
+				username: "instagramuser",
+				password: "instagrampass"
+			}
+		}
+	})
 	async login(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.login(body, meta);
@@ -40,6 +60,10 @@ export class InstagramAuthController {
 
 	@Delete('logout/:username')
 	@HttpCode(204)
+	@ApiParam({
+		name: 'username',
+		example: 'instagramuser'
+	})
 	delete(@Param() query: DeleteInstagramAuthDto, @Meta() meta: MetaType) {
 		return this.instagramAuthService.delete(query, meta);
 	}
