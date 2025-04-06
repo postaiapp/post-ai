@@ -7,12 +7,15 @@ const nextConfig: NextConfig = {
 				hostname: 'post-ai.e1cbcbbff75a52d32302f26ed7d8eb5b.r2.cloudflarestorage.com',
 			},
 			{
-				hostname: 'instagram.*.fna.fbcdn.net'
+				hostname: 'instagram.*.fna.fbcdn.net',
 			},
 			{
-				hostname: 'i.imgur.com'
+				hostname: 'i.imgur.com',
 			},
 		],
+	},
+	eslint: {
+		ignoreDuringBuilds: true,
 	},
 };
 

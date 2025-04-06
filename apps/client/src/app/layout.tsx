@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import Store from '@lib/react-query';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
@@ -26,7 +28,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="scroll-smooth">
 			<body className={`${plusJakarta.variable} antialiased`}>
-				<Store>{children}</Store>
+				<Suspense>
+					<Store>{children}</Store>
+				</Suspense>
 			</body>
 		</html>
 	);

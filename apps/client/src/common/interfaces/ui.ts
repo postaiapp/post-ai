@@ -23,4 +23,4 @@ interface ButtonProps extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonE
 	children: ReactNode;
 }
 
-export { ButtonProps, TextAreaProps };
+export type { ButtonProps, TextAreaProps };

@@ -11,6 +11,7 @@ import { errorToast, successToast, warningToast } from '@utils/toast';
 import dayjs from 'dayjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+
 import PostDetailsUI from './postDetailsUi';
 
 export default function PostDetailsContainer() {
@@ -51,7 +52,7 @@ export default function PostDetailsContainer() {
 	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
-	if (!date || !time) return null;
+		if (!date || !time) return null;
 
 		const [hours, minutes] = time.split(':').map(Number);
 		const isoDate = new Date(date);
@@ -108,7 +109,7 @@ export default function PostDetailsContainer() {
 		setValue('caption', data.data.caption);
 
 		setLoadingCaption(false);
-	}
+	};
 
 	return (
 		<PostDetailsUI
