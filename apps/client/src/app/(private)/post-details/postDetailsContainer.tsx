@@ -1,6 +1,6 @@
 'use client';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
@@ -11,7 +11,10 @@ import { errorToast, successToast, warningToast } from '@utils/toast';
 import dayjs from 'dayjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+
 import PostDetailsUI from './postDetailsUi';
+
+import LoadingPage from '../settings/components/userDetails/loadingUserDetails/loadingUserDetails';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
@@ -51,7 +54,7 @@ export default function PostDetailsContainer() {
 	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
-	if (!date || !time) return null;
+		if (!date || !time) return null;
 
 		const [hours, minutes] = time.split(':').map(Number);
 		const isoDate = new Date(date);
@@ -108,28 +111,30 @@ export default function PostDetailsContainer() {
 		setValue('caption', data.data.caption);
 
 		setLoadingCaption(false);
-	}
+	};
 
 	return (
-		<PostDetailsUI
-			control={control}
-			handleSubmit={handleSubmit}
-			onSubmit={handleCreatePost}
-			showCalendar={showCalendar}
-			toggleCalendar={toggleCalendar}
-			selectedDate={selectedDate}
-			handleDateChange={handleDateChange}
-			selectedTime={selectedTime}
-			handleTimeChange={handleTimeChange}
-			loading={loading}
-			loadingSubmit={isLoading}
-			selectedAccount={selectedAccount}
-			handleAccountChange={handleAccountChange}
-			user={user}
-			caption={caption}
-			image={image}
-			generateCaption={generateCaption}
-			loadingCaption={loadingCaption}
-		/>
+		<Suspense fallback={<LoadingPage />}>
+			<PostDetailsUI
+				control={control}
+				handleSubmit={handleSubmit}
+				onSubmit={handleCreatePost}
+				showCalendar={showCalendar}
+				toggleCalendar={toggleCalendar}
+				selectedDate={selectedDate}
+				handleDateChange={handleDateChange}
+				selectedTime={selectedTime}
+				handleTimeChange={handleTimeChange}
+				loading={loading}
+				loadingSubmit={isLoading}
+				selectedAccount={selectedAccount}
+				handleAccountChange={handleAccountChange}
+				user={user}
+				caption={caption}
+				image={image}
+				generateCaption={generateCaption}
+				loadingCaption={loadingCaption}
+			/>
+		</Suspense>
 	);
 }
