@@ -40,6 +40,7 @@ jobs:
             -Dsonar.organization=my-org \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.exclusions=**/CONTRIBUTING.md,**/*.md \
             -Dsonar.sources=./ \
             -Dsonar.tests=./
 
