@@ -1,4 +1,4 @@
-import { IMAGE_TEST_URL, TIME_ZONE } from '@constants/post';
+import { TIME_ZONE } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { TokenExpiredError } from '@nestjs/jwt';
@@ -126,7 +126,7 @@ export class PostService {
 
 		const postCreate = {
 			caption,
-			imageUrl: IMAGE_TEST_URL,
+			imageUrl: data.img,
 			accountId: instagramAccount.accountId,
 			userId: meta.userId,
 			canceledAt: null,
