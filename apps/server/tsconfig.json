@@ -17,9 +17,11 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
+    "paths": {	
       "@type/*": ["./src/types/*"],
       "@*": ["./src/*"],
+      "@schemas/*": ["./src/schemas/*"],
+      "@modules/*": ["src/modules/*"],
     }
   }
 }

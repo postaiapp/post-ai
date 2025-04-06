@@ -93,6 +93,16 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node", 
+	"moduleNameMapper": {
+		"^@modules/(.*)$": "<rootDir>/modules/$1",
+		"^@schemas/(.*)$": "<rootDir>/schemas/$1",
+		"^@common/(.*)$": "<rootDir>/common/$1",
+		"^@guards/(.*)$": "<rootDir>/guards/$1",
+		"^@decorators/(.*)$": "<rootDir>/decorators/$1",
+		"^@utils/(.*)$": "<rootDir>/utils/$1",
+		"^@type/(.*)$": "<rootDir>/type/$1",
+		"^@constants/(.*)$": "<rootDir>/constants/$1"
+	}
   }
 }
