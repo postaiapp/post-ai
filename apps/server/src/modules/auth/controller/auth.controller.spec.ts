@@ -1,4 +1,3 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request, Response } from 'express';
 import { LoginDto, RegisterDto } from '../dto/auth.dto';
@@ -48,12 +47,22 @@ describe('AuthController', () => {
       const loginDto: LoginDto = { email: 'test@email.com', password: 'password123' };
       const res = mockResponse();
       const expectedResult = { 
-        user: { id: '1', email: 'test@email.com' },
+        user: { 
+          id: '1', 
+          email: 'test@email.com', 
+          name: 'Test User', 
+          InstagramAccounts: [], 
+          cpf: '12345678901', 
+          phone: '12345678901', 
+          city: 'Test City', 
+          country: 'Test Country',
+          _id: '1' as any,
+          __v: 0
+        },
         token: 'mock-token'
       };
       
       jest.spyOn(authService, 'authenticate').mockResolvedValue(expectedResult);
-      
       await controller.create(loginDto, res);
       
       expect(authService.authenticate).toHaveBeenCalledWith({ ...loginDto, res });
