@@ -4,14 +4,21 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
-import { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import { GenerateCaptionOptions, ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import * as dayjs from 'dayjs';
+import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
+import { Uploader } from '@type/storage';
+import { Inject } from '@nestjs/common';
+import { TextGenerationService } from '@modules/text-generation/service/text-generation.service';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-		private readonly imageGenerationService: ImageGenerationService
+		private readonly imageGenerationService: ImageGenerationService,
+		private readonly textGenerationService: TextGenerationService,
+		@Inject(Uploader) private readonly storageService: Uploader
 	) {}
 
 	findChat(chatId: string, userId: string) {
@@ -60,13 +67,14 @@ export class ChatsService {
 		const interactionBody = {
 			user_id: meta.userId.toString(),
 			request: message,
-			response: url,
+			response: FileUtils.getUnsignedUrl(url),
 			is_regenerated: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
+			createdAt: dayjs().toDate(),
+			updatedAt: dayjs().toDate(),
 		};
 
 		chat.interactions.push(interactionBody);
+		chat.updatedAt = dayjs().toDate();
 
 		await chat.save();
 
@@ -77,10 +85,11 @@ export class ChatsService {
 				firstMessage: chat.first_message,
 				id: chat._id,
 				createdAt: chat.createdAt,
+				updatedAt: chat.updatedAt,
 			},
 			interaction: {
 				request: interactionBody.request,
-				response: interactionBody.response,
+				response: await this.storageService.getSignedImageUrl(url),
 				isRegenerated: interactionBody.is_regenerated,
 			},
 		};
@@ -108,7 +117,7 @@ export class ChatsService {
 		const partialInteractionBody = {
 			user_id: meta.userId.toString(),
 			request: message,
-			response: url,
+			response: FileUtils.getUnsignedUrl(url),
 			is_regenerated: true,
 			updatedAt: new Date(),
 		};
@@ -153,26 +162,36 @@ export class ChatsService {
 	}
 
 	async listChatInteractions({ params, meta }: ListChatInteractionsOptions) {
-		const chat = await this.findChat(params.chatId, meta.userId.toString());
+		const chat = await this.findChat(params.chatId, meta.userId.toString()).lean();
 
-		return chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+		if (!chat) {
+			throw new NotFoundException('CHAT_NOT_FOUND');
+		}
+
+		const interactions = chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+		const mountedInteractions = await Promise.all(
+			interactions.map(async (interaction) => ({
+				...interaction,
+				response: await this.storageService.getSignedImageUrl(interaction.response),
+			}))
+		);
+
+		return mountedInteractions;
 	}
 
 	async listUserChats({ userId, pagination }: { userId: string; pagination?: Pagination }) {
 		const { page, perPage, offset } = pagination;
 
-		const chats = await this.chatModel
-			.find({ user_id: userId.toString() })
-			.sort({ createdAt: -1, _id: -1 })
-			.skip(offset)
-			.limit(perPage)
-			.lean();
-
-		const allUserChatsCount = await this.chatModel
-			.countDocuments({
-				user_id: userId,
-			})
-			.lean();
+		const [chats, allUserChatsCount] = await Promise.all([
+			this.chatModel
+				.find({ user_id: userId.toString() })
+				.sort({ createdAt: -1, _id: -1 })
+				.skip(offset)
+				.limit(perPage)
+				.lean(),
+			this.chatModel.countDocuments({ user_id: userId }),
+		]);
 
 		return {
 			results: chats.map((chat) => ({
@@ -187,6 +206,26 @@ export class ChatsService {
 				page,
 				limit: perPage,
 			},
+		};
+	}
+
+	async generateCaption({ filter, meta }: GenerateCaptionOptions) {
+		const { chatId } = filter;
+
+		const chat = await this.findChat(chatId, meta.userId.toString());
+
+		if (!chat) {
+			throw new NotFoundException('CHAT_NOT_FOUND');
+		}
+
+		const context = await this.getChatContext(chat.interactions);
+
+		const { text } = await this.textGenerationService.generateText({
+			prompt: `${context}`,
+		});
+
+		return {
+			caption: text,
 		};
 	}
 }

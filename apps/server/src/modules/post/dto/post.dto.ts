@@ -1,7 +1,7 @@
-import { Escape } from 'class-sanitizer';
-import { Transform, TransformFnParams } from 'class-transformer';
+import { Sanitize } from '@decorators/sanitize.decorator';
+import FileUtils from '@utils/file';
+import { Transform } from 'class-transformer';
 import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, IsNumber } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
 
 export class CreatePostDto {
 	@IsNotEmpty()
@@ -10,12 +10,12 @@ export class CreatePostDto {
 
 	@IsNotEmpty()
 	@IsString()
-	@Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-	@Escape()
+	@Sanitize()
 	caption: string;
 
 	@IsOptional()
 	@IsString()
+	@Transform((obj) => obj.value && FileUtils.getUnsignedUrl(obj.value))
 	@IsUrl()
 	img: string;
 
