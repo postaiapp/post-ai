@@ -1,7 +1,7 @@
 {
   "name": "post-ai-server",
   "packageManager": "yarn@1.22.19",
-  "version": "0.9.3",
+  "version": "1.0.0",
   "description": "",
   "author": "",
   "private": true,
