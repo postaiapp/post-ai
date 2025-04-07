@@ -30,7 +30,13 @@ export function AccountCardCore({
 	return (
 		<div className="flex items-center gap-3 cursor-pointer">
 			{profilePicUrl ? (
-				<Image src={profilePicUrl} width={32} height={32} alt="profile instagram picture" className="rounded-full" />
+				<Image
+					src={profilePicUrl}
+					width={32}
+					height={32}
+					alt="profile instagram picture"
+					className="rounded-full"
+				/>
 			) : (
 				<div className="h-8 w-8 bg-zinc-200 rounded-full"></div>
 			)}
@@ -43,7 +49,7 @@ export function AccountCardCore({
 				<span className="text-xs text-zinc-600">@{username}</span>
 			</div>
 		</div>
-	)
+	);
 }
 
 export default function AccountCard({
@@ -56,7 +62,6 @@ export default function AccountCard({
 	handleLogout,
 	setIsLogin,
 }: AccountCardProps) {
-
 	return (
 		<DropdownMenuItem className="flex flex-col items-start gap-2 focus:bg-transparent">
 			<AccountCardCore
@@ -75,11 +80,11 @@ export default function AccountCard({
 						setIsLogin(true);
 					}}
 				>
-					Login
+					Atualizar
 					<RefreshCcw className="h-3 w-3 text-zinc-600" />
 				</Button>
 				<Button className="text-xs w-1/2" onClick={() => handleLogout(username!)}>
-					Remove
+					Remover
 					<Trash className="h-3 w-3 text-zinc-200" />
 				</Button>
 			</div>
