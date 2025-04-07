@@ -10,9 +10,10 @@ export class AuthGuard implements CanActivate {
 		private readonly configService: ConfigService
 	) {}
 
-	extractJwt(request: Request) {
-		const token = request.headers.authorization?.split(' ')[1];
-		return token ?? undefined;
+	private extractJwt(request: Request): string | undefined {
+		const [type, token] = request.headers.authorization?.split(' ') ?? [];
+		
+		return type === 'Bearer' ? token : undefined;
 	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {

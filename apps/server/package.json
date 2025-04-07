@@ -127,7 +127,8 @@
 		"/src/guards/",
 		"/src/interceptors/",
 		"/src/filters/",
-		"/src/constants"
+		"/src/constants",
+		"/src/common/"
 	],
     "testEnvironment": "node", 
 	"moduleNameMapper": {

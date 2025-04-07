@@ -1,7 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '@schemas/user.schema';
 import { Meta } from '@type/meta';
@@ -10,7 +8,6 @@ import { IgApiClient } from 'instagram-private-api';
 import { Model, Types } from 'mongoose';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from './instagram-auth.service';
-import { ObjectId } from 'mongodb';
 
 describe('InstagramAuthService', () => {
   let service: InstagramAuthService;
@@ -319,7 +316,7 @@ describe('InstagramAuthService', () => {
 
       const result = await service.delete(dto, mockMeta);
       
-      expect(result).toEqual({ instagramAccounts: mockUpdatedUser.InstagramAccounts });
+      expect(result).toEqual({ newUser: mockUpdatedUser });
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: mockMeta.userId },
         {
@@ -339,7 +336,7 @@ describe('InstagramAuthService', () => {
       });
 
       await expect(service.delete(dto, mockMeta)).rejects.toThrow(
-        new BadRequestException('User not found')
+        new BadRequestException('USER_NOT_FOUND')
       );
 
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(

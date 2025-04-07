@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Model, Types } from 'mongoose';
+import { User } from '../../../schemas/user.schema';
 import { RegisterDto } from '../dto/auth.dto';
 import { AuthService } from './auth.service';
-import { User } from '../../../schemas/user.schema';
 
 describe('AuthService', () => {
   let service: AuthService;
