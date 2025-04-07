@@ -32,7 +32,7 @@ export const useInstagramMutation = (type: MutationInstagramAccountType, setModa
 			queryClient.invalidateQueries({ queryKey: ['instagram-accounts', user?.email] });
 			setUser({
 				...user,
-				InstagramAccounts: successData.newUser.InstagramAccounts,
+				InstagramAccounts: successData?.newUser?.InstagramAccounts ?? [],
 			} as User);
 
 			successToast(successInstagramAccountMessages[type]);
