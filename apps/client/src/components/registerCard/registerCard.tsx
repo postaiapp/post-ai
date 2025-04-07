@@ -41,7 +41,7 @@ export default function RegisterCard({
                     <Label htmlFor="password" required>
                         Senha
                     </Label>
-                    <PasswordInput register={register} textValue="password" className="pr-10" />
+                    <PasswordInput register={register} textValue="password" />
                     {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                 </div>
 
