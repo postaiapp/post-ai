@@ -176,7 +176,6 @@ export class PostService {
 	async scheduleCronJob(jobId: string, date: Date, publishParams: PublishedPostProps) {
 		const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
 
-		console.log('cron expression', cronExpression);
 		const job = new CronJob(
 			cronExpression,
 			async () => {
@@ -228,7 +227,10 @@ export class PostService {
 
 		const updatedPost = await this.postModel.findOneAndUpdate(
 			{ _id: id },
-			{ publishedAt: dayjs().toDate() },
+			{
+				publishedAt: dayjs().toDate(),
+				code
+			 },
 			{ new: true }
 		);
 
