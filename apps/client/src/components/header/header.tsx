@@ -70,25 +70,25 @@ export default function Header({
 							<DialogTrigger asChild>
 								<DropdownMenuItem className="flex items-center gap-4">
 									<Instagram size={20} color="purple" />
-									<span className="text-sm">Add instagram account</span>
+									<span className="text-sm">Adicionar conta do Instagram</span>
 								</DropdownMenuItem>
 							</DialogTrigger>
 						</DropdownMenuContent>
 						<DialogContent className="sm:max-w-[425px] bg-slate-50">
 							<DialogHeader>
-								<DialogTitle>Instagram Account</DialogTitle>
+								<DialogTitle>Conta do Instagram</DialogTitle>
 								<DialogDescription>
-									Add your Instagram account to get more followers and likes.
+									Adicione sua conta do Instagram para ganhar mais seguidores e curtidas.
 								</DialogDescription>
 							</DialogHeader>
 							<form onSubmit={handleSubmit(onSubmit)}>
 								<div className="py-4">
 									<div className="flex w-full items-center gap-4">
-										<Label className="text-right">Username</Label>
+										<Label className="text-right">Usuário</Label>
 										<Input
 											className=""
 											{...register('username')}
-											placeholder="Digite seu username ou email"
+											placeholder="Digite seu nome de usuário ou e-mail"
 										/>
 									</div>
 
@@ -97,7 +97,7 @@ export default function Header({
 									)}
 
 									<div className="flex w-full mt-3 items-center gap-4">
-										<Label className="text-right mr-1">Password</Label>
+										<Label className="text-right mr-1">Senha</Label>
 										<PasswordInput<InstagramAccountType>
 											register={register}
 											textValue="password"
@@ -113,7 +113,7 @@ export default function Header({
 								</div>
 								<DialogFooter>
 									<Button type="submit" isLoading={isLoading || isLoginPending}>
-										Add account
+										Adicionar conta
 									</Button>
 								</DialogFooter>
 							</form>

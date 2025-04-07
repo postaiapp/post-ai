@@ -1,6 +1,7 @@
 interface SideBarFooterProps {
-    handleLogout: () => void
-    handleNavigateUserDetails: () => void
+	handleLogout: () => void;
+	handleNavigateUserDetails: () => void;
+	userName: string | null;
 }
 
-export type { SideBarFooterProps }
+export type { SideBarFooterProps };
