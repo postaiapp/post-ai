@@ -1,3 +1,4 @@
+import { EmailService } from '@common/providers/email.service';
 import { DatabaseModule } from '@database/database.module';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { Module } from '@nestjs/common';
@@ -16,6 +17,12 @@ import { PostService } from './services/post.service';
 		]),
 	],
 	controllers: [PostController],
-	providers: [PostService, IgApiClient, InstagramAuthService, R2Storage],
+	providers: [
+		PostService,
+		IgApiClient,
+		InstagramAuthService,
+		R2Storage,
+		EmailService
+	],
 })
 export class PostModule {}

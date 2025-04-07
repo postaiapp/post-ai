@@ -6,7 +6,7 @@ import { cancelPost } from "@processes/post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@utils/toast";
 import { MoreVertical } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { SeePostModal } from "../SeePostModal/SeePostModal";
 
 export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
@@ -26,7 +26,6 @@ export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['history'] });
 
-      // Optmistic UI -> updates the cache with the new post canceled
       queryClient.setQueryData(['history'], (old: { pages: { data: { data: PostEntityWithDetails[], meta: { page: number, limit: number, total: number } } }[] }) => {
         const newPages = old.pages.map(page => ({
           ...page,
@@ -53,6 +52,8 @@ export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
     },
   });
 
+  const postCanBeCanceled = useMemo(() => post.scheduledAt && !post.canceledAt && !post.publishedAt, [post.scheduledAt, post.canceledAt, post.publishedAt])
+
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -66,7 +67,7 @@ export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
           <DropdownMenuItem onClick={() => setIsSeeModalOpen(true)}>
             Visualizar
           </DropdownMenuItem>
-          {post.scheduledAt && !post.canceledAt && (
+          {postCanBeCanceled &&  (
             <DropdownMenuItem
               onSelect={(e) => { e.preventDefault(); cancelPostMutation({ postId: post._id, username: post.account.username }) }
               }

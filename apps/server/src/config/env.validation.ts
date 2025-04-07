@@ -53,6 +53,31 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	IDEOGRAM_BASE_URL: string;
+
+	@IsString()
+	@IsOptional()
+	EMAIL_API_KEY_RESEND: string;
+
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_USER: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_HOST: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_PASS: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_PORT: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_SECURE: string;
 }
 
 export function validate(config: Record<string, unknown>) {

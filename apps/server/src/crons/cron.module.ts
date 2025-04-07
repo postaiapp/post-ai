@@ -1,13 +1,14 @@
+import { EmailService } from '@common/providers/email.service';
 import { DatabaseModule } from '@database/database.module';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { PostService } from '@modules/post/services/post.service';
 import { Module } from '@nestjs/common';
 import { Post, PostSchema } from '@schemas/post.schema';
 import { User, UserSchema } from '@schemas/user.schema';
+import { StorageModule } from '@storages/storage.module';
 import { IgApiClient } from 'instagram-private-api';
 import { PublishedMissedPostsCron } from './publish-missed-posts.service';
 import { TokenManagementCron } from './token-management.service';
-import { StorageModule } from '@storages/storage.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,13 @@ import { StorageModule } from '@storages/storage.module';
 		]),
 		StorageModule,
 	],
-	providers: [TokenManagementCron, PublishedMissedPostsCron, InstagramAuthService, IgApiClient, PostService],
+	providers: [
+		TokenManagementCron,
+		PublishedMissedPostsCron,
+		InstagramAuthService,
+		IgApiClient,
+		PostService,
+		EmailService
+	],
 })
 export class CronModule {}
