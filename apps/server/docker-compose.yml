@@ -25,3 +25,9 @@ services:
       MONGODB_URI: mongodb://mongodb-test:27017/test
       NODE_ENV: test
     command: ["yarn", "start"]
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
