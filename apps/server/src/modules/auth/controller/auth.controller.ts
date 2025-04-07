@@ -21,7 +21,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post()
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	@ApiBody({
 		schema: {
 			example: {
@@ -36,7 +36,7 @@ export class AuthController {
 	}
 
 	@Post('register')
-	@HttpCode(HttpStatus.OK)
+	@HttpCode(HttpStatus.CREATED)
 	@ApiBody({
 		schema: {
 			example: {

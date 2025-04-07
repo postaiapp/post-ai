@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { AuthenticateType } from '@type/auth';
-import * as bcryptjs from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../dto/auth.dto';
@@ -24,7 +24,7 @@ export class AuthService {
 
 		if (!user) {
 			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
-			await bcryptjs.compare(password, FAKE_PASSWORD);
+			await bcrypt.compare(password, FAKE_PASSWORD);
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
