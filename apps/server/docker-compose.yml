@@ -24,3 +24,4 @@ services:
     environment:
       MONGODB_URI: mongodb://mongodb-test:27017/test
       NODE_ENV: test
+    command: ["yarn", "start"]

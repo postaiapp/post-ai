@@ -8,3 +8,5 @@ COPY package.json yarn.lock ./
 RUN yarn install --immutable --check-cache
 
 COPY . .
+
+CMD ["yarn", "start"]
