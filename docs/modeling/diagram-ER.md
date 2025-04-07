@@ -57,10 +57,10 @@
 ## 🤖 Interação (`Interaction`)
 | Campo          | Tipo     | Obrigatório | Descrição                        |
 |----------------|----------|-------------|----------------------------------|
-| `_id`          | string   | ✅           | Identificador único              |
-| `request`      | string   | ✅           | Texto da requisição              |
-| `response`     | string   | ✅           | Texto da resposta                |
-| `isRegenerated`| boolean  | ✅           | Indica se foi regenerada         |
+| `_id`          | string   | ✅           | Identificador único             |
+| `request`      | string   | ✅           | Texto da requisição             |
+| `response`     | string   | ✅           | Imagem gerada                   |
+| `isRegenerated`| boolean  | ✅           | Indica se foi regenerada        |
 
 ---
 
