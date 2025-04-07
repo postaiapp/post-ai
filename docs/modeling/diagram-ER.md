@@ -1,74 +1,66 @@
 # 📦 Estrutura de Entidades e Relacionamentos
 
 ## 🧑 Usuário (`User`)
-| Campo           | Tipo     | Descrição               |
-|----------------|----------|-------------------------|
-| `id`           | PK       | Identificador único     |
-| `name`         | string   | Nome do usuário         |
-| `email`        | string   | E-mail do usuário       |
-| `password`     | string   | Senha                   |
-| `cpf`          | string   | CPF                     |
-| `phone`        | string   | Telefone                |
-| `city`         | string   | Cidade                  |
-| `country`      | string   | País                    |
-| `created_at`   | datetime | Data de criação         |
-| `updated_at`   | datetime | Data de atualização     |
+| Campo         | Tipo     | Obrigatório | Descrição               |
+|---------------|----------|-------------|-------------------------|
+| `_id`         | string   | ✅           | Identificador único     |
+| `name`        | string   | ✅           | Nome do usuário         |
+| `email`       | string   | ✅           | E-mail do usuário       |
+| `cpf`         | string   | ❌           | CPF                     |
+| `phone`       | string   | ❌           | Telefone                |
+| `city`        | string   | ❌           | Cidade                  |
+| `country`     | string   | ❌           | País                    |
 
 ---
 
 ## 📱 Conta do Instagram (`InstagramAccount`)
-| Campo           | Tipo     | Descrição                        |
-|----------------|----------|----------------------------------|
-| `id`           | PK       | Identificador único              |
-| `username`     | string   | Nome de usuário no Instagram     |
-| `accountId`    | string   | ID da conta do Instagram         |
-| `session`      | string   | Sessão da conta                  |
-| `user_id`      | FK       | Referência ao usuário            |
-| `created_at`   | datetime | Data de criação                  |
-| `updated_at`   | datetime | Data de atualização              |
+> *Você não forneceu o tipo TypeScript desta entidade, então os campos abaixo seguem sua primeira descrição.*
+
+| Campo         | Tipo     | Obrigatório | Descrição                        |
+|---------------|----------|-------------|----------------------------------|
+| `id`          | string   | ✅           | Identificador único              |
+| `username`    | string   | ✅           | Nome de usuário no Instagram     |
+| `accountId`   | string   | ✅           | ID da conta do Instagram         |
+| `session`     | string   | ✅           | Sessão da conta                  |
+| `user_id`     | string   | ✅           | Referência ao usuário            |
+| `created_at`  | datetime | ✅           | Data de criação                  |
+| `updated_at`  | datetime | ✅           | Data de atualização              |
 
 ---
 
-## 📝 Post (`Post`)
-| Campo           | Tipo     | Descrição                        |
-|----------------|----------|----------------------------------|
-| `id`           | PK       | Identificador único              |
-| `imageUrl`     | string   | URL da imagem                    |
-| `caption`      | string   | Legenda                          |
-| `accountId`    | string   | ID da conta do Instagram         |
-| `user_id`      | FK       | Referência ao usuário            |
-| `scheduledAt`  | datetime | Data de agendamento              |
-| `publishedAt`  | datetime | Data de publicação               |
-| `canceledAt`   | datetime | Data de cancelamento             |
-| `jobId`        | string   | ID do job agendado               |
-| `created_at`   | datetime | Data de criação                  |
-| `updated_at`   | datetime | Data de atualização              |
+## 📝 Post (`PostEntity`)
+| Campo         | Tipo     | Obrigatório | Descrição                        |
+|---------------|----------|-------------|----------------------------------|
+| `_id`         | string   | ✅           | Identificador único              |
+| `caption`     | string   | ✅           | Legenda                          |
+| `imageUrl`    | string   | ✅           | URL da imagem                    |
+| `userId`      | string   | ✅           | Referência ao usuário            |
+| `accountId`   | string   | ✅           | ID da conta do Instagram         |
+| `publishedAt` | Date     | ✅           | Data de publicação               |
+| `scheduledAt` | Date     | ✅           | Data de agendamento              |
+| `canceledAt`  | Date     | ❌           | Data de cancelamento             |
+| `jobId`       | string   | ❌           | ID do job agendado               |
 
 ---
 
 ## 💬 Chat (`Chat`)
-| Campo           | Tipo     | Descrição                        |
-|----------------|----------|----------------------------------|
-| `id`           | PK       | Identificador único              |
-| `user_id`      | FK       | Referência ao usuário            |
-| `first_message`| string   | Primeira mensagem do chat        |
-| `finished_at`  | datetime | Data de finalização              |
-| `created_at`   | datetime | Data de criação                  |
-| `updated_at`   | datetime | Data de atualização              |
+| Campo          | Tipo           | Obrigatório | Descrição                        |
+|----------------|----------------|-------------|----------------------------------|
+| `id`           | string         | ✅           | Identificador único              |
+| `userId`       | string         | ✅           | Referência ao usuário            |
+| `interactions` | Interaction[]  | ✅           | Lista de interações              |
+| `firstMessage` | string         | ✅           | Primeira mensagem do chat        |
+| `createdAt`    | Date           | ✅           | Data de criação                  |
 
 ---
 
 ## 🤖 Interação (`Interaction`)
-| Campo           | Tipo     | Descrição                        |
-|----------------|----------|----------------------------------|
-| `id`           | PK       | Identificador único              |
-| `chat_id`      | FK       | Referência ao chat               |
-| `user_id`      | FK       | Referência ao usuário            |
-| `request`      | text     | Texto da requisição              |
-| `response`     | text     | Texto da resposta                |
-| `is_regenerated` | bool   | Indica se foi regenerada         |
-| `created_at`   | datetime | Data de criação                  |
-| `updated_at`   | datetime | Data de atualização              |
+| Campo          | Tipo     | Obrigatório | Descrição                        |
+|----------------|----------|-------------|----------------------------------|
+| `_id`          | string   | ✅           | Identificador único              |
+| `request`      | string   | ✅           | Texto da requisição              |
+| `response`     | string   | ✅           | Texto da resposta                |
+| `isRegenerated`| boolean  | ✅           | Indica se foi regenerada         |
 
 ---
 
