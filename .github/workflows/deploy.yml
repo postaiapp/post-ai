@@ -89,7 +89,7 @@ jobs:
         working-directory: apps/server
 
       - name: Run E2E Tests
-        run: docker exec server_app-test_1 yarn test:e2e
+        run: docker exec server-app-test-1 yarn test:e2e
 
       - name: Stop containers
         if: always()
