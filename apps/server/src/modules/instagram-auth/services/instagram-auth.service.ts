@@ -28,7 +28,7 @@ export class InstagramAuthService {
 		});
 
 		if (!user) {
-			throw new NotFoundException('User not found');
+			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
 		const existingAccount = await this.userModel
@@ -63,7 +63,7 @@ export class InstagramAuthService {
 			return this.addAccount(data, meta);
 		}
 
-		throw new BadRequestException('Account already exists');
+		throw new BadRequestException('ACCOUNT_ALREADY_EXISTS');
 	}
 
 	async getToken(): Promise<Session> {
@@ -202,7 +202,7 @@ export class InstagramAuthService {
 			.lean();
 
 		if (!newUser) {
-			throw new BadRequestException('Error adding account');
+			throw new BadRequestException('ERROR_ADDING_ACCOUNT');
 		}
 
 		return {
@@ -259,7 +259,7 @@ export class InstagramAuthService {
 			.lean();
 
 		if (!newUser) {
-			throw new BadRequestException('User not found');
+			throw new BadRequestException('USER_NOT_FOUND');
 		}
 
 		return {

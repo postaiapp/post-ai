@@ -85,16 +85,16 @@ export function validate(config: Record<string, unknown>) {
 		enableImplicitConversion: true,
 	});
 
+	if (validatedConfig.NODE_ENV === Environment.Test) {
+		return config;
+	}
+
 	const errors = validateSync(validatedConfig, {
 		skipMissingProperties: false,
 	});
 
 	if (errors.length > 0) {
 		throw new Error(errors.toString());
-	}
-
-	if (validatedConfig.NODE_ENV === Environment.Test) {
-		throw new Error('You are trying to run tests on a non-test database');
 	}
 
 	return validatedConfig;

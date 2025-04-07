@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { ExceptionResponse } from '@type/error';
 
 export const mappingIntegrationsErrors = (error: any, username?: string): ExceptionResponse => {
@@ -8,8 +8,8 @@ export const mappingIntegrationsErrors = (error: any, username?: string): Except
 		IgLoginRequiredError: {
 			logger: `Login failed for user ${username}: Challenge required. Please verify your Instagram account for any issues.`,
 			exceptionMessage: 'SESSION_REQUIRED',
-			status: HttpStatus.FORBIDDEN,
-			Exception: ForbiddenException,
+			status: HttpStatus.UNAUTHORIZED,
+			Exception: UnauthorizedException,
 		},
 		IgLoginBadPasswordError: {
 			logger: `Login failed for user ${username}: Bad Request.`,
