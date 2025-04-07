@@ -92,19 +92,61 @@ body {
   color: #ffffff;
 }
 
+/* Estiliza a barra de rolagem para navegadores Webkit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 12px; /* Largura da barra de rolagem */
+  width: 12px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #190041; /* Cor do "negócio" que mexe */
-  border-radius: 2px; /* Borda arredondada */
+  background-color: #98929a;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* Fundo transparente */
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:horizontal {
-  background-color: #190041;
+  background-color: #98929a;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #98929a;
+  border-radius: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:horizontal {
+  background-color: #98929a;
+  height: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #98929a;
+  border-radius: 10px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #98929a;
+}
+
+/* Para Firefox */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #98929a transparent;
 }

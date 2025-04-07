@@ -8,6 +8,7 @@ import * as bcryptjs from 'bcryptjs';
 import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../dto/auth.dto';
+import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
 	) {}
 
 	async authenticate({ email, password, res }: AuthenticateType) {
-		const user = await this.userModel.findOne({ email }, { email: 1, password: 1, name: 1, _id: 1 }).lean();
+		const user = await this.userModel.findOne({ email }).lean();
 
 		if (!user) {
 			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
@@ -27,28 +28,30 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
-		const doesPasswordMatch = await bcryptjs.compare(password, user.password);
+		const isValidPassword = await bcrypt.compare(password, user.password);
 
-		if (!doesPasswordMatch) {
+		if (!isValidPassword) {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
-		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
+		const accessToken = await this.generateToken({ user, expiresIn: '1d' });
 
 		const refreshToken = await this.generateToken({ user, expiresIn: '1d' });
+
+		const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 		res.cookie('refreshToken', refreshToken, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: 'lax',
-			maxAge: 24 * 60 * 60 * 1000, // 1 day
+			maxAge: DAY_IN_MILLISECONDS,
 			path: '/',
 		});
 
 		return {
 			user: {
-				name: user.name,
-				email: user.email,
+				...omit(user, 'password'),
+				id: user._id.toString(),
 			},
 			token: accessToken,
 		};
@@ -83,18 +86,18 @@ export class AuthService {
 	}
 
 	async register({ name, email, password }: RegisterDto) {
-		const alreadyUser = await this.userModel.findOne({ email });
+		const existsUser = await this.userModel.countDocuments({ email });
 
-		if (alreadyUser) {
+		if (existsUser) {
 			throw new UnauthorizedException('REGISTRATION_FAILED');
 		}
 
-		const password_hash = await bcryptjs.hash(password, 12);
+		const passwordHash = await bcrypt.hash(password, 12);
 
 		const newUser = await this.userModel.create({
 			name,
 			email,
-			password: password_hash,
+			password: passwordHash,
 		});
 
 		return {
@@ -106,10 +109,10 @@ export class AuthService {
 		};
 	}
 
-	async generateToken({ user, expiresIn }) {
+	generateToken({ user, expiresIn }) {
 		const payload = { userId: user._id, email: user.email };
 
-		return await this.jwtService.signAsync(payload, {
+		return this.jwtService.signAsync(payload, {
 			secret: this.config.get('JWT_SECRET'),
 			expiresIn,
 		});

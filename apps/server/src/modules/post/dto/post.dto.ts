@@ -1,7 +1,7 @@
-import { Escape } from 'class-sanitizer';
-import { Transform, TransformFnParams } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf } from 'class-validator';
-import * as sanitizeHtml from 'sanitize-html';
+import { Sanitize } from '@decorators/sanitize.decorator';
+import FileUtils from '@utils/file';
+import { Transform } from 'class-transformer';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUrl, ValidateIf, IsNumber } from 'class-validator';
 
 export class CreatePostDto {
 	@IsNotEmpty()
@@ -10,18 +10,18 @@ export class CreatePostDto {
 
 	@IsNotEmpty()
 	@IsString()
-	@Transform((params: TransformFnParams) => sanitizeHtml(params.value))
-	@Escape()
+	@Sanitize()
 	caption: string;
 
 	@IsOptional()
 	@IsString()
+	@Transform((obj) => obj.value && FileUtils.getUnsignedUrl(obj.value))
 	@IsUrl()
 	img: string;
 
 	@IsOptional()
 	@IsDate()
-	@Transform((obj) => new Date(obj.value))
+	@Transform((obj) => obj.value && new Date(obj.value))
 	post_date: Date;
 }
 
@@ -30,9 +30,16 @@ export class CancelPostQueryDto {
 	@IsNotEmpty()
 	@ValidateIf((obj) => !obj.username)
 	postId: string;
-
-	@IsString()
-	@IsNotEmpty()
-	@ValidateIf((obj) => !obj.postId)
-	username: string;
 }
+
+export class GetAllPostsQueryDto {
+	@IsOptional()
+	@IsNumber()
+	page: number;
+
+	@IsOptional()
+	@IsNumber()
+	limit: number;
+}
+
+

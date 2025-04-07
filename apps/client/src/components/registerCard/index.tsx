@@ -1,1 +1,1 @@
-export { default as Register } from "./registerCardContainer";
+export { default as Register } from './registerCardContainer';

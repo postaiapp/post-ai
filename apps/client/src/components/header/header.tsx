@@ -31,7 +31,7 @@ export default function Header({
 	setIsLogin,
 }: HeaderProps) {
 	return (
-		<div className="flex justify-between items-center w-full px-5 pt-1 border-b-2">
+		<div className="flex justify-between items-center w-full px-5 py-2 border-b-2">
 			<div className="flex items-center space-x-4">
 				<SidebarTrigger />
 				<Image src="/logo.png" alt="Logo" width={40} height={40} />
@@ -48,6 +48,7 @@ export default function Header({
 						}
 					}}
 				>
+					<DialogTitle></DialogTitle>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<CircleUserRound size={24} className="cursor-pointer" />

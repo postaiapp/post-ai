@@ -45,16 +45,24 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	AWS_SECRET_ACCESS_KEY: string;
+
+	@IsString()
+	@IsNotEmpty()
+	IDEOGRAM_API_KEY: string;
+
+	@IsString()
+	@IsNotEmpty()
+	IDEOGRAM_BASE_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {
-	if (process.env.NODE_ENV === Environment.Test) {
-		return config;
-	}
-
 	const validatedConfig = plainToInstance(EnvironmentVariables, config, {
 		enableImplicitConversion: true,
 	});
+
+	if (validatedConfig.NODE_ENV === Environment.Test) {
+		return config;
+	}
 
 	const errors = validateSync(validatedConfig, {
 		skipMissingProperties: false,
