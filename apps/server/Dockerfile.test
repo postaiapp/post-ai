@@ -10,7 +10,7 @@ RUN yarn install --immutable --check-cache
 
 COPY . .
 
-ENV NODE_OPTIONS="--max_old_space_size=2048"
+ENV NODE_OPTIONS="--max_old_space_size=4096"
 ENV UV_THREADPOOL_SIZE=8
 
 CMD ["yarn", "start"]

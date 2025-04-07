@@ -15,9 +15,22 @@ on:
       - 'apps/server/**'
 
 jobs:
+  cleanup:
+    name: Clean Up Previous Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop and remove previous containers
+        run: |
+          docker-compose -f docker-compose.yml down -v || true
+          docker container prune -f || true
+          docker volume prune -f || true
+      - name: Check running containers
+        run: docker ps -a
+
   sonarqube:
     name: Run SonarQube Analysis
     runs-on: ubuntu-latest
+    needs: cleanup
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -49,7 +62,7 @@ jobs:
   e2e-tests:
     name: Run E2E Tests
     runs-on: ubuntu-latest
-    needs: sonarqube
+    needs: [cleanup, sonarqube]
     services:
       mongodb:
         image: mongo:latest
@@ -78,10 +91,7 @@ jobs:
         working-directory: apps/server
 
       - name: Run E2E Tests
-        run: |
-          docker ps -a
-          docker logs server_app-test_1
-          docker exec server_app-test_1 yarn test:e2e
+        run: docker exec server_app-test_1 yarn test:e2e
 
       - name: Stop containers
         if: always()
