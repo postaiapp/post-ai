@@ -7,7 +7,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: test
     ports:
-      - "27017:27017"
+      - "0:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
       interval: 5s
