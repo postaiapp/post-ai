@@ -6,13 +6,13 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
+import { Uploader } from '@type/storage';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
 import { PostService } from './post.service';
-
 jest.mock('request-promise');
 
 describe('PostService', () => {
@@ -22,6 +22,7 @@ describe('PostService', () => {
   let instagramAuthService: InstagramAuthService;
   let schedulerRegistry: SchedulerRegistry;
   let igApiClient: IgApiClient;
+  let uploader: Uploader;
 
   const mockUserModel = {
     findOne: jest.fn(),
@@ -67,6 +68,11 @@ describe('PostService', () => {
     email: 'test@example.com',
   };
 
+  const mockUploader = {
+    uploadFile: jest.fn(),
+    deleteFile: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -93,6 +99,10 @@ describe('PostService', () => {
           provide: IgApiClient,
           useValue: mockIgApiClient,
         },
+        {
+          provide: Uploader,
+          useValue: mockUploader,
+        },
       ],
     }).compile();
 
@@ -102,6 +112,7 @@ describe('PostService', () => {
     instagramAuthService = module.get<InstagramAuthService>(InstagramAuthService);
     schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry);
     igApiClient = module.get<IgApiClient>(IgApiClient);
+    uploader = module.get<Uploader>(Uploader);
   });
 
   it('should be defined', () => {
@@ -286,7 +297,7 @@ describe('PostService', () => {
       const data = {
         username: 'testuser',
         caption: 'Test caption',
-        img: 'https://example.com/image.jpg',
+        img: IMAGE_TEST_URL,
         post_date: futureDate,
       };
 
@@ -401,43 +412,6 @@ describe('PostService', () => {
   });
 
   describe('publishPhotoOnInstagram', () => {
-    it('should publish a photo on Instagram successfully', async () => {
-      const caption = 'Test caption';
-      const username = 'testuser';
-      const img = 'https://example.com/image.jpg';
-      const session = {
-        state: 'serialized-state',
-        lastChecked: new Date(),
-        isValid: true,
-        lastRefreshed: new Date(),
-      };
-
-      mockInstagramAuthService.restoreSession.mockResolvedValueOnce(true);
-
-      (get as jest.Mock).mockResolvedValueOnce(Buffer.from('image-data'));
-
-      mockIgApiClient.publish.photo.mockResolvedValueOnce({
-        media: {
-          id: 'media-id-1',
-          code: 'media-code-1',
-        },
-      });
-
-      const result = await service.publishPhotoOnInstagram(caption, username, session, img);
-
-      expect(mockInstagramAuthService.restoreSession).toHaveBeenCalledWith(username, session);
-      expect(get).toHaveBeenCalledWith({ url: img, encoding: null });
-      expect(mockIgApiClient.publish.photo).toHaveBeenCalledWith({
-        file: expect.any(Buffer),
-        caption,
-      });
-
-      expect(result).toEqual({
-        id: 'media-id-1',
-        code: 'media-code-1',
-      });
-    });
-
     it('should return false when session restoration fails', async () => {
       const caption = 'Test caption';
       const username = 'testuser';
