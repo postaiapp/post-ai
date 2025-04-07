@@ -152,8 +152,8 @@ export class PostService {
 			subject: 'Post agendado com sucesso 🗓️',
 			templateFile: 'scheduled-post.html',
 			data: {
-				postDate: dayjs(post.scheduledAt).format('DD/MM/YYYY'),
-				postHour: dayjs(post.scheduledAt).format('HH:mm'),
+				postDate: dayjs(date).subtract(3, 'hour').format('DD/MM/YYYY'),
+				postHour: dayjs(date).subtract(3, 'hour').format('HH:mm'),
 			}
 		});
 
@@ -176,6 +176,7 @@ export class PostService {
 	async scheduleCronJob(jobId: string, date: Date, publishParams: PublishedPostProps) {
 		const cronExpression = `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
 
+		console.log('cron expression', cronExpression);
 		const job = new CronJob(
 			cronExpression,
 			async () => {
@@ -257,6 +258,8 @@ export class PostService {
 		img: string
 	): Promise<{ id: string; code: string } | false> {
 		try {
+			this.logger.debug(`Publishing photo on Instagram from username: ${username}`, { caption });
+
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
 			if (!restored) {
