@@ -1,4 +1,5 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
@@ -7,6 +8,7 @@ import { AuthGuard } from './auth.guard';
 describe('AuthGuard', () => {
 	let guard: AuthGuard;
 	let jwtService: JwtService;
+	let configService: ConfigService;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -18,11 +20,21 @@ describe('AuthGuard', () => {
 						verifyAsync: jest.fn(),
 					},
 				},
+				{
+					provide: ConfigService,
+					useValue: {
+						get: jest.fn().mockImplementation((key) => {
+							if (key === 'JWT_SECRET') return 'test-secret';
+							return null;
+						}),
+					},
+				},
 			],
 		}).compile();
 
 		guard = module.get<AuthGuard>(AuthGuard);
 		jwtService = module.get<JwtService>(JwtService);
+		configService = module.get<ConfigService>(ConfigService);
 	});
 
 	it('should be defined', () => {

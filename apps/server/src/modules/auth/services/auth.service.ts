@@ -2,13 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '@schemas/user.schema';
 import { AuthenticateType } from '@type/auth';
 import * as bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
-import { Model } from 'mongoose';
-import { RegisterDto } from '../dto/auth.dto';
 import { omit } from 'lodash';
+import { Model } from 'mongoose';
+import { User } from '../../../schemas/user.schema';
+import { RegisterDto } from '../dto/auth.dto';
 
 @Injectable()
 export class AuthService {
