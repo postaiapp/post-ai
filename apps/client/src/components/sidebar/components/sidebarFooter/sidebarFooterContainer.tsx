@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { logout } from '@processes/auth';
 import userStore from '@stores/userStore';
 import { useQueryClient } from '@tanstack/react-query';
+import { getFormattedName } from '@utils/formatName';
 import { localStorageClear } from '@utils/storage';
 import { redirect, useRouter } from 'next/navigation';
 
@@ -13,7 +14,12 @@ import SidebarFooter from './sidebarFooter';
 const SidebarFooterContainer = () => {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const { setUser } = userStore();
+	const { setUser, user } = userStore();
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [firstName, _] = useMemo(() => {
+		return getFormattedName(user?.name ?? '');
+	}, [user?.name]);
 
 	const handleLogout = useCallback(async () => {
 		const response = await logout();
@@ -30,7 +36,13 @@ const SidebarFooterContainer = () => {
 		return router.push(`/settings`);
 	}, [router]);
 
-	return <SidebarFooter handleLogout={handleLogout} handleNavigateUserDetails={handleNavigateUserDetails} />;
+	return (
+		<SidebarFooter
+			handleLogout={handleLogout}
+			handleNavigateUserDetails={handleNavigateUserDetails}
+			userName={firstName}
+		/>
+	);
 };
 
 export default SidebarFooterContainer;

@@ -1,3 +1,5 @@
+'use client';
+
 import { Header, Sidebar } from '@components/index';
 import { SidebarProvider } from '@components/ui/sidebar';
 import { ToastContainer } from 'react-toastify';
