@@ -64,9 +64,11 @@ export const ActionsDropdown = ({ post }: { post: PostEntityWithDetails }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setIsSeeModalOpen(true)}>
-            Visualizar
-          </DropdownMenuItem>
+          {!!post.publishedAt && (
+            <DropdownMenuItem onClick={() => setIsSeeModalOpen(true)}>
+              Visualizar
+            </DropdownMenuItem>
+          )}
           {postCanBeCanceled &&  (
             <DropdownMenuItem
               onSelect={(e) => { e.preventDefault(); cancelPostMutation({ postId: post._id, username: post.account.username }) }
