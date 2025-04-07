@@ -61,6 +61,7 @@ CONTRIBUTING.m src/: Código-fonte do projeto.
 - [Documentação oficial do Next.js](https://nextjs.org/)
 - [Documentação oficial do Mongoose](https://mongoosejs.com/)
 - [Documentação oficial do NestJS](https://nestjs.com/)
+- [Canva da Apresentação](https://www.canva.com/design/DAGjxt-Uj0c/P-FXtcMRAY3evmCJkYoGQA/edit)
 
 ## ✅ Tarefas Iniciais
 - Configurar ambiente de desenvolvimento local.
