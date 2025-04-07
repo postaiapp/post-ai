@@ -104,6 +104,7 @@
 		"/src/types/",
 		"/src/utils/",
 		"/src/modules/image-generation/",
+		"/src/modules/text-generation/",
 		"/src/database/",
 		"/src/crons/",
 		"/src/config/",
@@ -128,7 +129,7 @@
 		"^@guards/(.*)$": "<rootDir>/guards/$1",
 		"^@decorators/(.*)$": "<rootDir>/decorators/$1",
 		"^@utils/(.*)$": "<rootDir>/utils/$1",
-		"^@type/(.*)$": "<rootDir>/type/$1",
+		"^@type/(.*)$": "<rootDir>/types/$1",
 		"^@constants/(.*)$": "<rootDir>/constants/$1"
 	}
   }
