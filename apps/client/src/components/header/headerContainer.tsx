@@ -7,10 +7,10 @@ import { InstagramAccountSchema } from '@common/schemas/instagramAccount';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useInstagramMutation } from '@hooks/useInstagramMutation';
 import { getUserInstagramAccounts } from '@processes/instagramAccount';
+import userStore from '@stores/userStore';
 import { useQuery } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import userStore from '@stores/userStore';
 import Header from './header';
 
 const HeaderContainer = () => {

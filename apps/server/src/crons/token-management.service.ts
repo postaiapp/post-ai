@@ -1,10 +1,12 @@
+import { EmailService } from '@common/providers/email.service';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InstagramAccount } from '@schemas/instagram-account.schema';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
+import { getHtmlPath } from '@utils/email';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -15,6 +17,7 @@ export class TokenManagementCron {
 
 	constructor(
 		private readonly instagramAuthService: InstagramAuthService,
+		private readonly emailService: EmailService,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		@InjectModel(Post.name) private readonly postModel: Model<Post>
 	) {}
@@ -104,7 +107,22 @@ export class TokenManagementCron {
 	}
 
 	async notifyUserAboutTokenRefresh(userId: string) {
-		//TODO: Implement notification system for user about token refresh EMAIL or SMS
-		this.logger.error(`User ${userId} needs token refresh`);
+		const user = await this.userModel.findById(userId);
+
+		if (!user) {
+			this.logger.error(`User with ID ${userId} not found`);
+			throw new NotFoundException(`USER_NOT_FOUND`);
+		}
+
+		const html = await getHtmlPath('token-expired.html')
+
+		await this.emailService.send({
+			to: user.email,
+			subject: 'Sessão do Instagram possivelmente expirada',
+			html,
+		});
+
+		this.logger.log(`Notification email sent to user ${userId}`);
+		return true
 	}
 }
