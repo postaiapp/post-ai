@@ -1,4 +1,5 @@
 import { Pagination } from '@common/dto/pagination.dto';
+import { EmailService } from '@common/providers/email.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -16,6 +17,12 @@ describe('PostController', () => {
     getUserPostsWithDetails: jest.fn(),
   };
 
+  const mockEmailService = {
+    send: jest.fn().mockResolvedValue(true),
+    sendEmail: jest.fn(),
+    sendPostPublishedEmail: jest.fn(),
+  };
+
   const mockMeta = {
     userId: '507f1f77bcf86cd799439011',
     email: 'test@example.com'
@@ -28,6 +35,10 @@ describe('PostController', () => {
         {
           provide: PostService,
           useValue: mockPostService,
+        },
+        {
+          provide: EmailService,
+          useValue: mockEmailService,
         },
         {
           provide: JwtService,
@@ -54,7 +65,7 @@ describe('PostController', () => {
   });
 
   describe('create', () => {
-    it('deve chamar o serviço para criar um post', async () => {
+    it('should call the service to create a post', async () => {
       const createPostDto: CreatePostDto = {
         username: 'instagramuser',
         caption: 'My awesome post! 🌟',
@@ -76,9 +87,9 @@ describe('PostController', () => {
   });
 
   describe('cancel', () => {
-    it('deve chamar o serviço para cancelar um post agendado', async () => {
+    it('should call the service to cancel a scheduled post', async () => {
       const postId = '507f1f77bcf86cd799439011';
-      const expectedResult = { success: true, message: 'Post cancelado com sucesso' };
+      const expectedResult = { success: true, message: 'Post canceled successfully' };
       
       mockPostService.cancelScheduledPost.mockResolvedValue(expectedResult);
 
@@ -93,15 +104,14 @@ describe('PostController', () => {
   });
 
   describe('getUserPosts', () => {
-    it('deve chamar o serviço para obter os posts do usuário', async () => {
+    it('should call the service to get user posts', async () => {
       const pagination: Pagination = { page: 1, perPage: 10, offset: 0 };
       const expectedResult = {
         data: [
           {
             id: '123',
             username: 'instagramuser',
-			
-			email: 'test@example.com',
+            email: 'test@example.com',
             caption: 'My awesome post! 🌟',
             img: 'https://example.com/image.jpg',
             post_date: new Date('2024-03-20T10:00:00Z'),

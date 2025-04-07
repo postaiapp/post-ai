@@ -1,3 +1,4 @@
+import { EmailService } from '@common/providers/email.service';
 import { IMAGE_TEST_URL } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -23,6 +24,7 @@ describe('PostService', () => {
   let schedulerRegistry: SchedulerRegistry;
   let igApiClient: IgApiClient;
   let uploader: Uploader;
+  let emailService: EmailService;
 
   const mockUserModel = {
     findOne: jest.fn(),
@@ -73,6 +75,11 @@ describe('PostService', () => {
     deleteFile: jest.fn(),
   };
 
+  const mockEmailService = {
+    sendEmail: jest.fn(),
+    sendPostPublishedEmail: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -86,6 +93,10 @@ describe('PostService', () => {
         {
           provide: getModelToken(Post.name),
           useValue: mockPostModel,
+        },
+        {
+          provide: EmailService,
+          useValue: mockEmailService,
         },
         {
           provide: InstagramAuthService,
@@ -113,6 +124,7 @@ describe('PostService', () => {
     schedulerRegistry = module.get<SchedulerRegistry>(SchedulerRegistry);
     igApiClient = module.get<IgApiClient>(IgApiClient);
     uploader = module.get<Uploader>(Uploader);
+    emailService = module.get<EmailService>(EmailService);
   });
 
   it('should be defined', () => {
@@ -320,6 +332,8 @@ describe('PostService', () => {
         jobId: `post_testuser_${futureDate.getTime()}`,
       });
 
+      jest.spyOn(service, 'sendEmailToUser').mockResolvedValueOnce(true);
+      
       jest.spyOn(service, 'scheduleCronJob').mockResolvedValueOnce(undefined);
 
       const result = await service.schedulePost({ data, meta: mockMeta });
