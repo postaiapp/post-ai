@@ -11,7 +11,7 @@ import {
 } from '@components/ui/sidebar';
 import { ChevronUp, LogOut, Settings, User2 } from 'lucide-react';
 
-export default function SidebarFooter({ handleLogout, handleNavigateUserDetails }: SideBarFooterProps) {
+export default function SidebarFooter({ handleLogout, handleNavigateUserDetails, userName }: SideBarFooterProps) {
 	return (
 		<UiSidebarFooter>
 			<SidebarMenu>
@@ -30,7 +30,7 @@ export default function SidebarFooter({ handleLogout, handleNavigateUserDetails 
 									variant="outline"
 									onClick={handleNavigateUserDetails}
 								>
-									<User2 /> Conta
+									<User2 /> {userName}
 								</Button>
 							</DropdownMenuItem>
 							<DropdownMenuItem>
