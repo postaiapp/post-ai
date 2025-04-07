@@ -1,7 +1,7 @@
 import { Pagination } from '@common/dto/pagination.dto';
 import { AuthGuard } from '@guards/auth.guard';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateChatDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
+import { CreateChatDto, GenerateCaptionParamsDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 import { ChatsController } from './chats.controller';
 
@@ -19,6 +19,7 @@ describe('ChatsController', () => {
     regenerateMessage: jest.fn(),
     listChatInteractions: jest.fn(),
     listUserChats: jest.fn(),
+    generateCaption: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -236,6 +237,55 @@ describe('ChatsController', () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         code: '500',
         message: 'Falha ao listar chats',
+        status: 'error',
+      });
+    });
+  });
+
+  describe('generateCaption', () => {
+    it('should generate a caption successfully', async () => {
+      const params: GenerateCaptionParamsDto = {
+        chatId: 'chat-id-1',
+      };
+      
+      const meta = { userId: 'user-id-1', email: 'user@example.com' };
+      const serviceResponse = { caption: 'Uma legenda gerada para sua imagem' };
+      
+      mockChatsService.generateCaption.mockResolvedValue(serviceResponse);
+      
+      await controller.generateCaption(params, meta, mockResponse as any);
+      
+      expect(service.generateCaption).toHaveBeenCalledWith({
+        filter: params,
+        meta,
+      });
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        data: serviceResponse,
+        status: 'success',
+      });
+    });
+
+    it('should handle errors when generating a caption', async () => {
+      const params: GenerateCaptionParamsDto = {
+        chatId: 'chat-id-1',
+      };
+      
+      const meta = { userId: 'user-id-1', email: 'user@example.com' };
+      const error = new Error('Falha ao gerar legenda');
+      
+      mockChatsService.generateCaption.mockRejectedValue(error);
+      
+      await controller.generateCaption(params, meta, mockResponse as any);
+      
+      expect(service.generateCaption).toHaveBeenCalledWith({
+        filter: params,
+        meta,
+      });
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        code: '500',
+        message: 'Falha ao gerar legenda',
         status: 'error',
       });
     });
