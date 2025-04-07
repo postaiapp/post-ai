@@ -70,7 +70,7 @@ export default function Header({
 							<DialogTrigger asChild>
 								<DropdownMenuItem className="flex items-center gap-4">
 									<Instagram size={20} color="purple" />
-									<span className="text-sm">Add instagram account</span>
+									<span className="text-sm">Adicionar conta do Instagram</span>
 								</DropdownMenuItem>
 							</DialogTrigger>
 						</DropdownMenuContent>

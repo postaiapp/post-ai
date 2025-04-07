@@ -19,7 +19,7 @@ export default function SidebarFooter({ handleLogout, handleNavigateUserDetails 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<SidebarMenuButton>
-								<Settings /> Settings
+								<Settings /> Configurações
 								<ChevronUp className="ml-auto" />
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
@@ -30,12 +30,12 @@ export default function SidebarFooter({ handleLogout, handleNavigateUserDetails 
 									variant="outline"
 									onClick={handleNavigateUserDetails}
 								>
-									<User2 /> Account
+									<User2 /> Conta
 								</Button>
 							</DropdownMenuItem>
 							<DropdownMenuItem>
 								<Button className="text-xs w-full" onClick={handleLogout}>
-									<LogOut className="h-3 w-3 text-zinc-200" /> Logout
+									<LogOut className="h-3 w-3 text-zinc-200" /> Sair
 								</Button>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
