@@ -1,16 +1,16 @@
 'use client';
 
-import { AuthLoginType, AuthCardProps } from '@common/interfaces/auth';
+import { AuthCardProps, AuthLoginType } from '@common/interfaces/auth';
 import { LoginSchema } from '@common/schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLoginMutation } from '@hooks/useLoginMutation';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { redirect } from 'next/navigation';
-import { useEffect } from 'react';
 
 import LoginCard from './loginCard';
 
 const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
+	const router = useRouter();
 	const {
 		register,
 		handleSubmit,
@@ -19,17 +19,11 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 		resolver: zodResolver(LoginSchema),
 	});
 
-	const { mutate: loginUser, isPending, isSuccess } = useLoginMutation();
+	const { mutate: loginUser, isPending } = useLoginMutation(router);
 
 	const onSubmit = (data: AuthLoginType) => {
 		loginUser(data);
 	};
-
-	useEffect(() => {
-		if (isSuccess) {
-			redirect('/chat');
-		}
-	}, [isSuccess]);
 
 	return (
 		<LoginCard
