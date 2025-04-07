@@ -1,4 +1,3 @@
-import { localStorageClear } from '@utils/storage';
 import dayjs from 'dayjs';
 import { jwtDecode } from 'jwt-decode';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -31,7 +30,6 @@ export function middleware(request: NextRequest) {
 		const redirectUrl = request.nextUrl.clone();
 		redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
 
-		localStorageClear();
 		return NextResponse.redirect(redirectUrl);
 	}
 
@@ -71,7 +69,8 @@ export const config = {
 		 * - favicon.ico, sitemap.xml, robots.txt (metadata files)
 		 */
 		'/chat/:path*',
-		'/profile/:path*',
+		'/history/:path*',
 		'/settings/:path*',
+		'/post-details/:path*',
 	],
 };

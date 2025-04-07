@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@schemas/user.schema';
 import { AuthenticateType } from '@type/auth';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { RegisterDto } from '../dto/auth.dto';

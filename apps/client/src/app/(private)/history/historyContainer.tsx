@@ -2,7 +2,7 @@
 import { PostEntityWithDetails } from '@common/interfaces/post';
 import { getUserPostsWithDetails } from '@processes/post';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
+import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import { useState } from 'react';
 import { HistoryUi } from './historyUi';
 
@@ -48,7 +48,7 @@ const HistoryContainer = () => {
 		});
 	};
 
-	const totalPages = data ? Math.ceil(data.data.meta.total / pageSize) : 0;
+	const totalPages = data ? Math.ceil(data?.data?.meta?.total / pageSize) : 0;
 	const hasNextPage = currentPage < totalPages;
 	const hasPreviousPage = currentPage > 1;
 
@@ -72,11 +72,11 @@ const HistoryContainer = () => {
 
 	return (
 		<HistoryUi
-			totalItems={data?.data.meta.total ?? 0}
+			totalItems={data?.data?.meta?.total ?? 0}
 			isError={isError}
 			isPending={isPending}
 			allPagesLoaded={!hasNextPage}
-			allPagesData={data?.data.data ?? []}
+			allPagesData={data?.data?.data ?? []}
 			pageSize={pageSize}
 			sorting={sorting}
 			columnFilters={columnFilters}

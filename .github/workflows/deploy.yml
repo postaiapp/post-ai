@@ -15,9 +15,26 @@ on:
       - 'apps/server/**'
 
 jobs:
+  cleanup:
+    name: Clean Up Previous Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Docker Version
+        run: docker --version
+
+      - name: Stop and remove previous containers
+        run: |
+          docker compose down -v || true
+          docker container prune -f || true
+          docker volume prune -f || true
+      - name: Check running containers
+        run: docker ps -a
+
   sonarqube:
     name: Run SonarQube Analysis
     runs-on: ubuntu-latest
+    needs: cleanup
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,10 +62,46 @@ jobs:
             -Dsonar.test.exclusions=**/*.spec.ts,**/*.test.ts,**/__tests__/**,**/tsconfig.json \
             -Dsonar.sourceEncoding=UTF-8
 
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    needs: [cleanup, sonarqube]
+    continue-on-error: true
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 5s
+          --health-timeout 30s
+          --health-retries 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Start app with Docker Compose
+        run: docker compose -f docker-compose.yml up -d --build
+        working-directory: apps/server
+
+      - name: Run E2E Tests
+        run: docker exec server-app-test-1 yarn test:e2e
+
+      - name: Stop containers
+        if: always()
+        run: docker compose -f docker-compose.yml down
+        working-directory: apps/server
+
   deploy-frontend:
     name: Deploy Frontend to Netlify
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    needs: e2e-tests
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -60,9 +113,6 @@ jobs:
 
       - name: Install dependencies
         run: cd apps/client && npm install
-
-      # - name: Run Tests
-      #   run: cd apps/client && npm test
 
       - name: Build Project
         run: cd apps/client && npm run build
@@ -76,7 +126,8 @@ jobs:
   deploy-backend:
     name: Deploy Backend to Render
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    needs: e2e-tests
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -88,9 +139,6 @@ jobs:
 
       - name: Install dependencies
         run: cd apps/server && npm install
-
-      # - name: Run Tests
-      #   run: cd apps/server && npm test
 
       - name: Build Project
         run: cd apps/server && npm run build

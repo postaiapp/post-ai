@@ -1,11 +1,11 @@
+import { mappingIntegrationsErrors } from '@constants/errors';
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
 import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from '../services/instagram-auth.service';
-import { mappingIntegrationsErrors } from '@constants/errors';
-import { ApiTags, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('Instagram')
 @ApiBearerAuth()

@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mongodb-test:
+    image: mongo:latest
+    container_name: mongodb-test
+    environment:
+      MONGO_INITDB_DATABASE: test
+    ports:
+      - "0:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      mongodb-test:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://mongodb-test:27017/test
+      NODE_ENV: test
+    command: ["yarn", "start"]
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 2g
+    mem_limit: 4g
