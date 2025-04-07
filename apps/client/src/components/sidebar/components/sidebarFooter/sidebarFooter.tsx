@@ -19,7 +19,7 @@ export default function SidebarFooter({ handleLogout, handleNavigateUserDetails,
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<SidebarMenuButton>
-								<Settings /> Settings
+								<Settings /> Configurações
 								<ChevronUp className="ml-auto" />
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
