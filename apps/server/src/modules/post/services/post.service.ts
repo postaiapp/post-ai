@@ -1,3 +1,4 @@
+import { EmailService } from '@common/providers/email.service';
 import { TIME_ZONE } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
 import { Uploader } from '@type/storage';
+import { getHtmlPath } from '@utils/email';
 import { CronJob } from 'cron';
 import * as dayjs from 'dayjs';
 import { IgApiClient } from 'instagram-private-api';
@@ -24,6 +26,7 @@ export class PostService {
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		@InjectModel(Post.name) private readonly postModel: Model<Post>,
+		private readonly emailService: EmailService,
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
 		private schedulerRegistry: SchedulerRegistry,
@@ -144,10 +147,30 @@ export class PostService {
 			session: instagramAccount.session,
 		});
 
+		await this.sendEmailToUser({
+			to: meta.email,
+			subject: 'Post agendado com sucesso 🗓️',
+			templateFile: 'scheduled-post.html',
+			data: {
+				postDate: dayjs(post.scheduledAt).format('DD/MM/YYYY'),
+				postHour: dayjs(post.scheduledAt).format('HH:mm'),
+			}
+		});
+
 		return {
 			scheduled_date: date,
 			post_id: post._id.toString(),
 		};
+	}
+
+	async sendEmailToUser({ to, subject, templateFile, data }: { to: string; subject: string; templateFile: string, data: Record<string, unknown> }) {
+		const html = await getHtmlPath(templateFile, data);
+
+		return await this.emailService.send({
+			to,
+			subject,
+			html,
+		});
 	}
 
 	async scheduleCronJob(jobId: string, date: Date, publishParams: PublishedPostProps) {

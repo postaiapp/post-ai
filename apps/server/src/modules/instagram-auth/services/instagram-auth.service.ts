@@ -1,17 +1,16 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
 import { InstagramAccount } from '@type/instagram-account';
 import { Meta } from '@type/meta';
+import { Uploader } from '@type/storage';
+import FileUtils from '@utils/file';
 import axios from 'axios';
+import * as dayjs from 'dayjs';
 import { IgApiClient } from 'instagram-private-api';
 import { Model } from 'mongoose';
-import * as dayjs from 'dayjs';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
-import FileUtils from '@utils/file';
-import { Uploader } from '@type/storage';
-import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class InstagramAuthService {
@@ -29,7 +28,7 @@ export class InstagramAuthService {
 		});
 
 		if (!user) {
-			throw new NotFoundException('User not found');
+			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
 		const existingAccount = await this.userModel
@@ -64,7 +63,7 @@ export class InstagramAuthService {
 			return this.addAccount(data, meta);
 		}
 
-		throw new BadRequestException('Account already exists');
+		throw new BadRequestException('ACCOUNT_ALREADY_EXISTS');
 	}
 
 	async getToken(): Promise<Session> {
@@ -121,7 +120,7 @@ export class InstagramAuthService {
 			session,
 		};
 
-		await this.userModel
+		const newUser = await this.userModel
 			.findOneAndUpdate(
 				{
 					_id: meta?.userId,
@@ -133,11 +132,15 @@ export class InstagramAuthService {
 					$set: {
 						'InstagramAccounts.$': accountData,
 					},
+				},
+				{
+					new: true
 				}
 			)
 			.lean();
 
 		return {
+			newUser,
 			username: account.username,
 			fullName: account.full_name,
 			biography: account.biography,
@@ -199,7 +202,7 @@ export class InstagramAuthService {
 			.lean();
 
 		if (!newUser) {
-			throw new BadRequestException('Error adding account');
+			throw new BadRequestException('ERROR_ADDING_ACCOUNT');
 		}
 
 		return {
@@ -256,11 +259,11 @@ export class InstagramAuthService {
 			.lean();
 
 		if (!newUser) {
-			throw new BadRequestException('User not found');
+			throw new BadRequestException('USER_NOT_FOUND');
 		}
 
 		return {
-			instagramAccounts: newUser.InstagramAccounts,
+			newUser
 		};
 	}
 }

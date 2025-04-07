@@ -53,6 +53,31 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	IDEOGRAM_BASE_URL: string;
+
+	@IsString()
+	@IsOptional()
+	EMAIL_API_KEY_RESEND: string;
+
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_USER: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_HOST: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_PASS: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_PORT: string;
+
+	@IsString()
+	@IsNotEmpty()
+	EMAIL_SECURE: string;
 }
 
 export function validate(config: Record<string, unknown>) {
@@ -60,16 +85,16 @@ export function validate(config: Record<string, unknown>) {
 		enableImplicitConversion: true,
 	});
 
+	if (validatedConfig.NODE_ENV === Environment.Test) {
+		return config;
+	}
+
 	const errors = validateSync(validatedConfig, {
 		skipMissingProperties: false,
 	});
 
 	if (errors.length > 0) {
 		throw new Error(errors.toString());
-	}
-
-	if (validatedConfig.NODE_ENV === Environment.Test) {
-		throw new Error('You are trying to run tests on a non-test database');
 	}
 
 	return validatedConfig;

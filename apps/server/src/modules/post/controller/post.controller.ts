@@ -1,19 +1,23 @@
-import { Meta } from '@decorators/meta.decorator';
-import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Post, Query, UseGuards, Get, Param } from '@nestjs/common';
-import { Meta as MetaType } from '@type/meta';
-import { CancelPostQueryDto, CreatePostDto, GetAllPostsQueryDto } from '../dto/post.dto';
-import { PostService } from '../services/post.service';
-import { Paginate } from '@decorators/pagination.decorator';
 import { Pagination } from '@common/dto/pagination.dto';
-import { ApiTags, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import { EmailService } from '@common/providers/email.service';
+import { Meta } from '@decorators/meta.decorator';
+import { Paginate } from '@decorators/pagination.decorator';
+import { AuthGuard } from '@guards/auth.guard';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
+import { Meta as MetaType } from '@type/meta';
+import { CreatePostDto } from '../dto/post.dto';
+import { PostService } from '../services/post.service';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('posts')
 export class PostController {
-	constructor(private readonly postService: PostService) {}
+	constructor(
+		private readonly postService: PostService,
+		private readonly emailService: EmailService
+	) {}
 
 	@Post()
 	@ApiBody({

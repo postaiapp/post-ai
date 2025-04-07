@@ -1,5 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '@schemas/user.schema';
 import { Meta } from '@type/meta';
@@ -8,6 +10,7 @@ import { IgApiClient } from 'instagram-private-api';
 import { Model, Types } from 'mongoose';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
 import { InstagramAuthService } from './instagram-auth.service';
+import { ObjectId } from 'mongodb';
 
 describe('InstagramAuthService', () => {
   let service: InstagramAuthService;

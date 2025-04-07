@@ -24,8 +24,13 @@ export class PublishedMissedPostsCron {
 
 		const postsScheduledMissed = await this.getPostsMissed();
 
+		if (isEmpty(postsScheduledMissed)) {
+			this.logger.log('No missed posts found');
+			return;
+		}
+
 		await Promise.all(
-			postsScheduledMissed.map(async (post) => {
+			postsScheduledMissed?.map(async (post) => {
 				const { userId, accountId, caption, imageUrl } = post;
 
 				const user = await this.userModel.findOne(
@@ -38,6 +43,14 @@ export class PublishedMissedPostsCron {
 
 				if (!user || isEmpty(user.InstagramAccounts)) {
 					this.logger.warn(`No Instagram account found for user ${userId}`);
+
+					await this.postModel.updateOne(
+						{ _id: post._id },
+						{
+							failedToPost: true,
+						}
+					);
+
 					return;
 				}
 
@@ -46,11 +59,6 @@ export class PublishedMissedPostsCron {
 				const { username, session } = account;
 
 				const isPosted = await this.postService.publishPhotoOnInstagram(caption, username, session, imageUrl);
-
-				if (!isPosted) {
-					this.logger.warn(`Failed to publish post ${post._id}`);
-					return;
-				}
 
 				const changes = isPosted ? {
 					publishedAt: dayjs().toDate()
@@ -71,7 +79,7 @@ export class PublishedMissedPostsCron {
 	}
 
 	async getPostsMissed() {
-		const postsScheduledMissed = await this.postModel
+		return await this.postModel
 			.find({
 				scheduledAt: {
 					$lt: dayjs().toDate(),
@@ -83,12 +91,5 @@ export class PublishedMissedPostsCron {
 				},
 			})
 			.lean();
-
-		if (isEmpty(postsScheduledMissed)) {
-			this.logger.log('No missed posts found');
-			return;
-		}
-
-		return postsScheduledMissed
 	}
 }

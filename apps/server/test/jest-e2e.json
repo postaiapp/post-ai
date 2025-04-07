@@ -2,8 +2,26 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": ".*\\.e2e-spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "setupFilesAfterEnv": ["./setup.ts"],
+  "testTimeout": 60000,
+  "moduleNameMapper": {
+    "^@config/(.*)$": "<rootDir>/../src/config/$1",
+    "^@crons/(.*)$": "<rootDir>/../src/crons/$1",
+    "^@database/(.*)$": "<rootDir>/../src/database/$1",
+    "^@utils/(.*)$": "<rootDir>/../src/utils/$1",
+    "^@middlewares/(.*)$": "<rootDir>/../src/middlewares/$1",
+    "^@common/(.*)$": "<rootDir>/../src/common/$1",
+    "^@auth/(.*)$": "<rootDir>/../src/modules/auth$1",
+    "^@modules/(.*)$": "<rootDir>/../src/modules/$1",
+    "^@storages/(.*)$": "<rootDir>/../src/storages/$1",
+    "^@guards/(.*)$": "<rootDir>/../src/guards/$1",
+    "^@schemas/(.*)$": "<rootDir>/../src/schemas/$1",
+    "^@constants/(.*)$": "<rootDir>/../src/constants/$1",
+    "^@decorators/(.*)$": "<rootDir>/../src/decorators/$1",
+    "^@type/(.*)$": "<rootDir>/../src/types/$1"
   }
 }
