@@ -68,6 +68,7 @@ export const config = {
 		 * - _next/image (image optimization files)
 		 * - favicon.ico, sitemap.xml, robots.txt (metadata files)
 		 */
+		'/auth',
 		'/chat/:path*',
 		'/history/:path*',
 		'/settings/:path*',
