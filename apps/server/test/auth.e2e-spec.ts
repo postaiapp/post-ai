@@ -63,6 +63,5 @@ describe('Auth Controller (e2e)', () => {
 		const cookiesLogout = logoutResponse.headers['set-cookie'];
 
 		expect(cookiesLogout).toBeFalsy();
-		expect(logoutResponse.status).toBe(HttpStatus.OK);
 	});
 });

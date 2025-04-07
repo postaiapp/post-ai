@@ -31,3 +31,4 @@ services:
           memory: 2g
         reservations:
           memory: 1g
+    mem_limit: 1g
