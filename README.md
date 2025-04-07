@@ -57,11 +57,8 @@ CONTRIBUTING.m src/: Código-fonte do projeto.
 3. Execute o ambiente de desenvolvimento: npm run dev.
 
 ## 🔗 Links Importantes
-- [Documentação oficial do useQuery](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
-- [Documentação oficial do Next.js](https://nextjs.org/)
-- [Documentação oficial do Mongoose](https://mongoosejs.com/)
-- [Documentação oficial do NestJS](https://nestjs.com/)
 - [Canva da Apresentação](https://www.canva.com/design/DAGjxt-Uj0c/P-FXtcMRAY3evmCJkYoGQA/edit)
+- [Figma](https://www.figma.com/design/wI0yjUivakaf1a5knofsVH/Site-Teteu?node-id=0-1&t=c5wrdlrVQ9qxHEvo-1 )
 
 ## ✅ Tarefas Iniciais
 - Configurar ambiente de desenvolvimento local.
