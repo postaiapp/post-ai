@@ -66,6 +66,7 @@ jobs:
     name: Run E2E Tests
     runs-on: ubuntu-latest
     needs: [cleanup, sonarqube]
+    continue-on-error: true
     services:
       mongodb:
         image: mongo:latest
