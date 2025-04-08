@@ -134,6 +134,8 @@ export class PostService {
 			userId: meta.userId,
 			canceledAt: null,
 			publishedAt: null,
+			code: null,
+			postId: null,
 			jobId,
 			scheduledAt: post_date || null,
 		};
@@ -305,7 +307,7 @@ export class PostService {
 				})) ?? [];
 
 			return {
-				code: mediaInfo.code,
+				code: post.code || mediaInfo.code,
 				caption: mediaInfo.caption.text,
 				engagement: {
 					hasLiked: mediaInfo.has_liked,
