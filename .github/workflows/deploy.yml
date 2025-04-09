@@ -111,7 +111,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: cd apps/client && npm install
+        run: cd apps/client && npm install --legacy-peer-deps
 
       - name: Build Project
         run: cd apps/client && npm run build
@@ -144,13 +144,6 @@ jobs:
 
       - name: Deploy to Render
         env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          export API_KEY="$RENDER_API_KEY"
-          export SERVICE_ID="$RENDER_SERVICE_ID"
-          curl -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
-            -H "Authorization: Bearer $API_KEY" \
-            -H "Accept: application/json" \
-            -H "Content-Type: application/json" \
-            -d '{"clearCache": false}'
+          curl "$deploy_url"
