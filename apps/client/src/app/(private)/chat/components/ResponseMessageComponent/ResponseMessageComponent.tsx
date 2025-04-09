@@ -3,18 +3,19 @@ import { useEffect, useState } from 'react';
 
 import { Interaction } from '@common/interfaces/chat';
 import { Button } from '@components/button';
-import { AlertCircle, RefreshCw, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@components/ui/dialog';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { getErrorMessage } from '../../utils';
-import { useRouter } from 'next/navigation';
 
 export const ResponseMessageComponent = ({
 	response,
 	onRegenerate,
 	onRegenerateDisabled,
 	isLastMessage,
-	chatId
+	chatId,
 }: {
 	response: Interaction['response'];
 	onRegenerate: () => void;
@@ -23,28 +24,31 @@ export const ResponseMessageComponent = ({
 	chatId: string;
 }) => {
 	const router = useRouter();
+	const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="bg-purple-200 shadow-sm rounded-bl-none p-4 rounded-lg w-fit">
-                <Image
-                    onContextMenu={(e) => e.preventDefault()}
-                    draggable={false}
-                    src={response}
-                    alt="Generated post"
-                    className="max-w-full h-auto rounded-md"
-                    width={400}
-                    height={400}
-                    priority
-                />
+				<div className="cursor-pointer" onClick={() => setIsImageModalOpen(true)}>
+					<Image
+						onContextMenu={(e) => e.preventDefault()}
+						draggable={false}
+						src={response}
+						alt="Generated post"
+						className="max-w-full h-auto rounded-md"
+						width={400}
+						height={400}
+						priority
+					/>
+				</div>
 
-                <Button
-                    className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
-                    onClick={() => router.push(`/post-details?image=${encodeURIComponent(response)}&chatId=${chatId}`)}
-                >
-                    Postar imagem
-                </Button>
-            </div>
+				<Button
+					className="w-full p-4 mt-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
+					onClick={() => router.push(`/post-details?image=${encodeURIComponent(response)}&chatId=${chatId}`)}
+				>
+					Postar imagem
+				</Button>
+			</div>
 			<div className="flex gap-2">
 				{isLastMessage && (
 					<Button
@@ -57,6 +61,24 @@ export const ResponseMessageComponent = ({
 					</Button>
 				)}
 			</div>
+
+			<Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+				<DialogTitle></DialogTitle>
+				<DialogContent
+					className="max-w-[80vh] max-h-[95vh] p-4 overflow-hidden flex items-center justify-center bg-purple-200 rounded-xl border-0"
+					hideClose
+				>
+					<Image
+						src={response}
+						alt="Generated post"
+						className="max-h-[90vh] w-[1400px] object-contain rounded-md shadow-xl"
+						width={1400}
+						height={1400}
+						objectFit="cover"
+						priority
+					/>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

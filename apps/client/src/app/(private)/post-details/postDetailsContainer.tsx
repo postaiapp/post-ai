@@ -16,18 +16,17 @@ import PostDetailsUI from './postDetailsUi';
 
 export default function PostDetailsContainer() {
 	const [showCalendar, setShowCalendar] = useState(false);
-	const [loading, setLoading] = useState(true);
 	const [loadingCaption, setLoadingCaption] = useState(false);
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
 	const chatId = searchParams.get('chatId') || '';
 	const user = userStore((state) => state.user);
-	const [selectedAccount, setSelectedAccount] = useState(user?.InstagramAccounts[0]);
+	const [selectedAccount, setSelectedAccount] = useState<InstagramAccountStore | undefined>(undefined);
 	const { createPost, isLoading, isError } = useCreatePost();
 	const router = useRouter();
 	const { control, handleSubmit, setValue, watch } = useForm<PostFormData>({
 		defaultValues: {
-			username: user?.InstagramAccounts[0]?.username || '',
+			username: '',
 			caption: '',
 			img: image || '',
 			post_date: null,
@@ -40,16 +39,6 @@ export default function PostDetailsContainer() {
 	const [selectedTime, setSelectedTime] = useState<string>('');
 
 	const caption = watch('caption');
-
-	useEffect(() => {
-		if (user?.InstagramAccounts?.length) {
-			const firstAccount = user.InstagramAccounts[0];
-			setSelectedAccount(firstAccount);
-			setValue('username', firstAccount.username);
-		}
-
-		setLoading(false);
-	}, [user, setValue]);
 
 	const generateISODate = (date?: Date, time?: string) => {
 		if (!date || !time) return null;
@@ -122,7 +111,6 @@ export default function PostDetailsContainer() {
 			handleDateChange={handleDateChange}
 			selectedTime={selectedTime}
 			handleTimeChange={handleTimeChange}
-			loading={loading}
 			loadingSubmit={isLoading}
 			selectedAccount={selectedAccount}
 			handleAccountChange={handleAccountChange}
