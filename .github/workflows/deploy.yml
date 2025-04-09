@@ -7,12 +7,14 @@ on:
     paths:
       - 'apps/client/**'
       - 'apps/server/**'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'apps/client/**'
       - 'apps/server/**'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   sonarqube:
