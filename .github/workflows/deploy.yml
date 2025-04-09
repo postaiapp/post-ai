@@ -79,6 +79,19 @@ jobs:
         env:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/test
+          OPENAI_API_KEY: dummy-openai-key
+          JWT_SECRET: dummy-jwt
+          AWS_BUCKET_NAME: dummy-bucket
+          AWS_ACCESS_KEY_ID: dummy-access-key
+          AWS_SECRET_ACCESS_KEY: dummy-secret-key
+          CLOUDFLARE_ACCOUNT_ID: dummy-cloudflare
+          IDEOGRAM_API_KEY: dummy-ideogram
+          IDEOGRAM_BASE_URL: https://api.ideogram.ai
+          EMAIL_USER: dummy@domain.com
+          EMAIL_HOST: smtp.dummy.com
+          EMAIL_PASS: dummy-email-pass
+          EMAIL_PORT: "587"
+          EMAIL_SECURE: "false"
         run: npm run test:e2e
 
   deploy-frontend:
