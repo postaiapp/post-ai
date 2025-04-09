@@ -1,10 +1,10 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
   base = "apps/client"
+  publish = ".next"
+  command = "npm run build"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[plugins."@netlify/plugin-nextjs"]
+  [plugins.inputs]
   skipImageOptimization = true
