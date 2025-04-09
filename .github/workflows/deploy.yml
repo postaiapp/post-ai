@@ -102,25 +102,41 @@ jobs:
     needs: e2e-tests
     if: github.event_name == 'push'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Repository Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
+          cache: "npm"
 
-      - name: Install dependencies
-        run: cd apps/client && npm install --legacy-peer-deps
+      - name: Install Netlify CLI
+        run: npm install netlify-cli@17.10.1 -g
+
+      - name: Install Dependencies
+        working-directory: apps/client
+        run: npm install --legacy-peer-deps
 
       - name: Build Project
-        run: cd apps/client && npm run build
+        working-directory: apps/client
+        run: npm run build
 
       - name: Deploy to Netlify
+        id: netlify_deploy
+        working-directory: apps/client
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: cd apps/client && npx netlify deploy --prod --dir=./.next
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          prod_flag=""
+          if [ "$BRANCH_NAME" = "main" ]; then prod_flag="--prod"; fi
+          netlify deploy \
+            --dir .next \
+            --site "$NETLIFY_SITE_ID" \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            $prod_flag
 
   deploy-backend:
     name: Deploy Backend to Render
