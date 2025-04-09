@@ -18,9 +18,9 @@ O sistema foi desenvolvido para facilitar e automatizar a criação de conteúdo
 | Código | Requisito                                                                 | Prioridade | Status         |
 |--------|---------------------------------------------------------------------------|------------|----------------|
 | RF01   | Permitir login com conta do Instagram                                     | Alta       | Implementado   |
-| RF02   | Gerar automaticamente imagens e legendas utilizando IA                   | Alta       | Implementado   |
+| RF02   | Gerar automaticamente imagens e legendas utilizando IA                    | Alta       | Implementado   |
 | RF03   | Permitir escolha entre sugestões geradas pelo sistema                     | Média      | Implementado   |
-| RF04   | Agendar postagens para data e hora específicas                             | Alta       | Implementado   |
+| RF04   | Agendar postagens para data e hora específicas                            | Alta       | Implementado   |
 | RF05   | Visualizar histórico de agendamentos e publicações                        | Média      | Implementado   |
 | RF06   | Visualizar o status de execução de posts agendados                        | Média      | Implementado   |
 
@@ -29,20 +29,19 @@ O sistema foi desenvolvido para facilitar e automatizar a criação de conteúdo
 ## 4. Requisitos Não Funcionais (RNF)
 
 | Código | Requisito                                                                 | Prioridade |
-|--------|--------------------------------------------------------------------------|------------|
-| RNF01  | Interface responsiva para dispositivos móveis                            | Alta       |
+|--------|---------------------------------------------------------------------------|------------|
+| RNF01  | Armazenamento seguro de senhas e tokens (hash e criptografia)             | Alta       |
 | RNF02  | Tempo de resposta inferior a 2 segundos                                   | Alta       |
 | RNF03  | Suportar múltiplos usuários simultaneamente                               | Média      |
-| RNF04  | Compatibilidade com navegadores modernos (Chrome, Firefox, Edge, Safari) | Média      |
-| RNF05  | Proteção contra injeções maliciosas (ex: SQL Injection)                  | Alta       |
-| RNF06  | Armazenamento seguro de senhas e tokens (hash e criptografia)            | Alta       |
+| RNF04  | Compatibilidade com navegadores modernos (Chrome, Firefox, Edge, Safari)  | Média      |
+| RNF05  | Proteção contra injeções maliciosas (ex: SQL Injection)                   | Alta       |
 
 ---
 
 ## 5. Rastreabilidade de Requisitos
 
-| Requisito | Casos de Uso                     | Módulo/Componente        | Arquivo/Serviço            |
-|-----------|----------------------------------|---------------------------|-----------------------------|
+| Requisito | Casos de Uso                     | Módulo/Componente         | Arquivo/Serviço            |
+|-----------|----------------------------------|---------------------------|----------------------------|
 | RF01      | Login com Instagram              | AuthService               | `auth.service.ts`          |
 | RF02      | Geração de Conteúdo com IA       | PostService               | `post.service.ts`          |
 | RF03      | Seleção de Sugestões             | Frontend / PostService    | `post-selection.tsx`       |

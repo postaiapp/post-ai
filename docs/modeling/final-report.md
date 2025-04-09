@@ -38,7 +38,7 @@ Este sistema foi desenvolvido para automatizar e facilitar a criação de conte�
 
 ## 8. Resultados Alcançados
 
-- Interface responsiva e funcional
+- Interface intuitiva e funcional
 - Geração de conteúdo automático funcional
 - Agendamento com status em tempo real
 - Publicações diretas com integração à conta do usuário

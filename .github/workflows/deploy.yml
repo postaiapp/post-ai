@@ -7,33 +7,19 @@ on:
     paths:
       - 'apps/client/**'
       - 'apps/server/**'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'apps/client/**'
       - 'apps/server/**'
+      - '.github/workflows/deploy.yml'
 
 jobs:
-  cleanup:
-    name: Clean Up Previous Containers
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Docker Version
-        run: docker --version
-
-      - name: Stop and remove previous containers
-        run: |
-          docker compose down -v || true
-          docker container prune -f || true
-          docker volume prune -f || true
-      - name: Check running containers
-        run: docker ps -a
-
   sonarqube:
     name: Run SonarQube Analysis
     runs-on: ubuntu-latest
-    needs: cleanup
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -65,7 +51,7 @@ jobs:
   e2e-tests:
     name: Run E2E Tests
     runs-on: ubuntu-latest
-    needs: [cleanup, sonarqube]
+    needs: sonarqube
     continue-on-error: true
     services:
       mongodb:
@@ -82,20 +68,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-      - name: Start app with Docker Compose
-        run: docker compose -f docker-compose.yml up -d --build
-        working-directory: apps/server
+      - name: Install dependencies
+        run: cd apps/server && npm install
 
       - name: Run E2E Tests
-        run: docker exec server-app-test-1 yarn test:e2e
-
-      - name: Stop containers
-        if: always()
-        run: docker compose -f docker-compose.yml down
         working-directory: apps/server
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/test
+          OPENAI_API_KEY: dummy-openai-key
+          JWT_SECRET: dummy-jwt
+          AWS_BUCKET_NAME: dummy-bucket
+          AWS_ACCESS_KEY_ID: dummy-access-key
+          AWS_SECRET_ACCESS_KEY: dummy-secret-key
+          CLOUDFLARE_ACCOUNT_ID: dummy-cloudflare
+          IDEOGRAM_API_KEY: dummy-ideogram
+          IDEOGRAM_BASE_URL: https://api.ideogram.ai
+          EMAIL_USER: dummy@domain.com
+          EMAIL_HOST: smtp.dummy.com
+          EMAIL_PASS: dummy-email-pass
+          EMAIL_PORT: "587"
+          EMAIL_SECURE: "false"
+        run: npm run test:e2e
 
   deploy-frontend:
     name: Deploy Frontend to Netlify
@@ -103,25 +102,37 @@ jobs:
     needs: e2e-tests
     if: github.event_name == 'push'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Repository Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
+          cache: "npm"
 
-      - name: Install dependencies
-        run: cd apps/client && npm install
+      - name: Install Netlify CLI
+        run: npm install netlify-cli@17.10.1 -g
+
+      - name: Install Dependencies
+        working-directory: apps/client
+        run: npm install --legacy-peer-deps
 
       - name: Build Project
-        run: cd apps/client && npm run build
+        working-directory: apps/client
+        run: npm run build
 
       - name: Deploy to Netlify
+        id: netlify_deploy
+        working-directory: apps/client
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: cd apps/client && npx netlify deploy --prod --dir=./.next
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          netlify deploy --build \
+            --site "$NETLIFY_SITE_ID" \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --prod
 
   deploy-backend:
     name: Deploy Backend to Render
@@ -145,11 +156,6 @@ jobs:
 
       - name: Deploy to Render
         env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
-          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-          -H "Accept: application/json" \
-          -H "Content-Type: application/json" \
-          -d '{"clearCache": false}'
+          curl "$deploy_url"
