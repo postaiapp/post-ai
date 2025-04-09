@@ -5,3 +5,6 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[plugins."@netlify/plugin-nextjs"]
+  skipImageOptimization = true
