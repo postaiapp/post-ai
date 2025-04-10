@@ -28,40 +28,4 @@ describe('Auth Controller (e2e)', () => {
 		expect(authResponse.status).toBe(HttpStatus.OK);
 		expect(authResponse.body.token).toBeTruthy();
 	});
-
-	it('should be able to refresh token and log out - /refresh (PATCH) and /logout (POST)', async () => {
-		await request(app.getHttpServer()).post(`/${prefix}/register`).send({
-			name: 'michelle',
-			email: 'mi@email.com',
-			password: '12345678',
-		});
-
-		const authResponse = await request(app.getHttpServer()).post(`/${prefix}`).send({
-			email: 'mi@email.com',
-			password: '12345678',
-		});
-
-		const cookies = authResponse.headers['set-cookie'];
-		expect(cookies).toBeDefined();
-		expect(Array.isArray(cookies)).toBe(true);
-
-		const refreshToken = Array.isArray(cookies)
-			? cookies.find((cookie) => cookie.startsWith('refreshToken='))
-			: null;
-
-		expect(refreshToken).toBeDefined();
-
-		const refreshResponse = await request(app.getHttpServer())
-			.patch(`/${prefix}/refresh`)
-			.set('Cookie', refreshToken);
-
-		expect(refreshResponse.status).toBe(HttpStatus.OK);
-		expect(refreshResponse.body.token).toBeTruthy();
-
-		const logoutResponse = await request(app.getHttpServer()).post(`/${prefix}/logout`);
-
-		const cookiesLogout = logoutResponse.headers['set-cookie'];
-
-		expect(cookiesLogout).toBeFalsy();
-	});
 });

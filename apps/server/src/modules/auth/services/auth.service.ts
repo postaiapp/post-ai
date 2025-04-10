@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { AuthenticateType } from '@type/auth';
 import * as bcrypt from 'bcryptjs';
-import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Model } from 'mongoose';
 import { User } from '../../../schemas/user.schema';
@@ -36,18 +35,6 @@ export class AuthService {
 
 		const accessToken = await this.generateToken({ user, expiresIn: '1d' });
 
-		const refreshToken = await this.generateToken({ user, expiresIn: '1d' });
-
-		const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
-		res.cookie('refreshToken', refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-			maxAge: DAY_IN_MILLISECONDS,
-			path: '/',
-		});
-
 		return {
 			user: {
 				...omit(user, 'password'),
@@ -55,34 +42,6 @@ export class AuthService {
 			},
 			token: accessToken,
 		};
-	}
-
-	async refreshToken(req: Request) {
-		const refreshToken = req.cookies['refreshToken'];
-
-		if (!refreshToken) {
-			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
-		}
-
-		const payload = await this.jwtService.verifyAsync(refreshToken, {
-			secret: this.config.get('JWT_SECRET'),
-		});
-
-		const user = await this.userModel.findById(payload.userId).lean();
-
-		if (!user) {
-			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
-		}
-
-		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
-
-		return {
-			token: accessToken,
-		};
-	}
-
-	async logout(res: Response) {
-		res.clearCookie('refreshToken');
 	}
 
 	async register({ name, email, password }: RegisterDto) {

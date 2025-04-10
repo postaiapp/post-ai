@@ -1,8 +1,7 @@
-import { localStorageGetKey, localStorageSet } from '@utils/storage';
+import { localStorageClear, localStorageGetKey, localStorageSet } from '@utils/storage';
 import { warningToast } from '@utils/toast';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-
-import { refreshToken } from './auth';
+import { redirect } from 'next/navigation';
 
 const client = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -47,12 +46,9 @@ const ErrorInterceptor = async (error: AxiosError) => {
 		warningToast('Sem conexão com a internet.');
 	}
 
-	if (statusCode === 401 && !url?.includes('/auth') && error.message !== 'INVALID_REFRESH_TOKEN') {
-		const { data } = await refreshToken();
-
-		if (data) {
-			localStorageSet('token', data.token);
-		}
+	if (statusCode === 401 && !url?.includes('/auth')) {
+		localStorageClear();
+		redirect('/auth');
 	}
 
 	return Promise.reject(error.response?.data || error.message);

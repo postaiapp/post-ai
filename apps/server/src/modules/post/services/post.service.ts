@@ -227,7 +227,6 @@ export class PostService {
 			session,
 			img: data.img,
 		});
-
 		const updatedPost = await this.postModel.findOneAndUpdate(
 			{ _id: id },
 			{ publishedAt: dayjs().toDate(), code, postId },
