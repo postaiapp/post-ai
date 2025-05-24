@@ -18,16 +18,8 @@ export class WebhooksController extends BaseController {
   ) {
     try {
       const response = this.webhooksService.verifyWebhook(mode, token, challenge);
-      
-      if (!response) {
-        return this.sendError({ 
-          error: { message: 'Invalid verification token' }, 
-          res,
-          status: 403
-        });
-      }
 
-      return this.sendSuccess({ data: response, res });
+      return res.send(response);
     } catch (error) {
       return this.sendError({ error, res });
     }
