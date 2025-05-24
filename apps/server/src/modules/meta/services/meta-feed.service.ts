@@ -21,7 +21,7 @@ export class MetaFeedService {
   private readonly apiVersion: string;
 
   constructor(private configService: ConfigService) {
-    this.apiVersion = this.configService.get<string>('META_API_VERSION') || 'v18.0';
+    this.apiVersion = this.configService.get<string>('META_API_VERSION') || 'v21.0';
   }
 
   async createMediaContainer({
