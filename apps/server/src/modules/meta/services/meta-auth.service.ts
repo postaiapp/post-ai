@@ -24,7 +24,6 @@ export class MetaAuthService {
 				client_id: this.appId,
 				client_secret: this.appSecret,
 				grant_type: 'authorization_code',
-				redirect_uri: this.redirectUri,
 				code,
 			});
 
@@ -40,8 +39,6 @@ export class MetaAuthService {
 
 	async getLongLivedToken(accessToken: string): Promise<{
 		access_token: string;
-		token_type: string;
-		expires_in: number;
 	}> {
 		try {
 			const response = await axios.get('https://graph.instagram.com/access_token', {
