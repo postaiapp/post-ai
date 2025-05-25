@@ -1,6 +1,5 @@
-import { ConfigModule as AppConfigModule } from '@config/config.module';
 import { CronModule } from '@crons/cron.module';
-import { DatabaseModule } from '@database/database.module';
+import { DatabaseModule } from '@config/database.module';
 import { AuthGuard } from '@guards/auth.guard';
 import { AuthModule } from '@modules/auth/auth.module';
 import { PostModule } from '@modules/post/post.module';
@@ -17,10 +16,9 @@ import { UserModule } from './modules/user/user.module';
 
 @Module({
 	imports: [
-		ScheduleModule.forRoot(),
 		DatabaseModule,
+		ScheduleModule.forRoot(),
 		StorageModule,
-		AppConfigModule,
 		AuthModule,
 		CronModule,
 		JwtModule.registerAsync({
