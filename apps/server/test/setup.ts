@@ -34,7 +34,7 @@ global.beforeAll(async () => {
 				whitelist: true,
 				transform: true,
 				transformOptions: { enableImplicitConversion: true },
-			})
+			}),
 		);
 
 		await app.init();

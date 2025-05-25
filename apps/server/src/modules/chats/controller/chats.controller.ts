@@ -6,7 +6,12 @@ import { Body, Controller, Get, Param, Post, Query, Response, UseGuards } from '
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { CreateChatDto, GenerateCaptionParamsDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '../dto/chats.dto';
+import {
+	CreateChatDto,
+	GenerateCaptionParamsDto,
+	ListChatInteractionsParamsDto,
+	RegenerateMessageDto,
+} from '../dto/chats.dto';
 import { ChatsService } from '../services/chats.service';
 import { ApiTags, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 
@@ -23,12 +28,16 @@ export class ChatsController extends BaseController {
 	@ApiBody({
 		schema: {
 			example: {
-				message: "Generate a caption for my healthy food post",
-				chatId: "507f1f77bcf86cd799439011"
-			}
-		}
+				message: 'Generate a caption for my healthy food post',
+				chatId: '507f1f77bcf86cd799439011',
+			},
+		},
 	})
-	async sendMessage(@Body() data: CreateChatDto, @Response() res: ExpressResponse, @Meta() meta: MetaType) {
+	async sendMessage(
+		@Body() data: CreateChatDto,
+		@Response() res: ExpressResponse,
+		@Meta() meta: MetaType,
+	) {
 		const options = {
 			data,
 			meta,
@@ -47,16 +56,16 @@ export class ChatsController extends BaseController {
 	@ApiBody({
 		schema: {
 			example: {
-				message: "Make it more engaging",
-				chatId: "507f1f77bcf86cd799439011",
-				interactionId: "507f1f77bcf86cd799439012"
-			}
-		}
+				message: 'Make it more engaging',
+				chatId: '507f1f77bcf86cd799439011',
+				interactionId: '507f1f77bcf86cd799439012',
+			},
+		},
 	})
 	async regenerateMessage(
 		@Body() data: RegenerateMessageDto,
 		@Meta() meta: MetaType,
-		@Response() res: ExpressResponse
+		@Response() res: ExpressResponse,
 	) {
 		try {
 			const response = await this.chatService.regenerateMessage({
@@ -73,12 +82,12 @@ export class ChatsController extends BaseController {
 	@Get('interactions/:chatId')
 	@ApiParam({
 		name: 'chatId',
-		example: '507f1f77bcf86cd799439011'
+		example: '507f1f77bcf86cd799439011',
 	})
 	async listChatInteractions(
 		@Param() params: ListChatInteractionsParamsDto,
 		@Meta() meta: MetaType,
-		@Response() res: ExpressResponse
+		@Response() res: ExpressResponse,
 	) {
 		const options = {
 			params,
@@ -95,7 +104,11 @@ export class ChatsController extends BaseController {
 	}
 
 	@Get()
-	async listUserChats(@Meta() meta: MetaType, @Paginate() pagination: Pagination, @Response() res: ExpressResponse) {
+	async listUserChats(
+		@Meta() meta: MetaType,
+		@Paginate() pagination: Pagination,
+		@Response() res: ExpressResponse,
+	) {
 		try {
 			const response = await this.chatService.listUserChats({
 				userId: meta.userId.toString(),
@@ -111,9 +124,13 @@ export class ChatsController extends BaseController {
 	@Get(':chatId/caption')
 	@ApiParam({
 		name: 'chatId',
-		example: '507f1f77bcf86cd799439011'
+		example: '507f1f77bcf86cd799439011',
 	})
-	async generateCaption(@Param() params: GenerateCaptionParamsDto, @Meta() meta: MetaType, @Response() res: ExpressResponse) {
+	async generateCaption(
+		@Param() params: GenerateCaptionParamsDto,
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse,
+	) {
 		try {
 			const response = await this.chatService.generateCaption({ filter: params, meta });
 

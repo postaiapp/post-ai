@@ -23,7 +23,7 @@ describe('AuthGuard', () => {
 				{
 					provide: ConfigService,
 					useValue: {
-						get: jest.fn().mockImplementation((key) => {
+						get: jest.fn().mockImplementation(key => {
 							if (key === 'JWT_SECRET') return 'test-secret';
 							return null;
 						}),

@@ -15,6 +15,6 @@ import { ChatsService } from './services/chats.service';
 		StorageModule,
 	],
 	controllers: [ChatsController],
-	providers: [ChatsService, ],
+	providers: [ChatsService],
 })
 export class ChatsModule {}

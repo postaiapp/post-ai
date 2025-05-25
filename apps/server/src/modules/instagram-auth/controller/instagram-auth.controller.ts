@@ -1,7 +1,17 @@
 import { mappingIntegrationsErrors } from '@constants/errors';
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	Logger,
+	Param,
+	Post,
+	UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Meta as MetaType } from '@type/meta';
 import { DeleteInstagramAuthDto, InstagramAuthDto } from '../dto/instagram-auth.dto';
@@ -21,16 +31,19 @@ export class InstagramAuthController {
 	@ApiBody({
 		schema: {
 			example: {
-				username: "instagramuser",
-				password: "instagrampass"
-			}
-		}
+				username: 'instagramuser',
+				password: 'instagrampass',
+			},
+		},
 	})
 	async create(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.createAccount(body, meta);
 		} catch (error) {
-			const { logger, Exception, status, exceptionMessage } = mappingIntegrationsErrors(error, body.username);
+			const { logger, Exception, status, exceptionMessage } = mappingIntegrationsErrors(
+				error,
+				body.username,
+			);
 
 			this.logger.error(logger);
 			throw new Exception(exceptionMessage, status);
@@ -42,16 +55,19 @@ export class InstagramAuthController {
 	@ApiBody({
 		schema: {
 			example: {
-				username: "instagramuser",
-				password: "instagrampass"
-			}
-		}
+				username: 'instagramuser',
+				password: 'instagrampass',
+			},
+		},
 	})
 	async login(@Body() body: InstagramAuthDto, @Meta() meta: MetaType) {
 		try {
 			return await this.instagramAuthService.login(body, meta);
 		} catch (error) {
-			const { logger, exceptionMessage, status, Exception } = mappingIntegrationsErrors(error, body.username);
+			const { logger, exceptionMessage, status, Exception } = mappingIntegrationsErrors(
+				error,
+				body.username,
+			);
 
 			this.logger.error(logger);
 			throw new Exception(exceptionMessage, status);
@@ -62,7 +78,7 @@ export class InstagramAuthController {
 	@HttpCode(204)
 	@ApiParam({
 		name: 'username',
-		example: 'instagramuser'
+		example: 'instagramuser',
 	})
 	delete(@Param() query: DeleteInstagramAuthDto, @Meta() meta: MetaType) {
 		return this.instagramAuthService.delete(query, meta);

@@ -17,10 +17,6 @@ import { InstagramAuthService } from './services/instagram-auth.service';
 		StorageModule,
 	],
 	controllers: [InstagramAuthController],
-	providers: [
-		InstagramAuthService,
-		IgApiClient,
-		EmailService
-	],
+	providers: [InstagramAuthService, IgApiClient, EmailService],
 })
 export class InstagramAuthModule {}

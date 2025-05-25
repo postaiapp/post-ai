@@ -19,7 +19,7 @@ export class InstagramAuthService {
 	constructor(
 		private readonly ig: IgApiClient,
 		@Inject(Uploader) private readonly storageService: Uploader,
-		@InjectModel(User.name) private readonly userModel: Model<User>
+		@InjectModel(User.name) private readonly userModel: Model<User>,
 	) {}
 
 	async hasInstagramAccount(meta: Meta, username: string) {
@@ -40,7 +40,7 @@ export class InstagramAuthService {
 				{
 					_id: 0,
 					InstagramAccounts: 1,
-				}
+				},
 			)
 			.lean();
 
@@ -134,8 +134,8 @@ export class InstagramAuthService {
 					},
 				},
 				{
-					new: true
-				}
+					new: true,
+				},
 			)
 			.lean();
 
@@ -164,7 +164,7 @@ export class InstagramAuthService {
 
 		const [userInfo, session] = await Promise.all([
 			this.ig.user.info(user.pk),
-			this.getToken()
+			this.getToken(),
 		]);
 
 		const { url } = await this.storageService.downloadAndUploadImage(userInfo.profile_pic_url);
@@ -197,7 +197,7 @@ export class InstagramAuthService {
 						'InstagramAccounts.accountId': 1,
 						_id: 0,
 					},
-				}
+				},
 			)
 			.lean();
 
@@ -220,14 +220,15 @@ export class InstagramAuthService {
 	}
 
 	async getAccounts(meta: Meta) {
-		const user = await this.userModel.findOne(
-			{ _id: meta.userId },
-			{ InstagramAccounts: 1, _id: 0 }
-		).lean();
+		const user = await this.userModel
+			.findOne({ _id: meta.userId }, { InstagramAccounts: 1, _id: 0 })
+			.lean();
 
 		const accounts = await Promise.all(
 			user?.InstagramAccounts.map(async (account: InstagramAccount) => {
-				const profilePicUrl = await this.storageService.getSignedImageUrl(account.profilePicUrl);
+				const profilePicUrl = await this.storageService.getSignedImageUrl(
+					account.profilePicUrl,
+				);
 
 				return {
 					...account,
@@ -235,7 +236,7 @@ export class InstagramAuthService {
 					_id: undefined,
 					profilePicUrl: await this.validateProfilePicUrl(profilePicUrl),
 				};
-			})
+			}),
 		);
 
 		return {
@@ -254,7 +255,7 @@ export class InstagramAuthService {
 						InstagramAccounts: { username: username },
 					},
 				},
-				{ new: true }
+				{ new: true },
 			)
 			.lean();
 
@@ -263,7 +264,7 @@ export class InstagramAuthService {
 		}
 
 		return {
-			newUser
+			newUser,
 		};
 	}
 }

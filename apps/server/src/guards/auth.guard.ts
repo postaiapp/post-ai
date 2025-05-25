@@ -7,12 +7,12 @@ import { Request } from 'express';
 export class AuthGuard implements CanActivate {
 	constructor(
 		private readonly jwtService: JwtService,
-		private readonly configService: ConfigService
+		private readonly configService: ConfigService,
 	) {}
 
 	private extractJwt(request: Request): string | undefined {
 		const [type, token] = request.headers.authorization?.split(' ') ?? [];
-		
+
 		return type === 'Bearer' ? token : undefined;
 	}
 

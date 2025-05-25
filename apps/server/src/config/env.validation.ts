@@ -1,5 +1,14 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import {
+	IsEnum,
+	IsNotEmpty,
+	IsNumber,
+	IsOptional,
+	IsString,
+	Max,
+	Min,
+	validateSync,
+} from 'class-validator';
 
 enum Environment {
 	Development = 'development',
@@ -57,7 +66,6 @@ class EnvironmentVariables {
 	@IsString()
 	@IsOptional()
 	EMAIL_API_KEY_RESEND: string;
-
 
 	@IsString()
 	@IsNotEmpty()

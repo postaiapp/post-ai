@@ -12,17 +12,17 @@ export class UserService {
 		private readonly userModel: Model<User>,
 	) {}
 
-	async findOne({ filter}: ServiceBaseParamsWithFilterType) {
+	async findOne({ filter }: ServiceBaseParamsWithFilterType) {
 		const user = await this.userModel.findById(filter.id).lean();
 
 		if (!user) {
 			throw new NotFoundException('USER_NOT_FOUND');
 		}
 
-		return user
+		return user;
 	}
 
-  async update({ filter, data }: ServiceBaseParamsWithFilterType<UpdateUserDto>) {
+	async update({ filter, data }: ServiceBaseParamsWithFilterType<UpdateUserDto>) {
 		const user = await this.userModel.findByIdAndUpdate(
 			filter.id,
 			{ $set: data },
@@ -34,17 +34,17 @@ export class UserService {
 		}
 
 		return user;
-  }
-
-  async remove({ filter}: ServiceBaseParamsWithFilterType) {
-	const user = await this.userModel.findByIdAndDelete(filter.id, {
-		new: true
-	});
-
-	if (!user) {
-		throw new NotFoundException('USER_NOT_FOUND');
 	}
 
-	return user;
-  }
+	async remove({ filter }: ServiceBaseParamsWithFilterType) {
+		const user = await this.userModel.findByIdAndDelete(filter.id, {
+			new: true,
+		});
+
+		if (!user) {
+			throw new NotFoundException('USER_NOT_FOUND');
+		}
+
+		return user;
+	}
 }

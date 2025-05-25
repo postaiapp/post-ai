@@ -8,7 +8,12 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
-import { DefaultPostBodyCreate, GetUserPostsProps, PublishedPostProps, VerifyPostPublishProps } from '@type/post';
+import {
+	DefaultPostBodyCreate,
+	GetUserPostsProps,
+	PublishedPostProps,
+	VerifyPostPublishProps,
+} from '@type/post';
 import { Uploader } from '@type/storage';
 import { getHtmlPath } from '@utils/email';
 import { CronJob } from 'cron';
@@ -30,7 +35,7 @@ export class PostService {
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
 		private schedulerRegistry: SchedulerRegistry,
-		@Inject(Uploader) private readonly storageService: Uploader
+		@Inject(Uploader) private readonly storageService: Uploader,
 	) {}
 
 	async create({ data, meta }: DefaultPostBodyCreate) {
@@ -47,7 +52,10 @@ export class PostService {
 		const published = await this.publishPhotoOnInstagram(caption, username, session, img);
 
 		if (!published) {
-			await this.postModel.updateOne({ _id: postId }, { $set: { canceledAt: dayjs().toDate() } });
+			await this.postModel.updateOne(
+				{ _id: postId },
+				{ $set: { canceledAt: dayjs().toDate() } },
+			);
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
 		}
 
@@ -66,16 +74,21 @@ export class PostService {
 				{
 					_id: 0,
 					InstagramAccounts: 1,
-				}
+				},
 			)
 			.lean()
-			.then((user) => user?.InstagramAccounts[0]);
+			.then(user => user?.InstagramAccounts[0]);
 
 		if (!account) {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		const published = await this.publishPhotoOnInstagram(caption, username, account.session, data.img);
+		const published = await this.publishPhotoOnInstagram(
+			caption,
+			username,
+			account.session,
+			data.img,
+		);
 
 		if (!published) {
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
@@ -113,13 +126,19 @@ export class PostService {
 			throw new BadRequestException('INVALID_POST_DATE');
 		}
 
-		const instagramAccount = await this.instagramAuthService.hasInstagramAccount(meta, username);
+		const instagramAccount = await this.instagramAuthService.hasInstagramAccount(
+			meta,
+			username,
+		);
 
 		if (!instagramAccount) {
 			throw new NotFoundException('USER_NOT_ASSOCIATED_WITH_THIS_ACCOUNT');
 		}
 
-		const restored = await this.instagramAuthService.restoreSession(username, instagramAccount.session);
+		const restored = await this.instagramAuthService.restoreSession(
+			username,
+			instagramAccount.session,
+		);
 
 		if (!restored) {
 			throw new TokenExpiredError('SESSION_REQUIRED', dayjs().toDate());
@@ -156,7 +175,7 @@ export class PostService {
 			data: {
 				postDate: dayjs(date).subtract(3, 'hour').format('DD/MM/YYYY'),
 				postHour: dayjs(date).subtract(3, 'hour').format('HH:mm'),
-			}
+			},
 		});
 
 		return {
@@ -165,7 +184,17 @@ export class PostService {
 		};
 	}
 
-	async sendEmailToUser({ to, subject, templateFile, data }: { to: string; subject: string; templateFile: string, data: Record<string, unknown> }) {
+	async sendEmailToUser({
+		to,
+		subject,
+		templateFile,
+		data,
+	}: {
+		to: string;
+		subject: string;
+		templateFile: string;
+		data: Record<string, unknown>;
+	}) {
 		const html = await getHtmlPath(templateFile, data);
 
 		return await this.emailService.send({
@@ -191,7 +220,7 @@ export class PostService {
 			},
 			this.createCleanupHandler(jobId),
 			true, // start
-			TIME_ZONE
+			TIME_ZONE,
 		);
 
 		this.schedulerRegistry.addCronJob(jobId, job);
@@ -231,7 +260,7 @@ export class PostService {
 		const updatedPost = await this.postModel.findOneAndUpdate(
 			{ _id: id },
 			{ publishedAt: dayjs().toDate(), code, postId },
-			{ new: true }
+			{ new: true },
 		);
 
 		if (!updatedPost) {
@@ -257,10 +286,12 @@ export class PostService {
 		caption: string,
 		username: string,
 		session: Session,
-		img: string
+		img: string,
 	): Promise<{ id: string; code: string } | false> {
 		try {
-			this.logger.debug(`Publishing photo on Instagram from username: ${username}`, { caption });
+			this.logger.debug(`Publishing photo on Instagram from username: ${username}`, {
+				caption,
+			});
 
 			const restored = await this.instagramAuthService.restoreSession(username, session);
 
@@ -276,7 +307,10 @@ export class PostService {
 
 			return { id: post.media.id, code: post.media.code };
 		} catch (error) {
-			this.logger.error(`Failed to publish photo on Instagram from username: ${username}`, { caption, error });
+			this.logger.error(`Failed to publish photo on Instagram from username: ${username}`, {
+				caption,
+				error,
+			});
 			return false;
 		}
 	}
@@ -294,7 +328,7 @@ export class PostService {
 			const comments = (await this.ig.feed.mediaComments(post.postId).items()).slice(-5);
 
 			const recentComments =
-				comments?.map((comment) => ({
+				comments?.map(comment => ({
 					text: comment.text,
 					user: {
 						username: comment.user.username,
@@ -333,7 +367,7 @@ export class PostService {
 					recent: [],
 					has_more: false,
 				},
-			}
+			};
 		}
 	}
 
@@ -345,7 +379,7 @@ export class PostService {
 					userId: userId,
 					scheduledAt: { $ne: null },
 				},
-				{ jobId: 1 }
+				{ jobId: 1 },
 			)
 			.lean();
 
@@ -364,7 +398,7 @@ export class PostService {
 			{
 				canceledAt: dayjs().toDate(),
 				scheduledAt: null,
-			}
+			},
 		);
 
 		this.cleanupJob(post.jobId);
@@ -388,48 +422,57 @@ export class PostService {
 				meta: {
 					total: 0,
 					page,
-					limit: perPage
+					limit: perPage,
 				},
 			};
 		}
 
 		const [posts, total] = await Promise.all([
-			this.postModel.find({ accountId: { $in: accountsIds } })
+			this.postModel
+				.find({ accountId: { $in: accountsIds } })
 				.populate({
 					path: 'userId',
-					select: '_id name email InstagramAccounts'
+					select: '_id name email InstagramAccounts',
 				})
 				.sort({ publishedAt: -1, scheduledAt: -1 })
 				.skip(offset)
 				.limit(perPage)
 				.lean(),
 
-			this.postModel.countDocuments({ accountId: { $in: accountsIds } })
+			this.postModel.countDocuments({ accountId: { $in: accountsIds } }),
 		]);
 
-		const postsWithInstagramInfo = await Promise.all(map(posts, async (post) => {
-			const account = user.InstagramAccounts.find(acc => acc.accountId === post.accountId);
+		const postsWithInstagramInfo = await Promise.all(
+			map(posts, async post => {
+				const account = user.InstagramAccounts.find(
+					acc => acc.accountId === post.accountId,
+				);
 
-			const { username, session } = account;
+				const { username, session } = account;
 
-			const instagramInfo = post.postId ? await this.getInstagramPostInfo(post, username, session) : {};
+				const instagramInfo = post.postId
+					? await this.getInstagramPostInfo(post, username, session)
+					: {};
 
-			const userInfo = post.userId;
+				const userInfo = post.userId;
 
-			return {
-				...omit(post, ['userId.InstagramAccounts.session', 'userId']),
-				...instagramInfo,
-				imageUrl: await this.storageService.getSignedImageUrl(post.imageUrl),
-				user: userInfo,
-				account: {
-					username: account.username,
-					profilePicUrl: await this.storageService.getSignedImageUrl(account.profilePicUrl),
-					fullName: account.fullName,
-					isPrivate: account.isPrivate,
-					isVerified: account.isVerified
-				}
-			};
-		}));
+				return {
+					...omit(post, ['userId.InstagramAccounts.session', 'userId']),
+					...instagramInfo,
+					imageUrl: await this.storageService.getSignedImageUrl(post.imageUrl),
+					user: userInfo,
+					account: {
+						username: account.username,
+						profilePicUrl: await this.storageService.getSignedImageUrl(
+							account.profilePicUrl,
+						),
+						fullName: account.fullName,
+						isPrivate: account.isPrivate,
+						isVerified: account.isVerified,
+					},
+				};
+			}),
+		);
 
 		return {
 			success: true,
@@ -437,7 +480,7 @@ export class PostService {
 			meta: {
 				total,
 				page,
-				limit: perPage
+				limit: perPage,
 			},
 		};
 	}

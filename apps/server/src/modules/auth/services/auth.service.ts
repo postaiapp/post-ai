@@ -16,7 +16,7 @@ export class AuthService {
 		@InjectModel(User.name)
 		private readonly userModel: Model<User>,
 		private readonly jwtService: JwtService,
-		private readonly config: ConfigService
+		private readonly config: ConfigService,
 	) {}
 
 	async authenticate({ email, password, res }: AuthenticateType) {

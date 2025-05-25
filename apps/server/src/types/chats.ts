@@ -1,4 +1,9 @@
-import { CreateChatDto, GenerateCaptionParamsDto, ListChatInteractionsParamsDto, RegenerateMessageDto } from '@modules/chats/dto/chats.dto';
+import {
+	CreateChatDto,
+	GenerateCaptionParamsDto,
+	ListChatInteractionsParamsDto,
+	RegenerateMessageDto,
+} from '@modules/chats/dto/chats.dto';
 import { Meta } from './meta';
 interface SendMessageData {
 	data: CreateChatDto;
@@ -19,4 +24,9 @@ interface GenerateCaptionOptions {
 	meta: Meta;
 }
 
-export type { ListChatInteractionsOptions, RegenerateMessageData, SendMessageData, GenerateCaptionOptions };
+export type {
+	ListChatInteractionsOptions,
+	RegenerateMessageData,
+	SendMessageData,
+	GenerateCaptionOptions,
+};

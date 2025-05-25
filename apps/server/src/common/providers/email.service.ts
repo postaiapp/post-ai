@@ -8,20 +8,18 @@ export class EmailService {
 	private readonly logger = new Logger(EmailService.name);
 	private transporter: nodemailer.Transporter;
 
-	constructor(
-		private readonly configService: ConfigService,
-	) {
+	constructor(private readonly configService: ConfigService) {
 		const emailUser = this.configService.get<string>('EMAIL_USER');
 		const emailPass = this.configService.get<string>('EMAIL_PASS');
 
 		this.transporter = nodemailer.createTransport({
-		host: 'smtp.gmail.com',
-		port: 465,
-		secure: true,
-		auth: {
-			user: emailUser,
-			pass: emailPass,
-		},
+			host: 'smtp.gmail.com',
+			port: 465,
+			secure: true,
+			auth: {
+				user: emailUser,
+				pass: emailPass,
+			},
 		});
 	}
 

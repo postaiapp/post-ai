@@ -4,7 +4,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Chat, ChatDocument } from '@schemas/chat.schema';
 import { Interaction } from '@schemas/interaction.schema';
-import { GenerateCaptionOptions, ListChatInteractionsOptions, RegenerateMessageData, SendMessageData } from '@type/chats';
+import {
+	GenerateCaptionOptions,
+	ListChatInteractionsOptions,
+	RegenerateMessageData,
+	SendMessageData,
+} from '@type/chats';
 import * as dayjs from 'dayjs';
 import FileUtils from '@utils/file';
 import { Model } from 'mongoose';
@@ -18,7 +23,7 @@ export class ChatsService {
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
 		private readonly imageGenerationService: ImageGenerationService,
 		private readonly textGenerationService: TextGenerationService,
-		@Inject(Uploader) private readonly storageService: Uploader
+		@Inject(Uploader) private readonly storageService: Uploader,
 	) {}
 
 	findChat(chatId: string, userId: string) {
@@ -135,7 +140,7 @@ export class ChatsService {
 					'interactions.$.is_regenerated': partialInteractionBody.is_regenerated,
 					'interactions.$.updatedAt': partialInteractionBody.updatedAt,
 				},
-			}
+			},
 		);
 
 		return {
@@ -157,7 +162,10 @@ export class ChatsService {
 	async getChatContext(interactions: Interaction[]) {
 		return interactions
 			.slice(-10)
-			.map((interaction) => `Request: ${interaction.request} | Response: ${interaction.response}`)
+			.map(
+				interaction =>
+					`Request: ${interaction.request} | Response: ${interaction.response}`,
+			)
 			.join('\n');
 	}
 
@@ -168,13 +176,15 @@ export class ChatsService {
 			throw new NotFoundException('CHAT_NOT_FOUND');
 		}
 
-		const interactions = chat.interactions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+		const interactions = chat.interactions.sort(
+			(a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+		);
 
 		const mountedInteractions = await Promise.all(
-			interactions.map(async (interaction) => ({
+			interactions.map(async interaction => ({
 				...interaction,
 				response: await this.storageService.getSignedImageUrl(interaction.response),
-			}))
+			})),
 		);
 
 		return mountedInteractions;
@@ -194,7 +204,7 @@ export class ChatsService {
 		]);
 
 		return {
-			results: chats.map((chat) => ({
+			results: chats.map(chat => ({
 				userId: chat.user_id.toString(),
 				interactions: chat.interactions,
 				firstMessage: chat.first_message,

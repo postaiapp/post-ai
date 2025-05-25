@@ -17,12 +17,6 @@ import { PostService } from './services/post.service';
 		]),
 	],
 	controllers: [PostController],
-	providers: [
-		PostService,
-		IgApiClient,
-		InstagramAuthService,
-		R2Storage,
-		EmailService
-	],
+	providers: [PostService, IgApiClient, InstagramAuthService, R2Storage, EmailService],
 })
 export class PostModule {}

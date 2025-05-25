@@ -1,7 +1,5 @@
 import { DEFAULT_PROMPT } from '@constants/ai';
-import {
-	ImageGenerationService
-} from '@modules/image-generation/service/image-generation.service';
+import { ImageGenerationService } from '@modules/image-generation/service/image-generation.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { R2Storage } from '@storages/r2-storage';
@@ -14,7 +12,7 @@ export class OpenAIRepository implements ImageGenerationService {
 
 	constructor(
 		private configService: ConfigService,
-		private storageService: R2Storage
+		private storageService: R2Storage,
 	) {
 		const apiKey = this.configService.get<string>('OPENAI_API_KEY');
 		this.openai = new OpenAI({ apiKey });
@@ -33,7 +31,7 @@ export class OpenAIRepository implements ImageGenerationService {
 			n: options.n || 1,
 			quality: 'medium',
 			size: '1024x1024',
-			output_format: 'jpeg'
+			output_format: 'jpeg',
 		});
 
 		const base64 = response.data[0].b64_json;
@@ -49,7 +47,7 @@ export class OpenAIRepository implements ImageGenerationService {
 		const signedUrl = await this.storageService.getSignedImageUrlByPath(key);
 
 		return {
-			url: signedUrl
+			url: signedUrl,
 		};
 	}
 }

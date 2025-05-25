@@ -32,7 +32,15 @@ class BaseController {
 		});
 	}
 
-	sendSuccess({ data, res, status = HttpStatus.OK }: { data: any; res: Response; status?: number }) {
+	sendSuccess({
+		data,
+		res,
+		status = HttpStatus.OK,
+	}: {
+		data: any;
+		res: Response;
+		status?: number;
+	}) {
 		if (res.writableEnded || res.writableFinished || res.headersSent) {
 			return res.writableEnded || res.writableFinished || res.headersSent;
 		}

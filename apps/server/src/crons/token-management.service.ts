@@ -19,7 +19,7 @@ export class TokenManagementCron {
 		private readonly instagramAuthService: InstagramAuthService,
 		private readonly emailService: EmailService,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		@InjectModel(Post.name) private readonly postModel: Model<Post>
+		@InjectModel(Post.name) private readonly postModel: Model<Post>,
 	) {}
 
 	async getValidateUsersWhereConditions(lastLoginDate: Date, usersWithScheduledPosts: string[]) {
@@ -47,10 +47,13 @@ export class TokenManagementCron {
 				$gte: new Date(),
 				$lte: nextWeekDate,
 			},
-			canceledAt: { $exists: false }
+			canceledAt: { $exists: false },
 		});
 
-		const whereCondition = await this.getValidateUsersWhereConditions(lastLoginDate, usersWithScheduledPosts.map(String));
+		const whereCondition = await this.getValidateUsersWhereConditions(
+			lastLoginDate,
+			usersWithScheduledPosts.map(String),
+		);
 
 		const users = await this.userModel
 			.find(whereCondition, {
@@ -59,7 +62,9 @@ export class TokenManagementCron {
 			})
 			.lean();
 
-		return users.flatMap((user) => user.InstagramAccounts.map((account) => ({ ...account, userId: user._id })));
+		return users.flatMap(user =>
+			user.InstagramAccounts.map(account => ({ ...account, userId: user._id })),
+		);
 	}
 
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -95,7 +100,7 @@ export class TokenManagementCron {
 							isValid: false,
 						},
 					},
-				}
+				},
 			);
 
 			this.logger.log(`Token for user ${userId} is checked`);
@@ -114,7 +119,7 @@ export class TokenManagementCron {
 			throw new NotFoundException(`USER_NOT_FOUND`);
 		}
 
-		const html = await getHtmlPath('token-expired.html')
+		const html = await getHtmlPath('token-expired.html');
 
 		await this.emailService.send({
 			to: user.email,
@@ -123,6 +128,6 @@ export class TokenManagementCron {
 		});
 
 		this.logger.log(`Notification email sent to user ${userId}`);
-		return true
+		return true;
 	}
 }

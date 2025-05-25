@@ -26,8 +26,8 @@ type CanceledPostBody = {
 
 type GetUserPostsProps = {
 	pagination: Pagination;
-	meta: Meta
-}
+	meta: Meta;
+};
 type VerifyPostPublishProps = {
 	postId: string;
 	caption: string;
@@ -55,6 +55,5 @@ export type {
 	PostBodyCreate,
 	PublishedPostProps,
 	VerifyPostPublishProps,
-	GetUserPostsProps
+	GetUserPostsProps,
 };
-
