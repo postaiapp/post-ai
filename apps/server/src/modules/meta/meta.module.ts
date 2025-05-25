@@ -7,19 +7,9 @@ import { MetaMetricsService } from './services/meta-metrics.service';
 import { MetaController } from './controllers/meta.controller';
 
 @Module({
-  imports: [ConfigModule],
-  controllers: [MetaController],
-  providers: [
-    MetaAuthService,
-    MetaFeedService,
-    MetaStoriesService,
-    MetaMetricsService
-  ],
-  exports: [
-    MetaAuthService,
-    MetaFeedService,
-    MetaStoriesService,
-    MetaMetricsService
-  ]
+	imports: [ConfigModule],
+	controllers: [MetaController],
+	providers: [MetaAuthService, MetaFeedService, MetaStoriesService, MetaMetricsService],
+	exports: [MetaAuthService, MetaFeedService, MetaStoriesService, MetaMetricsService],
 })
-export class MetaModule {} 
+export class MetaModule {}

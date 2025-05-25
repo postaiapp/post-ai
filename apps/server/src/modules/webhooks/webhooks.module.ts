@@ -4,9 +4,9 @@ import { WebhooksController } from './controllers/webhooks.controller';
 import { WebhooksService } from './services/webhooks.service';
 
 @Module({
-  imports: [ConfigModule],
-  controllers: [WebhooksController],
-  providers: [WebhooksService],
-  exports: [WebhooksService]
+	imports: [ConfigModule],
+	controllers: [WebhooksController],
+	providers: [WebhooksService],
+	exports: [WebhooksService],
 })
-export class WebhooksModule {} 
+export class WebhooksModule {}
