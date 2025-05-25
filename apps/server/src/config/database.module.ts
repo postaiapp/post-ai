@@ -1,9 +1,12 @@
-// import { ConfigModule } from '@config/config.module';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { validate } from './env.validation';
+import { User } from '@models/user.model';
+import { UserPlatform } from '@models/user-platform.model';
+import { AuthToken } from '@models/auth-token.model';
+import { Platform } from '@models/platform.model';
 
 const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env';
 
@@ -24,22 +27,18 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 		}),
 		SequelizeModule.forRootAsync({
 			imports: [ConfigModule],
-			useFactory: (configService: ConfigService) => {
-				console.log(configService.get('POSTGRES_DB'));
-
-				return {
-					dialect: 'postgres',
-					host: configService.get('POSTGRES_HOST'),
-					port: configService.get('POSTGRES_PORT'),
-					username: configService.get('POSTGRES_USER'),
-					password: configService.get('POSTGRES_PASSWORD'),
-					database: configService.get('POSTGRES_DB'),
-					autoLoadModels: false,
-					synchronize: false,
-					logging: false,
-					models: [],
-				};
-			},
+			useFactory: (configService: ConfigService) => ({
+				dialect: 'postgres',
+				host: configService.get('POSTGRES_HOST'),
+				port: configService.get('POSTGRES_PORT'),
+				username: configService.get('POSTGRES_USER'),
+				password: configService.get('POSTGRES_PASSWORD'),
+				database: configService.get('POSTGRES_DB'),
+				autoLoadModels: false,
+				synchronize: false,
+				logging: false,
+				models: [User, UserPlatform, AuthToken, Platform],
+			}),
 			inject: [ConfigService],
 		}),
 	],

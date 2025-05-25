@@ -1,30 +1,29 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { AuthenticateType } from '@type/auth';
 import * as bcrypt from 'bcryptjs';
-import { Request, Response } from 'express';
 import { omit } from 'lodash';
-import { Model } from 'mongoose';
-import { User } from '../../../schemas/user.schema';
+import { User } from '@models/user.model';
 import { RegisterDto } from '../dto/auth.dto';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		@InjectModel(User.name)
-		private readonly userModel: Model<User>,
+		@InjectModel(User)
+		private userModel: typeof User,
 		private readonly jwtService: JwtService,
 		private readonly config: ConfigService,
 	) {}
 
-	async authenticate({ email, password, res }: AuthenticateType) {
-		const user = await this.userModel.findOne({ email }).lean();
+	async authenticate({ email, password }: { email: string; password: string }) {
+		const user = await this.userModel.findOne({ where: { email } });
 
 		if (!user) {
 			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
+
 			await bcrypt.compare(password, FAKE_PASSWORD);
+
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
@@ -36,57 +35,17 @@ export class AuthService {
 
 		const accessToken = await this.generateToken({ user, expiresIn: '1d' });
 
-		const refreshToken = await this.generateToken({ user, expiresIn: '1d' });
-
-		const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
-		res.cookie('refreshToken', refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-			maxAge: DAY_IN_MILLISECONDS,
-			path: '/',
-		});
-
 		return {
 			user: {
-				...omit(user, 'password'),
-				id: user._id.toString(),
+				...omit(user.toJSON(), 'password'),
+				id: user.id,
 			},
 			token: accessToken,
 		};
 	}
 
-	async refreshToken(req: Request) {
-		const refreshToken = req.cookies['refreshToken'];
-
-		if (!refreshToken) {
-			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
-		}
-
-		const payload = await this.jwtService.verifyAsync(refreshToken, {
-			secret: this.config.get('JWT_SECRET'),
-		});
-
-		const user = await this.userModel.findById(payload.userId).lean();
-
-		if (!user) {
-			throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
-		}
-
-		const accessToken = await this.generateToken({ user, expiresIn: '15m' });
-
-		return {
-			token: accessToken,
-		};
-	}
-
-	async logout(res: Response) {
-		res.clearCookie('refreshToken');
-	}
-
 	async register({ name, email, password }: RegisterDto) {
-		const existsUser = await this.userModel.countDocuments({ email });
+		const existsUser = await this.userModel.count({ where: { email } });
 
 		if (existsUser) {
 			throw new UnauthorizedException('REGISTRATION_FAILED');
@@ -102,15 +61,15 @@ export class AuthService {
 
 		return {
 			user: {
-				name: newUser?.name,
-				email: newUser?.email,
-				id: newUser?._id.toString(),
+				id: newUser.id,
+				name: newUser.name,
+				email: newUser.email,
 			},
 		};
 	}
 
 	generateToken({ user, expiresIn }) {
-		const payload = { userId: user._id, email: user.email };
+		const payload = { userId: user.id, email: user.email };
 
 		return this.jwtService.signAsync(payload, {
 			secret: this.config.get('JWT_SECRET'),

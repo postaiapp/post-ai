@@ -1,5 +1,4 @@
 import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
-import { AuthToken } from '@models/auth-token.model';
 import { UserPlatform } from '@models/user-platform.model';
 
 @Table({
@@ -93,9 +92,6 @@ export class User extends Model {
 		field: 'deleted_at',
 	})
 	deleted_at!: Date | null;
-
-	@HasMany(() => AuthToken)
-	auth_tokens: AuthToken[];
 
 	@HasMany(() => UserPlatform)
 	user_platforms: UserPlatform[];
