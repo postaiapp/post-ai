@@ -78,6 +78,28 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	EMAIL_SECURE: string;
+
+	@IsString()
+	@IsNotEmpty()
+	POSTGRES_DB: string;
+
+	@IsString()
+	@IsNotEmpty()
+	POSTGRES_USER: string;
+
+	@IsString()
+	@IsNotEmpty()
+	POSTGRES_PASSWORD: string;
+
+	@IsString()
+	@IsNotEmpty()
+	POSTGRES_HOST: string;
+
+	@IsNumber()
+	@Min(0)
+	@Max(65535)
+	@IsOptional()
+	POSTGRES_PORT: number = 5432;
 }
 
 export function validate(config: Record<string, unknown>) {

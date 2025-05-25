@@ -1,5 +1,5 @@
 import { EmailService } from '@common/providers/email.service';
-import { DatabaseModule } from '@database/database.module';
+import { DatabaseModule } from '@config/database.module';
 import { Module } from '@nestjs/common';
 import { Post, PostSchema } from '@schemas/post.schema';
 import { User, UserSchema } from '@schemas/user.schema';
