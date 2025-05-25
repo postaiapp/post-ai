@@ -1,4 +1,4 @@
-import { DatabaseModule } from '@database/database.module';
+import { DatabaseModule } from '@config/database.module';
 import { Module } from '@nestjs/common';
 import { User, UserSchema } from '@schemas/user.schema';
 import { UserController } from './controller/user.controller';

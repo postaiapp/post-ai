@@ -20,7 +20,6 @@ export interface PostDetailsUIProps {
 	handleDateChange: (date: Date | undefined) => void;
 	selectedTime: string;
 	handleTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	loading: boolean;
 	loadingSubmit: boolean;
 	selectedAccount?: InstagramAccountStore;
 	handleAccountChange: (account: InstagramAccountStore) => void;

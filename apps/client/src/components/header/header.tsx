@@ -10,7 +10,9 @@ import { Input } from '@components/ui/input';
 import { Label } from '@components/ui/label';
 import { Separator } from '@components/ui/separator';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { CircleUserRound, Instagram } from 'lucide-react';
+import { userStore } from '@stores/index';
+import { getColorByInitials, getInitials } from '@utils/avatar';
+import { Instagram } from 'lucide-react';
 import Image from 'next/image';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -30,6 +32,10 @@ export default function Header({
 	isLoginPending,
 	setIsLogin,
 }: HeaderProps) {
+	const { user } = userStore();
+	const initials = getInitials(user?.name || '');
+	const backgroundColor = getColorByInitials(initials || '');
+
 	return (
 		<div className="flex justify-between items-center w-full px-5 py-2 border-b-2">
 			<div className="flex items-center space-x-4">
@@ -51,7 +57,12 @@ export default function Header({
 					<DialogTitle></DialogTitle>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<CircleUserRound size={24} className="cursor-pointer" />
+							<button
+								className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-medium"
+								style={{ backgroundColor }}
+							>
+								{initials}
+							</button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent side="top" className="mr-5 p-2">
 							{accounts?.map((account) => (

@@ -13,6 +13,7 @@ export function useCreatePost() {
 		},
 		onSuccess: (newPost) => {
 			queryClient.setQueryData(['post', newPost.id], newPost);
+			queryClient.invalidateQueries({ queryKey: ['history'] });
 		},
 	});
 

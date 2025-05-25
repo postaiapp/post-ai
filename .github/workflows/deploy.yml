@@ -112,7 +112,7 @@ jobs:
           cache: "npm"
 
       - name: Install Netlify CLI
-        run: npm install netlify-cli@17.10.1 -g
+        run: npm install -g netlify-cli@17.10.1
 
       - name: Install Dependencies
         working-directory: apps/client
@@ -123,13 +123,13 @@ jobs:
         run: npm run build
 
       - name: Deploy to Netlify
-        id: netlify_deploy
         working-directory: apps/client
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          netlify deploy --build \
+          netlify deploy \
+            --dir .next \
             --site "$NETLIFY_SITE_ID" \
             --auth "$NETLIFY_AUTH_TOKEN" \
             --prod

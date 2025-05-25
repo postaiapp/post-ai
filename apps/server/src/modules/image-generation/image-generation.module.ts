@@ -13,7 +13,7 @@ import { IdeogramRepository } from '@modules/image-generation/repositories/ideog
 		R2Storage,
 		{
 			provide: ImageGenerationService,
-			useClass: IdeogramRepository,
+			useClass: OpenAIRepository,
 		},
 	],
 	exports: [ImageGenerationService],

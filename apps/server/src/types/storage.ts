@@ -10,4 +10,6 @@ export abstract class Uploader {
     abstract getSignedImageUrl(fileName: string): Promise<string>;
 
     abstract downloadAndUploadImage(url: string): Promise<{ url: string }>;
+
+    abstract getSignedImageUrlByPath(path: string): Promise<string>;
 }

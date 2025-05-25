@@ -22,6 +22,7 @@
       "@*": ["./src/*"],
       "@schemas/*": ["./src/schemas/*"],
       "@modules/*": ["src/modules/*"],
+      "@models/*": ["src/models/*"],
     }
   }
 }
