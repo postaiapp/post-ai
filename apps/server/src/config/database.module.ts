@@ -24,22 +24,18 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 		}),
 		SequelizeModule.forRootAsync({
 			imports: [ConfigModule],
-			useFactory: (configService: ConfigService) => {
-				console.log(configService.get('POSTGRES_DB'));
-
-				return {
-					dialect: 'postgres',
-					host: configService.get('POSTGRES_HOST'),
-					port: configService.get('POSTGRES_PORT'),
-					username: configService.get('POSTGRES_USER'),
-					password: configService.get('POSTGRES_PASSWORD'),
-					database: configService.get('POSTGRES_DB'),
-					autoLoadModels: false,
-					synchronize: false,
-					logging: false,
-					models: [],
-				};
-			},
+			useFactory: (configService: ConfigService) => ({
+				dialect: 'postgres',
+				host: configService.get('POSTGRES_HOST'),
+				port: configService.get('POSTGRES_PORT'),
+				username: configService.get('POSTGRES_USER'),
+				password: configService.get('POSTGRES_PASSWORD'),
+				database: configService.get('POSTGRES_DB'),
+				autoLoadModels: false,
+				synchronize: false,
+				logging: false,
+				models: [],
+			}),
 			inject: [ConfigService],
 		}),
 	],
