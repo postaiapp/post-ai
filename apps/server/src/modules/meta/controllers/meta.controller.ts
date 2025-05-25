@@ -19,16 +19,6 @@ export class MetaController extends BaseController {
     super();
   }
 
-  @Get('auth/url')
-  async getAuthUrl(@Response() res: ExpressResponse) {
-    try {
-      const url = await this.metaAuthService.getAuthUrl();
-      return this.sendSuccess({ data: { url }, res });
-    } catch (error) {
-      return this.sendError({ error, res });
-    }
-  }
-
   @Post('auth/callback')
   async handleAuthCallback(@Body('code') code: string, @Response() res: ExpressResponse) {
     try {

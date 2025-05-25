@@ -26,7 +26,7 @@ export default function Header({
 	const hasInstagramAccounts = accounts && accounts.length > 0;
 
 	return (
-		<div className="flex justify-between items-center w-full px-5 py-2 border-b-2">
+		<div className="flex justify-between items-center w-full px-5 py-3 border-b-2">
 			<div className="flex items-center space-x-4">
 				<Image src="/logo.png" alt="Logo" width={40} height={40} />
 			</div>

@@ -5,27 +5,14 @@ import axios from 'axios';
 @Injectable()
 export class MetaAuthService {
   private readonly logger = new Logger(MetaAuthService.name);
-  private readonly clientId: string;
-  private readonly clientSecret: string;
+  private readonly appId: string;
+  private readonly appSecret: string;
   private readonly redirectUri: string;
 
   constructor(private configService: ConfigService) {
-    this.clientId = this.configService.get<string>('META_CLIENT_ID');
-    this.clientSecret = this.configService.get<string>('META_CLIENT_SECRET');
+    this.appId = this.configService.get<string>('META_INSTAGRAM_APP_ID');
+    this.appSecret = this.configService.get<string>('META_INSTAGRAM_SECRET_KEY');
     this.redirectUri = this.configService.get<string>('META_REDIRECT_URI');
-  }
-
-  async getAuthUrl(): Promise<string> {
-    const scopes = [
-      'instagram_basic',
-      'instagram_content_publish',
-      'instagram_manage_comments',
-      'instagram_manage_insights',
-      'pages_show_list',
-      'pages_read_engagement'
-    ].join(',');
-
-    return `https://api.instagram.com/oauth/authorize?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&scope=${scopes}&response_type=code`;
   }
 
   async exchangeCodeForToken(code: string): Promise<{
@@ -34,8 +21,8 @@ export class MetaAuthService {
   }> {
     try {
       const response = await axios.post('https://api.instagram.com/oauth/access_token', {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
+        client_id: this.appId,
+        client_secret: this.appSecret,
         grant_type: 'authorization_code',
         redirect_uri: this.redirectUri,
         code
@@ -60,7 +47,7 @@ export class MetaAuthService {
       const response = await axios.get('https://graph.instagram.com/access_token', {
         params: {
           grant_type: 'ig_exchange_token',
-          client_secret: this.clientSecret,
+          client_secret: this.appSecret,
           access_token: accessToken
         }
       });
