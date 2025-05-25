@@ -14,21 +14,11 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			user_id: {
+			user_platform_id: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				references: {
-					model: 'users',
-					key: 'id',
-				},
-				onUpdate: 'CASCADE',
-				onDelete: 'CASCADE',
-			},
-			platform_id: {
-				type: Sequelize.INTEGER,
-				allowNull: false,
-				references: {
-					model: 'platforms',
+					model: 'user_platforms',
 					key: 'id',
 				},
 				onUpdate: 'CASCADE',
@@ -54,7 +44,7 @@ module.exports = {
 			},
 		});
 
-		await queryInterface.addIndex('auth_tokens', ['user_id', 'platform_id']);
+		await queryInterface.addIndex('auth_tokens', ['user_platform_id']);
 
 		await queryInterface.addIndex('auth_tokens', ['access_token']);
 	},

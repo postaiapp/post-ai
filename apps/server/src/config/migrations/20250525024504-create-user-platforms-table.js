@@ -34,16 +34,6 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
-			token_id: {
-				type: Sequelize.INTEGER,
-				allowNull: false,
-				references: {
-					model: 'auth_tokens',
-					key: 'id',
-				},
-				onUpdate: 'CASCADE',
-				onDelete: 'CASCADE',
-			},
 			display_name: {
 				type: Sequelize.STRING,
 				allowNull: true,
@@ -71,8 +61,6 @@ module.exports = {
 				allowNull: true,
 			},
 		});
-
-		await queryInterface.addIndex('user_platforms', ['token_id']);
 
 		await queryInterface.addIndex('user_platforms', ['user_id', 'platform_id'], {
 			unique: true,
