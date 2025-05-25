@@ -9,6 +9,8 @@ import { StorageModule } from '@storages/storage.module';
 import { IgApiClient } from 'instagram-private-api';
 import { PublishedMissedPostsCron } from './publish-missed-posts.service';
 import { TokenManagementCron } from './token-management.service';
+import { RefreshTokensCron } from './refresh-tokens.service';
+import { MetaModule } from '@modules/meta/meta.module';
 
 @Module({
 	imports: [
@@ -17,10 +19,12 @@ import { TokenManagementCron } from './token-management.service';
 			{ name: Post.name, schema: PostSchema },
 		]),
 		StorageModule,
+		MetaModule,
 	],
 	providers: [
 		TokenManagementCron,
 		PublishedMissedPostsCron,
+		RefreshTokensCron,
 		InstagramAuthService,
 		IgApiClient,
 		PostService,
