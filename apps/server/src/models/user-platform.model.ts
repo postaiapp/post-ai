@@ -1,7 +1,6 @@
 import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { User } from '@models/user.model';
 import { Platform } from '@models/platform.model';
-import { AuthToken } from '@models/auth-token.model';
 
 @Table({
 	tableName: 'user_platforms',
@@ -36,13 +35,6 @@ export class UserPlatform extends Model {
 		allowNull: false,
 	})
 	platform_id: number;
-
-	@ForeignKey(() => AuthToken)
-	@Column({
-		type: DataType.INTEGER,
-		allowNull: false,
-	})
-	token_id: number;
 
 	@Column({
 		type: DataType.STRING,
@@ -90,7 +82,4 @@ export class UserPlatform extends Model {
 
 	@BelongsTo(() => Platform)
 	platform: Platform;
-
-	@BelongsTo(() => AuthToken)
-	auth_token: AuthToken;
 }

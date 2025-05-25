@@ -1,14 +1,4 @@
-import {
-	Column,
-	Model,
-	Table,
-	DataType,
-	ForeignKey,
-	BelongsTo,
-	HasOne,
-} from 'sequelize-typescript';
-import { User } from '@models/user.model';
-import { Platform } from '@models/platform.model';
+import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { UserPlatform } from '@models/user-platform.model';
 
 @Table({
@@ -30,19 +20,12 @@ export class AuthToken extends Model {
 	})
 	name: string;
 
-	@ForeignKey(() => User)
+	@ForeignKey(() => UserPlatform)
 	@Column({
 		type: DataType.INTEGER,
 		allowNull: false,
 	})
-	user_id: number;
-
-	@ForeignKey(() => Platform)
-	@Column({
-		type: DataType.INTEGER,
-		allowNull: false,
-	})
-	platform_id: number;
+	user_platform_id: number;
 
 	@Column({
 		type: DataType.TEXT,
@@ -72,12 +55,6 @@ export class AuthToken extends Model {
 	})
 	updated_at!: Date;
 
-	@BelongsTo(() => User)
-	user: User;
-
-	@BelongsTo(() => Platform)
-	platform: Platform;
-
-	@HasOne(() => UserPlatform)
+	@BelongsTo(() => UserPlatform)
 	user_platform: UserPlatform;
 }
