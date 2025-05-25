@@ -1,4 +1,9 @@
-import { BadRequestException, HttpStatus, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+	BadRequestException,
+	HttpStatus,
+	InternalServerErrorException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { ExceptionResponse } from '@type/error';
 
 export const mappingIntegrationsErrors = (error: any, username?: string): ExceptionResponse => {

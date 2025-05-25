@@ -46,7 +46,7 @@ describe('Auth Controller (e2e)', () => {
 		expect(Array.isArray(cookies)).toBe(true);
 
 		const refreshToken = Array.isArray(cookies)
-			? cookies.find((cookie) => cookie.startsWith('refreshToken='))
+			? cookies.find(cookie => cookie.startsWith('refreshToken='))
 			: null;
 
 		expect(refreshToken).toBeDefined();

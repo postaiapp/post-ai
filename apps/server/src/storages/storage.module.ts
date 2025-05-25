@@ -5,13 +5,13 @@ import { ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
-    providers: [
-        {
-            provide: Uploader,
-            useClass: R2Storage,
-        },
-        ConfigService,
-    ],
-    exports: [Uploader],
+	providers: [
+		{
+			provide: Uploader,
+			useClass: R2Storage,
+		},
+		ConfigService,
+	],
+	exports: [Uploader],
 })
 export class StorageModule {}

@@ -17,7 +17,7 @@ async function bootstrap() {
 			whitelist: true,
 			transform: true,
 			transformOptions: { enableImplicitConversion: true },
-		})
+		}),
 	);
 	app.enableVersioning();
 
@@ -25,8 +25,8 @@ async function bootstrap() {
 		helmet({
 			crossOriginResourcePolicy: { policy: 'cross-origin' },
 			crossOriginEmbedderPolicy: false,
-			contentSecurityPolicy: false
-		})
+			contentSecurityPolicy: false,
+		}),
 	);
 
 	const allowedOrigin = 'https://post-ai.netlify.app';
@@ -52,7 +52,9 @@ async function bootstrap() {
 
 	const config = new DocumentBuilder()
 		.setTitle('Post AI API')
-		.setDescription('A API that generates posts for your Instagram account using AI, with a chat interface to help you generate the best posts and schedule them.')
+		.setDescription(
+			'A API that generates posts for your Instagram account using AI, with a chat interface to help you generate the best posts and schedule them.',
+		)
 		.setVersion('1.0')
 		.addBearerAuth()
 		.build();

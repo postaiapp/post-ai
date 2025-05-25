@@ -13,7 +13,7 @@ export class IdeogramRepository implements ImageGenerationService {
 
 	constructor(
 		private configService: ConfigService,
-		private storageService: R2Storage
+		private storageService: R2Storage,
 	) {
 		this.apiKey = this.configService.get<string>('IDEOGRAM_API_KEY');
 		this.baseUrl = this.configService.get<string>('IDEOGRAM_BASE_URL');

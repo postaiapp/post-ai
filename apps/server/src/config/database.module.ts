@@ -9,19 +9,19 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 
 @Global()
 @Module({
-    imports: [
+	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
 			envFilePath: [currentEnvFile],
 			validate,
 		}),
-        MongooseModule.forRootAsync({
-            imports: [ConfigModule],
-            useFactory: (configService: ConfigService) => ({
-                uri: configService.get('MONGODB_URI'),
-            }),
-            inject: [ConfigService],
-        }),
+		MongooseModule.forRootAsync({
+			imports: [ConfigModule],
+			useFactory: (configService: ConfigService) => ({
+				uri: configService.get('MONGODB_URI'),
+			}),
+			inject: [ConfigService],
+		}),
 		SequelizeModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => {
@@ -38,14 +38,14 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 					synchronize: false,
 					logging: false,
 					models: [],
-				}
+				};
 			},
 			inject: [ConfigService],
 		}),
-    ],
+	],
 })
 export class DatabaseModule {
-    static forFeature(models: ModelDefinition[]) {
-        return MongooseModule.forFeature(models);
-    }
+	static forFeature(models: ModelDefinition[]) {
+		return MongooseModule.forFeature(models);
+	}
 }

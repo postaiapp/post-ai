@@ -16,19 +16,19 @@ import { PostService } from '../services/post.service';
 export class PostController {
 	constructor(
 		private readonly postService: PostService,
-		private readonly emailService: EmailService
+		private readonly emailService: EmailService,
 	) {}
 
 	@Post()
 	@ApiBody({
 		schema: {
 			example: {
-				username: "instagramuser",
-				caption: "My awesome post! 🌟",
-				img: "https://example.com/image.jpg",
-				post_date: "2024-03-20T10:00:00Z"
-			}
-		}
+				username: 'instagramuser',
+				caption: 'My awesome post! 🌟',
+				img: 'https://example.com/image.jpg',
+				post_date: '2024-03-20T10:00:00Z',
+			},
+		},
 	})
 	create(@Body() data: CreatePostDto, @Meta() meta: MetaType) {
 		return this.postService.create({ data, meta });
@@ -37,7 +37,7 @@ export class PostController {
 	@Post('cancel/:postId')
 	@ApiParam({
 		name: 'postId',
-		example: '507f1f77bcf86cd799439011'
+		example: '507f1f77bcf86cd799439011',
 	})
 	cancel(@Param('postId') postId: string, @Meta() meta: MetaType) {
 		return this.postService.cancelScheduledPost({
@@ -47,10 +47,7 @@ export class PostController {
 	}
 
 	@Get()
-	getUserPosts(
-		@Paginate({ perPage: 10 }) pagination: Pagination,
-		@Meta() meta: MetaType
-	) {
+	getUserPosts(@Paginate({ perPage: 10 }) pagination: Pagination, @Meta() meta: MetaType) {
 		return this.postService.getUserPostsWithDetails({ pagination, meta });
 	}
 }

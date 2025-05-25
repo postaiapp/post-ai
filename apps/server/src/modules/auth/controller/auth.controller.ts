@@ -25,10 +25,10 @@ export class AuthController {
 	@ApiBody({
 		schema: {
 			example: {
-				email: "user@example.com",
-				password: "yourpassword"
-			}
-		}
+				email: 'user@example.com',
+				password: 'yourpassword',
+			},
+		},
 	})
 	async create(@Body() createAuthDto: LoginDto, @Res() res: Response) {
 		const response = await this.authService.authenticate({ ...createAuthDto, res });
@@ -40,11 +40,11 @@ export class AuthController {
 	@ApiBody({
 		schema: {
 			example: {
-				name: "John Doe",
-				email: "john@example.com",
-				password: "securepassword"
-			}
-		}
+				name: 'John Doe',
+				email: 'john@example.com',
+				password: 'securepassword',
+			},
+		},
 	})
 	register(@Body() registerDto: RegisterDto) {
 		return this.authService.register(registerDto);

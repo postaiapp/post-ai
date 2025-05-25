@@ -24,7 +24,7 @@ import { TokenManagementCron } from './token-management.service';
 		InstagramAuthService,
 		IgApiClient,
 		PostService,
-		EmailService
+		EmailService,
 	],
 })
 export class CronModule {}

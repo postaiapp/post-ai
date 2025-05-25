@@ -9,21 +9,18 @@ import { UserService } from '../service/user.service';
 
 @Controller('user')
 @UseGuards(AuthGuard)
-export class UserController extends BaseController{
-  constructor(private readonly userService: UserService) {
-	super()
-  }
+export class UserController extends BaseController {
+	constructor(private readonly userService: UserService) {
+		super();
+	}
 
 	@Get()
-	async findOne(
-		@Res() res: Response,
-		@Meta() meta: MetaType,
-	) {
+	async findOne(@Res() res: Response, @Meta() meta: MetaType) {
 		const options = {
 			filter: {
-				id: meta.userId
-			}
-		}
+				id: meta.userId,
+			},
+		};
 
 		try {
 			const response = await this.userService.findOne(options);
@@ -31,28 +28,24 @@ export class UserController extends BaseController{
 			this.sendSuccess({
 				res,
 				data: response,
-				status: HttpStatus.OK
-			})
+				status: HttpStatus.OK,
+			});
 		} catch (error) {
 			this.sendError({
 				res,
-				error
-			})
+				error,
+			});
 		}
 	}
 
 	@Put()
-	async update(
-		@Meta() meta: MetaType,
-		@Body() data: UpdateUserDto,
-		@Res() res: Response,
-	) {
+	async update(@Meta() meta: MetaType, @Body() data: UpdateUserDto, @Res() res: Response) {
 		const options = {
 			filter: {
-				id: meta.userId
+				id: meta.userId,
 			},
-			data
-		}
+			data,
+		};
 
 		try {
 			const response = await this.userService.update(options);
@@ -60,41 +53,37 @@ export class UserController extends BaseController{
 			this.sendSuccess({
 				res,
 				data: response,
-				status: HttpStatus.OK
-			})
-
+				status: HttpStatus.OK,
+			});
 		} catch (error) {
 			this.sendError({
 				res,
-				error
-			})
+				error,
+			});
 		}
 	}
 
-  @Delete()
-  async remove(
-	@Res() res: Response,
-	@Meta() meta: MetaType,
-  ) {
-    const options = {
-		filter: {
-			id: meta.userId
+	@Delete()
+	async remove(@Res() res: Response, @Meta() meta: MetaType) {
+		const options = {
+			filter: {
+				id: meta.userId,
+			},
+		};
+
+		try {
+			const response = await this.userService.remove(options);
+
+			this.sendSuccess({
+				res,
+				data: response,
+				status: HttpStatus.OK,
+			});
+		} catch (error) {
+			this.sendError({
+				res,
+				error,
+			});
 		}
 	}
-
-	try {
-		const response = await this.userService.remove(options);
-
-		this.sendSuccess({
-			res,
-			data: response,
-			status: HttpStatus.OK
-		})
-	} catch (error) {
-		this.sendError({
-			res,
-			error
-		})
-	}
-  }
 }

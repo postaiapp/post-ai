@@ -35,7 +35,7 @@ export class R2Storage implements Uploader {
 				Key: uniqueFileName,
 				ContentType: fileType,
 				Body: body,
-			})
+			}),
 		);
 
 		return {
@@ -69,7 +69,7 @@ export class R2Storage implements Uploader {
 
 		const mimeType = response.headers['content-type'];
 
-		const uploadedFileKey =  await this.upload({
+		const uploadedFileKey = await this.upload({
 			fileType: mimeType,
 			fileName: 'image.jpg',
 			body: response.data,

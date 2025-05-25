@@ -15,7 +15,7 @@ export class PublishedMissedPostsCron {
 	constructor(
 		private readonly postService: PostService,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		@InjectModel(Post.name) private readonly postModel: Model<Post>
+		@InjectModel(Post.name) private readonly postModel: Model<Post>,
 	) {}
 
 	@Cron(CronExpression.EVERY_MINUTE)
@@ -30,16 +30,18 @@ export class PublishedMissedPostsCron {
 		}
 
 		await Promise.all(
-			postsScheduledMissed?.map(async (post) => {
+			postsScheduledMissed?.map(async post => {
 				const { userId, accountId, caption, imageUrl } = post;
 
-				const user = await this.userModel.findOne(
-					{
-						_id: userId,
-						'InstagramAccounts.accountId': accountId,
-					},
-					{ 'InstagramAccounts.$': 1 }
-				).lean();
+				const user = await this.userModel
+					.findOne(
+						{
+							_id: userId,
+							'InstagramAccounts.accountId': accountId,
+						},
+						{ 'InstagramAccounts.$': 1 },
+					)
+					.lean();
 
 				if (!user || isEmpty(user.InstagramAccounts)) {
 					this.logger.warn(`No Instagram account found for user ${userId}`);
@@ -48,31 +50,39 @@ export class PublishedMissedPostsCron {
 						{ _id: post._id },
 						{
 							failedToPost: true,
-						}
+						},
 					);
 
 					return;
 				}
 
-				const account = user.InstagramAccounts.filter(account => account.accountId === accountId)[0];
+				const account = user.InstagramAccounts.filter(
+					account => account.accountId === accountId,
+				)[0];
 
 				const { username, session } = account;
 
-				const isPosted = await this.postService.publishPhotoOnInstagram(caption, username, session, imageUrl);
-
-				const changes = isPosted ? {
-					publishedAt: dayjs().toDate()
-				} : {
-					failedToPost: true,
-				};
-
-				await this.postModel.updateOne(
-					{ _id: post._id },
-					changes
+				const isPosted = await this.postService.publishPhotoOnInstagram(
+					caption,
+					username,
+					session,
+					imageUrl,
 				);
 
-				this.logger.log(`Post ${post._id} ${isPosted ? 'published successfully' : 'failed to publish'}`);
-			})
+				const changes = isPosted
+					? {
+							publishedAt: dayjs().toDate(),
+						}
+					: {
+							failedToPost: true,
+						};
+
+				await this.postModel.updateOne({ _id: post._id }, changes);
+
+				this.logger.log(
+					`Post ${post._id} ${isPosted ? 'published successfully' : 'failed to publish'}`,
+				);
+			}),
 		);
 
 		this.logger.log('Missed posts check completed');
