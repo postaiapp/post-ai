@@ -1,14 +1,15 @@
-import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
+import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from '@models/user.model';
+import { Platform } from '@models/platform.model';
 import { AuthToken } from '@models/auth-token.model';
-import { UserPlatform } from '@models/user-platform.model';
 
 @Table({
-	tableName: 'users',
+	tableName: 'user_platforms',
 	timestamps: true,
 	underscored: true,
 	paranoid: true,
 })
-export class User extends Model {
+export class UserPlatform extends Model {
 	@Column({
 		type: DataType.INTEGER,
 		autoIncrement: true,
@@ -22,54 +23,44 @@ export class User extends Model {
 	})
 	name: string;
 
+	@ForeignKey(() => User)
 	@Column({
-		type: DataType.STRING,
-		unique: true,
+		type: DataType.INTEGER,
 		allowNull: false,
 	})
-	email: string;
+	user_id: number;
 
+	@ForeignKey(() => Platform)
 	@Column({
-		type: DataType.STRING,
+		type: DataType.INTEGER,
 		allowNull: false,
 	})
-	password: string;
+	platform_id: number;
+
+	@ForeignKey(() => AuthToken)
+	@Column({
+		type: DataType.INTEGER,
+		allowNull: false,
+	})
+	token_id: number;
 
 	@Column({
 		type: DataType.STRING,
 		allowNull: true,
 	})
-	avatar_url?: string;
+	display_name: string;
 
 	@Column({
 		type: DataType.STRING,
 		allowNull: true,
 	})
-	phone_number?: string;
+	avatar_url: string;
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.JSONB,
 		allowNull: true,
 	})
-	phone_country_code?: string;
-
-	@Column({
-		type: DataType.STRING,
-		allowNull: true,
-	})
-	phone_dial_code?: string;
-
-	@Column({
-		type: DataType.STRING,
-		allowNull: true,
-	})
-	city?: string;
-
-	@Column({
-		type: DataType.STRING,
-		allowNull: true,
-	})
-	country?: string;
+	profile_data: any;
 
 	@Column({
 		type: DataType.DATE,
@@ -94,9 +85,12 @@ export class User extends Model {
 	})
 	deleted_at!: Date | null;
 
-	@HasMany(() => AuthToken)
-	auth_tokens: AuthToken[];
+	@BelongsTo(() => User)
+	user: User;
 
-	@HasMany(() => UserPlatform)
-	user_platforms: UserPlatform[];
+	@BelongsTo(() => Platform)
+	platform: Platform;
+
+	@BelongsTo(() => AuthToken)
+	auth_token: AuthToken;
 }
