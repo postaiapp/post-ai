@@ -1,9 +1,12 @@
-// import { ConfigModule } from '@config/config.module';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { validate } from './env.validation';
+import { User } from '@models/user.model';
+import { UserPlatform } from '@models/user-platform.model';
+import { AuthToken } from '@models/auth-token.model';
+import { Platform } from '@models/platform.model';
 
 const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env';
 
@@ -34,7 +37,7 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 				autoLoadModels: false,
 				synchronize: false,
 				logging: false,
-				models: [],
+				models: [User, UserPlatform, AuthToken, Platform],
 			}),
 			inject: [ConfigService],
 		}),

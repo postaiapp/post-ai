@@ -1,5 +1,4 @@
 import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
-import { AuthToken } from '@models/auth-token.model';
 import { UserPlatform } from '@models/user-platform.model';
 
 @Table({
@@ -43,9 +42,6 @@ export class Platform extends Model {
 		field: 'updated_at',
 	})
 	updated_at!: Date;
-
-	@HasMany(() => AuthToken)
-	auth_tokens: AuthToken[];
 
 	@HasMany(() => UserPlatform)
 	user_platforms: UserPlatform[];
