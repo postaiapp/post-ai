@@ -11,7 +11,7 @@ import { Instagram, LogOut, ChevronDown, Link, Settings } from 'lucide-react';
 import Image from 'next/image';
 
 const INSTAGRAM_OAUTH_URL =
-	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://7ddb-2804-351c-dd01-a1e0-34a0-ab8f-a36a-a7a5.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
+	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://173c-2804-351c-dd01-a1e0-4d44-800-f2a0-ac3a.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
 
 export default function Header({
 	accounts,

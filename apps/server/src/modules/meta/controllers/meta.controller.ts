@@ -6,6 +6,9 @@ import { MetaMetricsService } from '../services/meta-metrics.service';
 import { AuthGuard } from '@guards/auth.guard';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
+import { MetaAccountService } from '../services/meta-account.service';
+import { Meta } from '@decorators/meta.decorator';
+import { Meta as MetaType } from '@type/meta';
 
 @Controller('meta')
 @UseGuards(AuthGuard)
@@ -15,6 +18,7 @@ export class MetaController extends BaseController {
 		private readonly metaFeedService: MetaFeedService,
 		private readonly metaStoriesService: MetaStoriesService,
 		private readonly metaMetricsService: MetaMetricsService,
+		private readonly metaAccountService: MetaAccountService,
 	) {
 		super();
 	}
@@ -126,6 +130,25 @@ export class MetaController extends BaseController {
 
 			return this.sendSuccess({ data, res });
 		} catch (error) {
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Post('account/connect')
+	async connectAccount(
+		@Body() body: { code: string },
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse,
+	) {
+		try {
+			const userPlatform = await this.metaAccountService.connectAccount(
+				body.code,
+				meta.userId,
+			);
+
+			return this.sendSuccess({ data: userPlatform, res });
+		} catch (error) {
+			console.log('error', error);
 			return this.sendError({ error, res });
 		}
 	}

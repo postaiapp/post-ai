@@ -1,0 +1,9 @@
+export const PLATFORMS_IDS = {
+	INSTAGRAM: 1,
+	TIKTOK: 2,
+};
+
+export const PLATFORMS_NAMES = {
+	INSTAGRAM: 'INSTAGRAM',
+	TIKTOK: 'TIKTOK',
+};

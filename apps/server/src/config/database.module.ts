@@ -37,6 +37,12 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 				autoLoadModels: false,
 				synchronize: false,
 				logging: false,
+				dialectOptions: {
+					ssl: {
+						require: true,
+						rejectUnauthorized: false,
+					},
+				},
 				models: [User, UserPlatform, AuthToken, Platform],
 			}),
 			inject: [ConfigService],

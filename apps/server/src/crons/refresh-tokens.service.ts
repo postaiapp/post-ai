@@ -3,7 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { AuthToken } from '@models/auth-token.model';
 import { MetaAuthService } from '@modules/meta/services/meta-auth.service';
 import PQueue from 'p-queue';
-import moment from 'moment';
+import * as dayjs from 'dayjs';
 import { CronExpression } from '@nestjs/schedule';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class RefreshTokensCron {
 
 						await token.update({
 							access_token: newToken,
-							expires_at: moment().add(60, 'days').format(),
+							expires_at: dayjs().add(60, 'days').format(),
 						});
 
 						this.logger.log(

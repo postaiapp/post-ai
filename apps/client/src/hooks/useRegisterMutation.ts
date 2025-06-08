@@ -1,4 +1,3 @@
-import { mappedErrors } from '@common/constants/error';
 import { AuthRegisterType } from '@common/interfaces/auth';
 import { register as registerUser } from '@processes/auth';
 import { useMutation } from '@tanstack/react-query';

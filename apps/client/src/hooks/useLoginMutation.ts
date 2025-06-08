@@ -17,8 +17,11 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			setUser(data.user);
-			localStorageSet('token', data.token);
+			const { user, token } = data.data;
+
+			setUser(user);
+
+			localStorageSet('token', token);
 
 			setTimeout(() => {
 				router.push('/chat');

@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Post } from '@schemas/post.schema';
 import { User } from '@schemas/user.schema';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 import { Model } from 'mongoose';
 
