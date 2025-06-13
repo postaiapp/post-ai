@@ -1,5 +1,4 @@
 import { Controller, Get, Post, Body, Query, Param, UseGuards, Response } from '@nestjs/common';
-import { MetaAuthService } from '../services/meta-auth.service';
 import { MetaFeedService } from '../services/meta-feed.service';
 import { MetaStoriesService } from '../services/meta-stories.service';
 import { MetaMetricsService } from '../services/meta-metrics.service';
@@ -14,33 +13,12 @@ import { Meta as MetaType } from '@type/meta';
 @UseGuards(AuthGuard)
 export class MetaController extends BaseController {
 	constructor(
-		private readonly metaAuthService: MetaAuthService,
 		private readonly metaFeedService: MetaFeedService,
 		private readonly metaStoriesService: MetaStoriesService,
 		private readonly metaMetricsService: MetaMetricsService,
 		private readonly metaAccountService: MetaAccountService,
 	) {
 		super();
-	}
-
-	@Post('auth/callback')
-	async handleAuthCallback(@Body('code') code: string, @Response() res: ExpressResponse) {
-		try {
-			const tokenData = await this.metaAuthService.exchangeCodeForToken(code);
-			const longLivedToken = await this.metaAuthService.getLongLivedToken(
-				tokenData.access_token,
-			);
-
-			return this.sendSuccess({
-				data: {
-					...tokenData,
-					...longLivedToken,
-				},
-				res,
-			});
-		} catch (error) {
-			return this.sendError({ error, res });
-		}
 	}
 
 	@Post('feed/post')
