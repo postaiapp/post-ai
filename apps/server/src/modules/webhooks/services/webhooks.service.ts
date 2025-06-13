@@ -23,14 +23,13 @@ export class WebhooksService {
 
 	handleWebhook(body: any): void {
 		try {
-			// Verifica a assinatura do webhook
 			const signature = body.signature;
+
 			if (!this.verifySignature(signature, body)) {
 				this.logger.error('Invalid webhook signature');
 				return;
 			}
 
-			// Processa os eventos do webhook
 			const events = body.entry;
 			for (const entry of events) {
 				for (const change of entry.changes) {

@@ -1,78 +1,50 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-
-import { InstagramAccountStore, InstagramAccountType } from '@common/interfaces/instagramAccount';
-import { InstagramAccountSchema } from '@common/schemas/instagramAccount';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useInstagramMutation } from '@hooks/useInstagramMutation';
-import { getUserInstagramAccounts } from '@processes/instagramAccount';
 import userStore from '@stores/userStore';
-import { useQuery } from '@tanstack/react-query';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+
+import { UserPlatform } from '@/common/interfaces/user-platforms';
 
 import Header from './header';
 
+import { successToast } from '@/utils/toast';
+
 const HeaderContainer = () => {
-	const [modalOpen, setModalOpen] = useState(false);
-	const [isLogin, setIsLogin] = useState(false);
-	const { user } = userStore();
+	const { user, logout, setUser } = userStore();
+	const router = useRouter();
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-	} = useForm<InstagramAccountType>({
-		resolver: zodResolver(InstagramAccountSchema),
-		mode: 'onSubmit',
-		defaultValues: {
-			username: '',
-			password: '',
-		},
-	});
+	const handleLogout = () => {
+		router.push('/auth');
 
-	const { mutate: instagramCreateMutate, isPending: isCreatePending } = useInstagramMutation('create', setModalOpen);
-	const { mutate: instagramLoginMutate, isPending: isLoginPending } = useInstagramMutation('login', setModalOpen);
-	const { mutate: instagramLogoutMutate } = useInstagramMutation('logout');
+		setTimeout(() => {
+			logout();
 
-	const { data } = useQuery<{ data: InstagramAccountStore[] }>({
-		queryKey: ['instagram-accounts', user?.email],
-		queryFn: () => getUserInstagramAccounts(),
-	});
+			localStorage.clear();
 
-	const handleLogout = useCallback(
-		(username: string) => {
-			instagramLogoutMutate({ username });
-		},
-		[instagramLogoutMutate]
-	);
+			successToast('Deslogado com sucesso');
+		}, 1000);
+	};
 
-	const onSubmit = useCallback<SubmitHandler<InstagramAccountType>>(
-		(body) => {
-			if (isLogin) {
-				return instagramLoginMutate(body);
-			}
+	const handleSelectPlatform = (platform: UserPlatform) => {
+		if (!user) return;
 
-			return instagramCreateMutate(body);
-		},
-		[instagramCreateMutate, instagramLoginMutate, isLogin]
-	);
+		setUser({
+			...user,
+			selected_platform: platform,
+		});
+	};
+
+	const goToEditProfile = () => {
+		router.push('/settings');
+	};
 
 	return (
 		<Header
-			accounts={data?.data || []}
-			onSubmit={onSubmit}
-			isLoginPending={isLoginPending}
-			modalOpen={modalOpen}
-			setModalOpen={setModalOpen}
+			accounts={user?.user_platforms || []}
+			selectedAccount={user?.user_platforms?.[0]}
 			handleLogout={handleLogout}
-			handleSubmit={handleSubmit}
-			setIsLogin={setIsLogin}
-			register={register}
-			reset={reset}
-			errors={errors}
-			isLoading={isCreatePending}
+			handleSelectPlatform={handleSelectPlatform}
+			goToEditProfile={goToEditProfile}
 		/>
 	);
 };

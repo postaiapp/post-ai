@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 
-import { connectAccount } from '@processes/instagramAuth';
+import { connect } from '@processes/platforms';
 import { useMutation } from '@tanstack/react-query';
-import { LoaderCircle, CheckCircle, XCircle, CloudCog } from 'lucide-react';
+import { LoaderCircle, CheckCircle, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -12,11 +12,10 @@ export default function InstagramCallbackPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const code = searchParams.get('code');
-
-	console.log(code, 'code')
+	const platformId = 1;
 
 	const { mutate, status, error } = useMutation({
-		mutationFn: (code: string) => connectAccount(code),
+		mutationFn: (code: string) => connect(code, platformId),
 	});
 
 	useEffect(() => {

@@ -1,21 +1,29 @@
-import { InstagramAccountStore } from './instagramAccount';
+import { UserPlatform } from './user-platforms';
 
 export type User = {
-	_id: string;
+	id: number;
 	name: string;
 	email: string;
-	cpf?: string;
-	phone?: string;
+	password: string;
+	avatar_url?: string;
+	phone_number?: string;
+	phone_country_code?: string;
+	phone_dial_code?: string;
 	city?: string;
 	country?: string;
-	InstagramAccounts: InstagramAccountStore[];
+	created_at: Date;
+	updated_at: Date;
+	deleted_at?: Date | null;
+	user_platforms?: UserPlatform[];
+	selected_platform?: UserPlatform;
 };
 
 export type UpdateUserData = {
 	name: string;
 	email: string;
-	cpf: string | null;
-	phone: string | null;
-	city: string | null;
-	country: string | null;
+	phone_number?: string;
+	phone_country_code?: string;
+	phone_dial_code?: string;
+	city?: string;
+	country?: string;
 };

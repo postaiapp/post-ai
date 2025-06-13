@@ -1,31 +1,9 @@
-import { FieldErrors, SubmitHandler, UseFormHandleSubmit, UseFormRegister, UseFormReset } from 'react-hook-form';
-
-export interface InstagramAccountType {
-	id: string;
-	username: string;
-	password?: string;
-}
+import { UserPlatform } from './user-platforms';
 
 export interface HeaderProps {
-	accounts?: InstagramAccountType[];
-	selectedAccount?: InstagramAccountType;
-	handleAccountChange: (account: InstagramAccountType) => void;
+	accounts?: UserPlatform[];
+	selectedAccount?: UserPlatform;
+	goToEditProfile: () => void;
 	handleLogout: () => void;
-	handleNavigateUserDetails: () => void;
+	handleSelectPlatform: (platform: UserPlatform) => void;
 }
-
-type HeaderPropsInternal = {
-	onSubmit: SubmitHandler<InstagramAccountType>;
-	handleSubmit: UseFormHandleSubmit<InstagramAccountType>;
-	register: UseFormRegister<InstagramAccountType>;
-	errors: FieldErrors<InstagramAccountType>;
-	isLoading: boolean;
-	isLoginPending: boolean;
-	reset: UseFormReset<InstagramAccountType>;
-	accounts: InstagramAccountType[];
-	modalOpen: boolean;
-	setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export type { HeaderPropsInternal };

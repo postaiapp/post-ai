@@ -1,6 +1,14 @@
-import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
+import { Column, Model, Table, DataType, HasMany, Scopes } from 'sequelize-typescript';
 import { UserPlatform } from '@models/user-platform.model';
 
+@Scopes(() => ({
+	withAccounts: {
+		include: {
+			model: UserPlatform,
+			as: 'user_platforms',
+		},
+	},
+}))
 @Table({
 	tableName: 'users',
 	timestamps: true,

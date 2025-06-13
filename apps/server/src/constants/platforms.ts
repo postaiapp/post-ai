@@ -7,3 +7,8 @@ export const PLATFORMS_NAMES = {
 	INSTAGRAM: 'INSTAGRAM',
 	TIKTOK: 'TIKTOK',
 };
+
+export const PLATFORM_STATUS = {
+	ACTIVE: 'ACTIVE',
+	PENDING: 'PENDING',
+};

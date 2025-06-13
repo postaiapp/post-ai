@@ -19,6 +19,8 @@
       }
     ],
     "paths": {
+      "@/*": ["./src/*"],
+      "@public/*": ["./public/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@config/*": ["./src/config/*"],
       "@common/*": ["./src/common/*"],

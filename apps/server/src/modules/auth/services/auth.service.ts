@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -6,6 +6,8 @@ import { omit } from 'lodash';
 import { User } from '@models/user.model';
 import { RegisterDto } from '../dto/auth.dto';
 import { InjectModel } from '@nestjs/sequelize';
+import { UserPlatform } from '@models/user-platform.model';
+import { Uploader } from '@type/storage';
 
 @Injectable()
 export class AuthService {
@@ -14,10 +16,27 @@ export class AuthService {
 		private userModel: typeof User,
 		private readonly jwtService: JwtService,
 		private readonly config: ConfigService,
+		@Inject(Uploader) private readonly storageService: Uploader,
 	) {}
 
+	async signAvatarFiles(user_platforms: UserPlatform[]) {
+		return Promise.all(
+			user_platforms.map(async platform => {
+				if (platform.avatar_url) {
+					platform.avatar_url = await this.storageService.getSignedImageUrl(
+						platform.avatar_url,
+					);
+				}
+			}),
+		);
+	}
+
 	async authenticate({ email, password }: { email: string; password: string }) {
-		const user = await this.userModel.findOne({ where: { email } });
+		const user = await this.userModel.scope('withAccounts').findOne({ where: { email } });
+
+		if (user.user_platforms?.length) {
+			await this.signAvatarFiles(user.user_platforms);
+		}
 
 		if (!user) {
 			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
