@@ -7,14 +7,14 @@ const itemsSideBar = [
 		icon: House,
 	},
 	{
-		title: 'Novo Chat',
-		url: '/chat',
-		icon: SquarePen,
-	},
-	{
 		title: 'Histórico de Posts',
 		url: '/history',
 		icon: History,
+	},
+	{
+		title: 'Novo Chat',
+		url: '/chat',
+		icon: SquarePen,
 	},
 ];
 

@@ -1,7 +1,7 @@
 'use client';
 
-import Home from './home';
+import HomeView from './homeContainer';
 
-export default function PostDetails() {
-	return <Home />;
+export default function Home() {
+	return <HomeView />;
 }
