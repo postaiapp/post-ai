@@ -1,11 +1,11 @@
+import { User } from '@models/user.model';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcryptjs';
 import { omit } from 'lodash';
-import { User } from '@models/user.model';
 import { RegisterDto } from '../dto/auth.dto';
-import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +37,7 @@ export class AuthService {
 
 		return {
 			user: {
-				...omit(user.toJSON(), 'password'),
+				...omit(user, 'password'),
 				id: user.id,
 			},
 			token: accessToken,

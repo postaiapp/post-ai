@@ -11,7 +11,7 @@ export const login = async (filter: AuthLoginType) => {
 	});
 
 	return {
-		data,
+		data: data.data,
 		error,
 	};
 };
