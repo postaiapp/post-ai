@@ -1,21 +1,24 @@
+import { DatabaseConfig } from '@database/database.config';
+import * as postAiModels from '@models';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 import { SequelizeModule } from '@nestjs/sequelize';
+import config from './configuration';
 import { validate } from './env.validation';
-import { User } from '@models/user.model';
-import { UserPlatform } from '@models/user-platform.model';
-import { AuthToken } from '@models/auth-token.model';
-import { Platform } from '@models/platform.model';
 
 const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env';
+
+const modelsArray = Object.values(postAiModels);
 
 @Global()
 @Module({
 	imports: [
+		SequelizeModule.forFeature(modelsArray),
 		ConfigModule.forRoot({
-			isGlobal: true,
 			envFilePath: [currentEnvFile],
+			load: [config],
+			isGlobal: true,
 			validate,
 		}),
 		MongooseModule.forRootAsync({
@@ -26,20 +29,7 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 			inject: [ConfigService],
 		}),
 		SequelizeModule.forRootAsync({
-			imports: [ConfigModule],
-			useFactory: (configService: ConfigService) => ({
-				dialect: 'postgres',
-				host: configService.get('POSTGRES_HOST'),
-				port: configService.get('POSTGRES_PORT'),
-				username: configService.get('POSTGRES_USER'),
-				password: configService.get('POSTGRES_PASSWORD'),
-				database: configService.get('POSTGRES_DB'),
-				autoLoadModels: false,
-				synchronize: false,
-				logging: false,
-				models: [User, UserPlatform, AuthToken, Platform],
-			}),
-			inject: [ConfigService],
+			useClass: DatabaseConfig,
 		}),
 	],
 })
