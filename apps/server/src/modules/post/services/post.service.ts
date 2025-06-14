@@ -1,10 +1,12 @@
 import { EmailService } from '@common/providers/email.service';
 import { TIME_ZONE } from '@constants/post';
+import { Platform, Post as PostModel, User as UserModel, UserPlatform } from '@models';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { InjectModel as InjectSequelizeModel } from '@nestjs/sequelize';
 import { Post } from '@schemas/post.schema';
 import { Session } from '@schemas/token';
 import { User } from '@schemas/user.schema';
@@ -14,6 +16,7 @@ import {
 	PublishedPostProps,
 	VerifyPostPublishProps,
 } from '@type/post';
+import { ServiceBaseParamsType } from '@type/service-base';
 import { Uploader } from '@type/storage';
 import { getHtmlPath } from '@utils/email';
 import { CronJob } from 'cron';
@@ -22,6 +25,7 @@ import { IgApiClient } from 'instagram-private-api';
 import { isEmpty, map, omit } from 'lodash';
 import { Model } from 'mongoose';
 import { get } from 'request-promise';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class PostService {
@@ -29,8 +33,16 @@ export class PostService {
 	private readonly logger = new Logger(PostService.name);
 
 	constructor(
-		@InjectModel(User.name) private readonly userModel: Model<User>,
+		@InjectModel(User.name)
+		private readonly userModel: Model<User>,
 		@InjectModel(Post.name) private readonly postModel: Model<Post>,
+
+		@InjectSequelizeModel(PostModel)
+		private post: typeof PostModel,
+
+		@InjectSequelizeModel(UserModel)
+		private user: typeof UserModel,
+
 		private readonly emailService: EmailService,
 		private readonly ig: IgApiClient,
 		private readonly instagramAuthService: InstagramAuthService,
@@ -52,10 +64,7 @@ export class PostService {
 		const published = await this.publishPhotoOnInstagram(caption, username, session, img);
 
 		if (!published) {
-			await this.postModel.updateOne(
-				{ _id: postId },
-				{ $set: { canceledAt: dayjs().toDate() } },
-			);
+			await this.post.update({ canceledAt: dayjs().toDate() }, { where: { id: postId } });
 			throw new BadRequestException('FAILED_PUBLISH_PHOTO');
 		}
 
@@ -96,24 +105,24 @@ export class PostService {
 
 		const postCreate = {
 			code: published.code,
-			postId: published.id,
+			externalId: published.id,
 			caption,
 			imageUrl: data.img,
-			userId: meta.userId,
+			creatorId: meta.userId,
 			accountId: account.accountId,
 			canceledAt: null,
 			publishedAt: dayjs().toDate(),
 			scheduledAt: null,
 		};
 
-		const post = await this.postModel.create(postCreate);
+		const post = await this.post.create(postCreate);
 
 		return {
 			post: {
 				caption: post.caption,
 				imageUrl: post.imageUrl,
 				publishedAt: post.publishedAt,
-				id: post._id.toString(),
+				id: post.id.toString(),
 			},
 		};
 	}
@@ -150,21 +159,21 @@ export class PostService {
 			caption,
 			imageUrl: data.img,
 			accountId: instagramAccount.accountId,
-			userId: meta.userId,
+			creatorId: meta.userId,
 			canceledAt: null,
 			publishedAt: null,
 			code: null,
-			postId: null,
+			externalId: null,
 			jobId,
 			scheduledAt: post_date || null,
 		};
 
-		const post = await this.postModel.create(postCreate);
+		const post = await this.post.create(postCreate);
 
 		await this.scheduleCronJob(jobId, date, {
 			data,
 			meta,
-			id: post._id.toString(),
+			id: post.id.toString(),
 			session: instagramAccount.session,
 		});
 
@@ -180,7 +189,7 @@ export class PostService {
 
 		return {
 			scheduled_date: date,
-			post_id: post._id.toString(),
+			post_id: post.id.toString(),
 		};
 	}
 
@@ -257,15 +266,29 @@ export class PostService {
 			img: data.img,
 		});
 
-		const updatedPost = await this.postModel.findOneAndUpdate(
-			{ _id: id },
-			{ publishedAt: dayjs().toDate(), code, postId },
-			{ new: true },
-		);
+		const post = await this.post.findOne({
+			where: {
+				id: Number(id),
+				creatorId: meta.userId,
+				publishedAt: null,
+				canceledAt: null,
+			},
+		});
 
-		if (!updatedPost) {
+		if (!post) {
 			throw new NotFoundException('POST_NOT_FOUND');
 		}
+
+		await this.post.update(
+			{
+				publishedAt: dayjs().toDate(),
+			},
+			{
+				where: {
+					id: post.id,
+				},
+			},
+		);
 
 		this.logger.debug(`Post published successfully ${username}`);
 
@@ -273,11 +296,11 @@ export class PostService {
 			post: {
 				code,
 				postId,
-				caption: updatedPost.caption,
-				imageUrl: updatedPost.imageUrl,
-				publishedAt: updatedPost.publishedAt,
-				scheduledAt: updatedPost.scheduledAt,
-				id: updatedPost._id.toString(),
+				caption: post.caption,
+				imageUrl: post.imageUrl,
+				publishedAt: post.publishedAt,
+				scheduledAt: post.scheduledAt,
+				id: post.id.toString(),
 			},
 		};
 	}
@@ -372,16 +395,14 @@ export class PostService {
 	}
 
 	async cancelScheduledPost({ postId, userId }: { postId: string; userId: string }) {
-		const post = await this.postModel
-			.findOne(
-				{
-					_id: postId,
-					userId: userId,
-					scheduledAt: { $ne: null },
-				},
-				{ jobId: 1 },
-			)
-			.lean();
+		const post = await this.post.findOne({
+			where: {
+				id: postId,
+				creatorId: userId,
+				scheduledAt: { [Op.ne]: null },
+			},
+			attributes: ['jobId'],
+		});
 
 		if (!post) {
 			throw new NotFoundException('SCHEDULED_POST_NOT_FOUND');
@@ -393,11 +414,15 @@ export class PostService {
 			throw new NotFoundException('SCHEDULED_JOB_NOT_FOUND');
 		}
 
-		await this.postModel.updateOne(
-			{ _id: postId },
+		await this.post.update(
 			{
 				canceledAt: dayjs().toDate(),
 				scheduledAt: null,
+			},
+			{
+				where: {
+					id: postId,
+				},
 			},
 		);
 
@@ -407,11 +432,11 @@ export class PostService {
 	}
 
 	async getUserPostsWithDetails({ pagination, meta }: GetUserPostsProps) {
-		const userId = meta.userId;
-
 		const { page, offset, perPage } = pagination;
 
-		const user = await this.userModel.findOne({ _id: userId }, { InstagramAccounts: 1 }).lean();
+		const user = await this.userModel
+			.findOne({ _id: meta.userId }, { InstagramAccounts: 1 })
+			.lean();
 
 		const accountsIds = map(user.InstagramAccounts, 'accountId');
 
@@ -483,5 +508,42 @@ export class PostService {
 				limit: perPage,
 			},
 		};
+	}
+
+	async getRecentPosts({ meta }: ServiceBaseParamsType) {
+		const posts = await this.post.findOne({
+			where: {
+				creatorId: meta.userId,
+				canceledAt: null,
+			},
+			attributes: [
+				'id',
+				'caption',
+				'imageUrl',
+				'publishedAt',
+				'scheduledAt',
+				'accountId',
+				'postId',
+			],
+			include: [
+				{
+					model: UserPlatform,
+					required: true,
+					as: 'account',
+					include: [
+						{
+							model: Platform,
+							as: 'platform',
+							required: true,
+							attributes: ['name', 'profilePicUrl'],
+						},
+					],
+				},
+			],
+			order: [['publishedAt', 'DESC']],
+			limit: 5,
+		});
+
+		return posts;
 	}
 }

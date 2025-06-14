@@ -50,4 +50,9 @@ export class PostController {
 	getUserPosts(@Paginate({ perPage: 10 }) pagination: Pagination, @Meta() meta: MetaType) {
 		return this.postService.getUserPostsWithDetails({ pagination, meta });
 	}
+
+	@Get('recent')
+	getRecentPosts(@Meta() meta: MetaType) {
+		return this.postService.getRecentPosts({ meta });
+	}
 }

@@ -1,6 +1,6 @@
-import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { User } from '@models/user.model';
 import { Platform } from '@models/platform.model';
+import { User } from '@models/user.model';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 
 @Table({
 	tableName: 'user_platforms',
@@ -80,6 +80,9 @@ export class UserPlatform extends Model {
 	@BelongsTo(() => User)
 	user: User;
 
-	@BelongsTo(() => Platform)
+	@BelongsTo(() => Platform, {
+		foreignKey: 'platform_id',
+		as: 'platform',
+	})
 	platform: Platform;
 }

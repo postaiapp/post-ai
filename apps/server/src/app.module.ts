@@ -1,4 +1,3 @@
-import { CronModule } from '@crons/cron.module';
 import { DatabaseModule } from '@config/database.module';
 import { AuthGuard } from '@guards/auth.guard';
 import { AuthModule } from '@modules/auth/auth.module';
@@ -20,7 +19,6 @@ import { UserModule } from './modules/user/user.module';
 		ScheduleModule.forRoot(),
 		StorageModule,
 		AuthModule,
-		CronModule,
 		JwtModule.registerAsync({
 			imports: [ConfigModule],
 			useFactory: async (configService: ConfigService) => ({
