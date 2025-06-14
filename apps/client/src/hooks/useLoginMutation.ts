@@ -21,7 +21,7 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 			localStorageSet('token', data.token);
 
 			setTimeout(() => {
-				router.push('/chat');
+				router.push('/home');
 				successToast('Login efetuado com sucesso!');
 			}, 1000);
 		},

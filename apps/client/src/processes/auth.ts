@@ -36,11 +36,3 @@ export const refreshToken = async () => {
 		data,
 	};
 };
-
-export const logout = async () => {
-	const { data }: ClientResponse = await client.delete('/auth/logout');
-
-	return {
-		data,
-	};
-};

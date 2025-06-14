@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { logout } from '@processes/auth';
 import userStore from '@stores/userStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { getFormattedName } from '@utils/formatName';
@@ -22,14 +21,10 @@ const SidebarFooterContainer = () => {
 	}, [user?.name]);
 
 	const handleLogout = useCallback(async () => {
-		const response = await logout();
-
-		if (response) {
-			await queryClient.clear();
-			localStorageClear();
-			setUser(null);
-			redirect('/auth');
-		}
+		queryClient.clear();
+		localStorageClear();
+		setUser(null);
+		redirect('/auth');
 	}, [queryClient, setUser]);
 
 	const handleNavigateUserDetails = useCallback(() => {
