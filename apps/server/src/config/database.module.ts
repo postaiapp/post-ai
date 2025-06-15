@@ -7,6 +7,7 @@ import { User } from '@models/user.model';
 import { UserPlatform } from '@models/user-platform.model';
 import { AuthToken } from '@models/auth-token.model';
 import { Platform } from '@models/platform.model';
+import { Post } from '@models/post.model';
 
 const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env';
 
@@ -43,7 +44,7 @@ const currentEnvFile = process.env.NODE_ENV === 'development' ? '.env.developmen
 						rejectUnauthorized: false,
 					},
 				},
-				models: [User, UserPlatform, AuthToken, Platform],
+				models: [User, UserPlatform, AuthToken, Platform, Post],
 			}),
 			inject: [ConfigService],
 		}),

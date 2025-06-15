@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { AuthToken } from '@models/auth-token.model';
-import { MetaAuthService } from '@modules/meta/services/meta-auth.service';
 import PQueue from 'p-queue';
 import * as dayjs from 'dayjs';
 import { CronExpression } from '@nestjs/schedule';
@@ -11,51 +10,51 @@ export class RefreshTokensCron {
 	private readonly logger = new Logger(RefreshTokensCron.name);
 	private readonly queue: PQueue;
 
-	constructor(private readonly metaAuthService: MetaAuthService) {
-		this.queue = new PQueue({ concurrency: 50 });
-	}
+	// constructor(private readonly metaAuthService: MetaAuthService) {
+	// 	this.queue = new PQueue({ concurrency: 50 });
+	// }
 
-	@Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
-	async refreshTokens() {
-		this.logger.log('Starting Instagram tokens refresh');
+	// @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+	// async refreshTokens() {
+	// 	this.logger.log('Starting Instagram tokens refresh');
 
-		try {
-			const tokens = await AuthToken.findAll({
-				where: {
-					name: 'instagram_token',
-				},
-			});
+	// 	try {
+	// 		const tokens = await AuthToken.findAll({
+	// 			where: {
+	// 				name: 'instagram_token',
+	// 			},
+	// 		});
 
-			this.logger.log(`Found ${tokens.length} tokens to refresh`);
+	// 		this.logger.log(`Found ${tokens.length} tokens to refresh`);
 
-			const refreshPromises = tokens.map(token =>
-				this.queue.add(async () => {
-					try {
-						const { access_token: newToken } =
-							await this.metaAuthService.refreshLongLivedToken(token.access_token);
+	// 		const refreshPromises = tokens.map(token =>
+	// 			this.queue.add(async () => {
+	// 				try {
+	// 					const { access_token: newToken } =
+	// 						await this.metaAuthService.refreshLongLivedToken(token.access_token);
 
-						await token.update({
-							access_token: newToken,
-							expires_at: dayjs().add(60, 'days').format(),
-						});
+	// 					await token.update({
+	// 						access_token: newToken,
+	// 						expires_at: dayjs().add(60, 'days').format(),
+	// 					});
 
-						this.logger.log(
-							`Successfully refreshed token for user_platform_id: ${token.user_platform_id}`,
-						);
-					} catch (error) {
-						this.logger.error(
-							`Failed to refresh token for user_platform_id: ${token.user_platform_id}`,
-							error,
-						);
-					}
-				}),
-			);
+	// 					this.logger.log(
+	// 						`Successfully refreshed token for user_platform_id: ${token.user_platform_id}`,
+	// 					);
+	// 				} catch (error) {
+	// 					this.logger.error(
+	// 						`Failed to refresh token for user_platform_id: ${token.user_platform_id}`,
+	// 						error,
+	// 					);
+	// 				}
+	// 			}),
+	// 		);
 
-			await Promise.all(refreshPromises);
+	// 		await Promise.all(refreshPromises);
 
-			this.logger.log('Instagram tokens refresh completed');
-		} catch (error) {
-			this.logger.error('Error during tokens refresh:', error);
-		}
-	}
+	// 		this.logger.log('Instagram tokens refresh completed');
+	// 	} catch (error) {
+	// 		this.logger.error('Error during tokens refresh:', error);
+	// 	}
+	// }
 }

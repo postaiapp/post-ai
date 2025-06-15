@@ -13,11 +13,11 @@ const responseInterceptor = response => {
 };
 
 const errorInterceptor = error => {
-	console.error(
-		'GRAPH FACEBOOK API ERROR -> ',
-		JSON.stringify(error.response?.data || error.message, null, 4),
-	);
-	return Promise.reject(error);
+	const errorMessage = error.response?.data?.error || error.message;
+
+	console.error('GRAPH FACEBOOK API ERROR -> ', JSON.stringify(errorMessage, null, 4));
+
+	return Promise.reject(errorMessage);
 };
 
 FacebookClient.interceptors.response.use(responseInterceptor, errorInterceptor);
