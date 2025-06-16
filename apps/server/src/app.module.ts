@@ -13,6 +13,8 @@ import { AppService } from './app.service';
 import { ChatsModule } from './modules/chats/chats.module';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 import { UserModule } from './modules/user/user.module';
+import { WebhooksModule } from '@modules/webhooks/webhooks.module';
+import { PlatformModule } from '@modules/platform/platform.module';
 
 @Module({
 	imports: [
@@ -34,6 +36,8 @@ import { UserModule } from './modules/user/user.module';
 		InstagramAuthModule,
 		ChatsModule,
 		UserModule,
+		WebhooksModule,
+		PlatformModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AuthGuard],

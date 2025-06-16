@@ -1,136 +1,155 @@
 import { Fragment } from 'react';
 
 import { HeaderProps } from '@common/interfaces/header';
-import { InstagramAccountType } from '@common/interfaces/instagramAccount';
-import { AccountCard } from '@components/accountCard';
-import { Button } from '@components/button';
-import { PasswordInput } from '@components/passwordInput/passwordInput';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@components/ui/dialog';
-import { Input } from '@components/ui/input';
-import { Label } from '@components/ui/label';
+import { Button } from '@components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@components/ui/dropdown-menu';
 import { Separator } from '@components/ui/separator';
-import { DialogDescription } from '@radix-ui/react-dialog';
+import { PLATFORMS } from '@constants/platforms';
+import InstagramLogo from '@public/instagram-logo.png';
+import TiktokLogo from '@public/tiktok-logo.png';
 import { userStore } from '@stores/index';
 import { getColorByInitials, getInitials } from '@utils/avatar';
-import { Instagram } from 'lucide-react';
+import { LogOut, ChevronDown, Settings, SquareArrowOutUpRight } from 'lucide-react';
 import Image from 'next/image';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { SidebarTrigger } from '../ui/sidebar';
+const INSTAGRAM_OAUTH_URL =
+	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://b89b-2804-351c-dd01-a1e0-c18a-46a1-69ca-de59.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
 
 export default function Header({
-	onSubmit,
-	handleSubmit,
-	register,
-	errors,
-	isLoading,
 	accounts,
-	reset,
 	handleLogout,
-	modalOpen,
-	setModalOpen,
-	isLoginPending,
-	setIsLogin,
+	selectedAccount,
+	handleSelectPlatform,
+	goToEditProfile,
 }: HeaderProps) {
 	const { user } = userStore();
 	const initials = getInitials(user?.name || '');
 	const backgroundColor = getColorByInitials(initials || '');
+	const hasPlatforms = accounts && accounts.length > 0;
 
 	return (
-		<div className="flex justify-between items-center w-full px-5 py-2 border-b-2">
+		<div className="flex justify-between items-center w-full px-10 py-3 border-b-2">
 			<div className="flex items-center space-x-4">
-				<SidebarTrigger />
 				<Image src="/logo.png" alt="Logo" width={40} height={40} />
 			</div>
 
 			<div className="flex items-center space-x-4">
-				<Dialog
-					open={modalOpen}
-					onOpenChange={(isOpen) => {
-						setModalOpen(isOpen);
-						if (!isOpen) {
-							setIsLogin(false);
-							reset();
-						}
-					}}
-				>
-					<DialogTitle></DialogTitle>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<button
-								className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-medium"
-								style={{ backgroundColor }}
-							>
-								{initials}
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent side="top" className="mr-5 p-2">
-							{accounts?.map((account) => (
-								<Fragment key={account.id}>
-									<AccountCard
-										{...account}
-										setIsLogin={setIsLogin}
-										setModalOpen={setModalOpen}
-										handleLogout={() => handleLogout(account.username)}
-									/>
+				{/* Dropdown de plataformas */}
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="outline"
+							className="flex items-center justify-between rounded-lg h-9 px-3 gap-2 border border-gray-200 hover:bg-gray-50"
+						>
+							{selectedAccount?.platform_id === PLATFORMS.INSTAGRAM && (
+								<Image src={InstagramLogo.src} alt="Instagram Logo" width={18} height={18} />
+							)}
 
-									<Separator className="my-2" />
+							{selectedAccount?.platform_id === PLATFORMS.TIKTOK && (
+								<Image src={TiktokLogo.src} alt="Tiktok Logo" width={18} height={18} />
+							)}
+
+							{selectedAccount ? (
+								<span className="font-medium text-sm">{selectedAccount.display_name}</span>
+							) : (
+								<span className="text-sm text-gray-500">Selecione uma plataforma</span>
+							)}
+							<ChevronDown size={14} className="text-gray-400" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent className="w-72 p-2 shadow-lg rounded-xl">
+						{!hasPlatforms && (
+							<DropdownMenuItem disabled className="text-sm text-gray-500 px-4 py-2.5">
+								Nenhuma plataforma encontrada
+							</DropdownMenuItem>
+						)}
+						{hasPlatforms &&
+							accounts.map((account) => (
+								<Fragment key={account.id}>
+									<DropdownMenuItem
+										onClick={() => handleSelectPlatform(account)}
+										className="flex justify-between items-center px-2 hover:bg-gray-50 cursor-pointer rounded-lg"
+									>
+										<div className="flex items-center gap-2 w-full">
+											<Image
+												src={account.avatar_url || ''}
+												alt="Avatar"
+												width={32}
+												height={32}
+												className="rounded-full"
+											/>
+											<div className="flex flex-col">
+												<span className="flex-1 text-sm">{account.display_name}</span>
+												<span className="flex-1 text-xs text-gray-500">
+													@{account.profile_data?.username}
+												</span>
+											</div>
+										</div>
+
+										<div>
+											{account?.platform_id === PLATFORMS.INSTAGRAM && (
+												<Image
+													src={InstagramLogo.src}
+													alt="Instagram Logo"
+													width={16}
+													height={16}
+												/>
+											)}
+
+											{account?.platform_id === PLATFORMS.TIKTOK && (
+												<Image src={TiktokLogo.src} alt="Tiktok Logo" width={18} height={18} />
+											)}
+										</div>
+									</DropdownMenuItem>
 								</Fragment>
 							))}
+						<Separator className="my-2" />
+						<DropdownMenuItem
+							className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer rounded-lg"
+							onClick={() => {
+								window.open(INSTAGRAM_OAUTH_URL, '_blank', 'width=500,height=600');
+							}}
+						>
+							<div className="flex items-center gap-2 text-purple-600">
+								<SquareArrowOutUpRight size={18} />
+								<span className="text-sm font-medium">Adicionar nova plataforma</span>
+							</div>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 
-							<DialogTrigger asChild>
-								<DropdownMenuItem className="flex items-center gap-4">
-									<Instagram size={20} color="purple" />
-									<span className="text-sm">Adicionar conta do Instagram</span>
-								</DropdownMenuItem>
-							</DialogTrigger>
-						</DropdownMenuContent>
-						<DialogContent className="sm:max-w-[425px] bg-slate-50">
-							<DialogHeader>
-								<DialogTitle>Conta do Instagram</DialogTitle>
-								<DialogDescription>
-									Adicione sua conta do Instagram para ganhar mais seguidores e curtidas.
-								</DialogDescription>
-							</DialogHeader>
-							<form onSubmit={handleSubmit(onSubmit)}>
-								<div className="py-4">
-									<div className="flex w-full items-center gap-4">
-										<Label className="text-right">Usuário</Label>
-										<Input
-											className=""
-											{...register('username')}
-											placeholder="Digite seu nome de usuário ou e-mail"
-										/>
-									</div>
-
-									{errors.username && (
-										<span className="text-red-500 text-sm">{errors.username.message}</span>
-									)}
-
-									<div className="flex w-full mt-3 items-center gap-4">
-										<Label className="text-right mr-1">Senha</Label>
-										<PasswordInput<InstagramAccountType>
-											register={register}
-											textValue="password"
-											containerClassName="w-full"
-										/>
-									</div>
-
-									{errors.password && (
-										<span className="col-span-4 text-red-500 text-sm">
-											{errors.password.message}
-										</span>
-									)}
-								</div>
-								<DialogFooter>
-									<Button type="submit" isLoading={isLoading || isLoginPending}>
-										Adicionar conta
-									</Button>
-								</DialogFooter>
-							</form>
-						</DialogContent>
-					</DropdownMenu>
-				</Dialog>
+				{/* Dropdown de Configurações */}
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<button
+							className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-medium hover:opacity-90 transition-opacity"
+							style={{ backgroundColor }}
+						>
+							{initials}
+						</button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent side="bottom" align="end" className="w-56 p-2 shadow-lg rounded-xl">
+						<DropdownMenuItem
+							onClick={goToEditProfile}
+							className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer rounded-lg"
+						>
+							<div className="flex items-center gap-2 w-full text-gray-700">
+								<Settings size={18} />
+								<span className="text-sm">Editar perfil</span>
+							</div>
+						</DropdownMenuItem>
+						<Separator className="my-2" />
+						<DropdownMenuItem
+							onClick={handleLogout}
+							className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer rounded-lg"
+						>
+							<div className="flex items-center gap-2 w-full text-red-500">
+								<LogOut size={18} />
+								<span className="text-sm">Sair</span>
+							</div>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);

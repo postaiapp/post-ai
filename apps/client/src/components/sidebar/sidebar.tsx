@@ -18,7 +18,6 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 import { ListChatsComponent } from './components/listChatsComponent/listChatsComponent';
-import { SidebarFooter } from './components/sidebarFooter';
 import { filterChatsByDate } from './utils/filterChatsByDate';
 
 export default function Sidebar() {
@@ -144,8 +143,6 @@ export default function Sidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-
-			<SidebarFooter />
 		</UiSideBar>
 	);
 }
