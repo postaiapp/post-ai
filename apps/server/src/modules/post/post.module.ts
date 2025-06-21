@@ -1,25 +1,19 @@
-import { EmailService } from '@common/providers/email.service';
-import { DatabaseModule } from '@config/database.module';
-import { Post as PostSequelizeModel, User as UserSequelizeModel } from '@models';
-import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Post, PostSchema } from '@schemas/post.schema';
-import { User, UserSchema } from '@schemas/user.schema';
-import { R2Storage } from '@storages/r2-storage';
-import { IgApiClient } from 'instagram-private-api';
 import { PostController } from './controller/post.controller';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Post } from '@models/post.model';
+import { UserPlatform } from '@models/user-platform.model';
+import { AuthToken } from '@models/auth-token.model';
 import { PostService } from './services/post.service';
+import { PostContext } from './contexts/post.context';
+import { InstagramPostStrategy } from './strategies/instagram-post.strategy';
+import { TiktokPostStrategy } from './strategies/tiktok-post.strategy';
+import { EmailService } from '@common/providers/email.service';
 
 @Module({
-	imports: [
-		DatabaseModule.forFeature([
-			{ name: User.name, schema: UserSchema },
-			{ name: Post.name, schema: PostSchema },
-		]),
-		SequelizeModule.forFeature([PostSequelizeModel, UserSequelizeModel]),
-	],
+	imports: [SequelizeModule.forFeature([Post, UserPlatform, AuthToken])],
 	controllers: [PostController],
-	providers: [PostService, IgApiClient, InstagramAuthService, R2Storage, EmailService],
+	providers: [PostService, PostContext, InstagramPostStrategy, TiktokPostStrategy, EmailService],
+	exports: [PostService, PostContext, InstagramPostStrategy, TiktokPostStrategy, EmailService],
 })
 export class PostModule {}
