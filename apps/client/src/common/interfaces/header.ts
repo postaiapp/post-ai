@@ -6,4 +6,6 @@ export interface HeaderProps {
 	goToEditProfile: () => void;
 	handleLogout: () => void;
 	handleSelectPlatform: (platform: UserPlatform) => void;
+	openPlatformModal: () => void;
+	handleDisconnectPlatform: (userPlatform: UserPlatform) => void;
 }

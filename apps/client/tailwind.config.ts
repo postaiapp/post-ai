@@ -22,7 +22,11 @@ export default {
           muted: "#B59AE0",
           vibrant: "#A07BFF",
           deep: "#7C4DFF",
-          dark: "#4A1E84"
+          dark: "#4A1E84",
+          500: '#a855f7',
+        },
+        pink: {
+          500: '#ec4899',
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -73,12 +77,20 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))"
-        }
+        },
+        'modal-border': 'var(--modal-border)',
+        'modal-bg': 'var(--modal-bg)',
+        'main-gradient-from': 'var(--main-gradient-from)',
+        'main-gradient-to': 'var(--main-gradient-to)',
+      },
+      backgroundImage: {
+        'main-gradient': 'linear-gradient(90deg, var(--main-gradient-from), var(--main-gradient-to))',
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        lg: "calc(var(--radius) + 2px)",
+        md: "var(--radius)",
+        sm: "calc(var(--radius) - 2px)",
+        DEFAULT: '8px',
       },
       keyframes: {
         "accordion-down": {
@@ -101,7 +113,16 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out"
-      }
+      },
+      borderColor: {
+        DEFAULT: 'var(--modal-border)',
+      },
+      boxShadow: {
+        modal: '0 8px 32px 0 rgba(80, 0, 120, 0.10)',
+      },
+      padding: {
+        modal: '24px',
+      },
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports

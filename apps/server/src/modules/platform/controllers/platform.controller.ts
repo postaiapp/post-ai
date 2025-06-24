@@ -5,7 +5,7 @@ import { Response as ExpressResponse } from 'express';
 import { PlatformService } from '../services/platform.service';
 import { Meta } from '@decorators/meta.decorator';
 import { Meta as MetaType } from '@type/meta';
-import { CreatePlatformDto } from '../dto/platform.dto';
+import { CreatePlatformDto, DisconnectPlatformDto } from '../dto/platform.dto';
 
 @Controller('platforms')
 @UseGuards(AuthGuard)
@@ -25,7 +25,17 @@ export class PlatformController extends BaseController {
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
-			console.log('error', error);
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Post('disconnect')
+	async disconnect(@Body() data: DisconnectPlatformDto, @Response() res: ExpressResponse) {
+		try {
+			const response = await this.platformService.disconnect(data);
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
 			return this.sendError({ error, res });
 		}
 	}

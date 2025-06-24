@@ -9,3 +9,9 @@ export class CreatePlatformDto {
 	@IsNumber()
 	platform_id: number;
 }
+
+export class DisconnectPlatformDto {
+	@IsNotEmpty()
+	@IsNumber()
+	user_platform_id: number;
+}

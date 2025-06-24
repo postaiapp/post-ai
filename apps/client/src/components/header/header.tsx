@@ -9,23 +9,24 @@ import InstagramLogo from '@public/instagram-logo.png';
 import TiktokLogo from '@public/tiktok-logo.png';
 import { userStore } from '@stores/index';
 import { getColorByInitials, getInitials } from '@utils/avatar';
-import { LogOut, ChevronDown, Settings, SquareArrowOutUpRight } from 'lucide-react';
+import { LogOut, ChevronDown, Settings, SquareArrowOutUpRight, Link, Trash, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
-
-const INSTAGRAM_OAUTH_URL =
-	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://b89b-2804-351c-dd01-a1e0-c18a-46a1-69ca-de59.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
 
 export default function Header({
 	accounts,
 	handleLogout,
-	selectedAccount,
-	handleSelectPlatform,
 	goToEditProfile,
+	openPlatformModal,
+	handleDisconnectPlatform,
 }: HeaderProps) {
 	const { user } = userStore();
 	const initials = getInitials(user?.name || '');
 	const backgroundColor = getColorByInitials(initials || '');
-	const hasPlatforms = accounts && accounts.length > 0;
+	const hasPlatforms = accounts && accounts?.length > 0;
+
+	console.log(user, 'user');
+
+	console.log(accounts, 'accounts');
 
 	return (
 		<div className="flex justify-between items-center w-full px-10 py-3 border-b-2">
@@ -41,19 +42,11 @@ export default function Header({
 							variant="outline"
 							className="flex items-center justify-between rounded-lg h-9 px-3 gap-2 border border-gray-200 hover:bg-gray-50"
 						>
-							{selectedAccount?.platform_id === PLATFORMS.INSTAGRAM && (
-								<Image src={InstagramLogo.src} alt="Instagram Logo" width={18} height={18} />
-							)}
+							<div className="flex items-center gap-2">
+								<Link size={16} className="text-purple-500" />
+								<span className="text-sm text-gray-500">Ver plataformas</span>
+							</div>
 
-							{selectedAccount?.platform_id === PLATFORMS.TIKTOK && (
-								<Image src={TiktokLogo.src} alt="Tiktok Logo" width={18} height={18} />
-							)}
-
-							{selectedAccount ? (
-								<span className="font-medium text-sm">{selectedAccount.display_name}</span>
-							) : (
-								<span className="text-sm text-gray-500">Selecione uma plataforma</span>
-							)}
 							<ChevronDown size={14} className="text-gray-400" />
 						</Button>
 					</DropdownMenuTrigger>
@@ -64,12 +57,9 @@ export default function Header({
 							</DropdownMenuItem>
 						)}
 						{hasPlatforms &&
-							accounts.map((account) => (
+							accounts.map(account => (
 								<Fragment key={account.id}>
-									<DropdownMenuItem
-										onClick={() => handleSelectPlatform(account)}
-										className="flex justify-between items-center px-2 hover:bg-gray-50 cursor-pointer rounded-lg"
-									>
+									<DropdownMenuItem className="flex justify-between items-center px-2 rounded-lg hover:!bg-white focus:!bg-white">
 										<div className="flex items-center gap-2 w-full">
 											<Image
 												src={account.avatar_url || ''}
@@ -79,36 +69,54 @@ export default function Header({
 												className="rounded-full"
 											/>
 											<div className="flex flex-col">
-												<span className="flex-1 text-sm">{account.display_name}</span>
+												<div className="flex items-center gap-2">
+													<span className="text-sm text-gray-700 max-w-[120px] truncate">
+														{account.display_name}
+													</span>
+
+													{account?.platform_id === PLATFORMS.INSTAGRAM && (
+														<Image
+															src={InstagramLogo.src}
+															alt="Instagram Logo"
+															width={16}
+															height={16}
+														/>
+													)}
+
+													{account?.platform_id === PLATFORMS.TIKTOK && (
+														<Image
+															src={TiktokLogo.src}
+															alt="Tiktok Logo"
+															width={18}
+															height={18}
+														/>
+													)}
+												</div>
 												<span className="flex-1 text-xs text-gray-500">
 													@{account.profile_data?.username}
 												</span>
 											</div>
 										</div>
 
-										<div>
-											{account?.platform_id === PLATFORMS.INSTAGRAM && (
-												<Image
-													src={InstagramLogo.src}
-													alt="Instagram Logo"
-													width={16}
-													height={16}
-												/>
-											)}
-
-											{account?.platform_id === PLATFORMS.TIKTOK && (
-												<Image src={TiktokLogo.src} alt="Tiktok Logo" width={18} height={18} />
-											)}
-										</div>
+										<Button
+											variant="tertiary"
+											disabled={account.loading}
+											size="sm"
+											onClick={e => {
+												e.stopPropagation();
+												handleDisconnectPlatform(account);
+											}}
+										>
+											{account.loading && <LoaderCircle size={16} className="animate-spin" />}
+											{!account.loading && <Trash size={16} className="text-red-500" />}
+										</Button>
 									</DropdownMenuItem>
 								</Fragment>
 							))}
 						<Separator className="my-2" />
 						<DropdownMenuItem
 							className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer rounded-lg"
-							onClick={() => {
-								window.open(INSTAGRAM_OAUTH_URL, '_blank', 'width=500,height=600');
-							}}
+							onClick={openPlatformModal}
 						>
 							<div className="flex items-center gap-2 text-purple-600">
 								<SquareArrowOutUpRight size={18} />

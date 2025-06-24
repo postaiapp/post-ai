@@ -50,6 +50,12 @@ export class PostService {
 			publishedAt: dayjs().format(),
 		});
 
+		if (createdPost.imageUrl) {
+			createdPost.imageUrl = await this.storageService.getSignedImageUrl(
+				createdPost.imageUrl,
+			);
+		}
+
 		return createdPost;
 	}
 
