@@ -24,10 +24,6 @@ export default function Header({
 	const backgroundColor = getColorByInitials(initials || '');
 	const hasPlatforms = accounts && accounts?.length > 0;
 
-	console.log(user, 'user');
-
-	console.log(accounts, 'accounts');
-
 	return (
 		<div className="flex justify-between items-center w-full px-10 py-3 border-b-2">
 			<div className="flex items-center space-x-4">

@@ -11,11 +11,11 @@ module.exports = {
 				primaryKey: true,
 			},
 			caption: {
-				type: Sequelize.STRING,
+				type: Sequelize.TEXT,
 				allowNull: false,
 			},
 			image_url: {
-				type: Sequelize.STRING,
+				type: Sequelize.TEXT,
 				allowNull: false,
 			},
 			published_at: {
@@ -58,10 +58,6 @@ module.exports = {
 			},
 			failed_to_post: {
 				type: Sequelize.BOOLEAN,
-				allowNull: true,
-			},
-			job_id: {
-				type: Sequelize.STRING,
 				allowNull: true,
 			},
 			created_at: {

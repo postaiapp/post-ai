@@ -17,13 +17,13 @@ export class Post extends Model {
 	id: number;
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.TEXT,
 		allowNull: false,
 	})
 	caption: string;
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.TEXT,
 		allowNull: false,
 		field: 'image_url',
 	})
@@ -84,13 +84,6 @@ export class Post extends Model {
 		field: 'failed_to_post',
 	})
 	failedToPost: boolean;
-
-	@Column({
-		type: DataType.STRING,
-		allowNull: true,
-		field: 'job_id',
-	})
-	jobId: string;
 
 	@Column({
 		type: DataType.DATE,

@@ -8,6 +8,7 @@ import { Uploader } from '@type/storage';
 import { EmailService } from '@common/providers/email.service';
 import { getHtmlPath } from '@utils/email';
 import * as dayjs from 'dayjs';
+import FileUtils from '@utils/file';
 
 @Injectable()
 export class PostService {
@@ -43,7 +44,7 @@ export class PostService {
 			creatorId: userId,
 			accountId: userPlatform.id,
 			caption: data.caption,
-			imageUrl: data.media_url,
+			imageUrl: FileUtils.getUnsignedUrl(data.media_url),
 			scheduledAt: data.scheduled_at,
 			externalId: post.id,
 			code: post.container_id,
