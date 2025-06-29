@@ -78,13 +78,7 @@ export class InstagramStrategy {
 
 		const { access_token: longLivedToken } = await this.getLongLivedToken(shortLivedToken);
 
-		console.log(longLivedToken, 'longLivedToken');
-
-		console.log(instagramUserId, 'instagramUserId');
-
 		const profileInfo = await this.getInstagramProfile(instagramUserId, longLivedToken);
-
-		console.log(profileInfo, 'profileInfo');
 
 		const avatarUrl = profileInfo.profile_picture_url
 			? (await this.uploader.downloadAndUploadImage(profileInfo.profile_picture_url)).url
@@ -106,11 +100,6 @@ export class InstagramStrategy {
 				website: profileInfo.website,
 			},
 		};
-
-		console.log(
-			JSON.stringify(mountedUserPlatformToCreate, null, 4),
-			'mountedUserPlatformToCreate',
-		);
 
 		return {
 			accessToken: longLivedToken,

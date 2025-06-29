@@ -14,4 +14,5 @@ export type UserPlatform = {
 	deleted_at?: Date | null;
 	user?: User;
 	platform?: Platform;
+	loading?: boolean;
 };

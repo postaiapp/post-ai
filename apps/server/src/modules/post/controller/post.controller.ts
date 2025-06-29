@@ -24,12 +24,10 @@ export class PostController extends BaseController {
 		@Response() res: ExpressResponse,
 	) {
 		try {
-			console.log(data, meta, 'data, meta')
-			const response = await this.postService.create(data, meta.userId);
+			const response = await this.postService.create(data, meta);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
-			console.log('error', error);
 			return this.sendError({ error, res });
 		}
 	}

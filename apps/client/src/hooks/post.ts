@@ -1,26 +1,33 @@
 import { PostFormData } from '@common/interfaces/post';
 import { createPost } from '@processes/post';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+
+import { errorToast, successToast } from '@/utils/toast';
+
+const errorMessages = {
+	INVALID_POST_DATE: 'A data do post não pode ser anterior à data atual.',
+};
 
 export function useCreatePost() {
-	const queryClient = useQueryClient();
+	const router = useRouter();
 
-	const mutation = useMutation({
-		mutationKey: ['createPost'],
+	return useMutation({
+		mutationKey: ['create-post'],
 		mutationFn: async (data: PostFormData) => {
 			const response = await createPost(data);
 			return response.data;
 		},
-		onSuccess: (newPost) => {
-			queryClient.setQueryData(['post', newPost.id], newPost);
-			queryClient.invalidateQueries({ queryKey: ['history'] });
+		onSuccess: () => {
+			successToast('Post criado com sucesso.');
+
+			router.push('/history');
+		},
+		onError: (error: Error) => {
+			errorToast(
+				errorMessages[error.message as keyof typeof errorMessages] ||
+					'Algo de errado aconteceu ao criar o post. Tente novamente.'
+			);
 		},
 	});
-
-	return {
-		createPost: mutation.mutateAsync,
-		isLoading: mutation.isPending,
-		isError: mutation.isError,
-		error: mutation.error,
-	};
 }

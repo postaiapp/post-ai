@@ -32,7 +32,7 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 8px;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 265, 100%, 13%;
@@ -41,6 +41,13 @@ body {
     --sidebar-accent-foreground: 265, 100%, 13%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Gradiente principal */
+    --main-gradient-from: #a855f7; /* purple-500 */
+    --main-gradient-to: #ec4899;   /* pink-500 */
+    --main-gradient: linear-gradient(90deg, var(--main-gradient-from), var(--main-gradient-to));
+    /* Cor de borda padrão para modais e cards */
+    --modal-border: #e5e0f6;
+    --modal-bg: #fff;
   }
   .dark {
     --background: 224 71.4% 4.1%;
@@ -75,6 +82,11 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --main-gradient-from: #a855f7;
+    --main-gradient-to: #ec4899;
+    --main-gradient: linear-gradient(90deg, var(--main-gradient-from), var(--main-gradient-to));
+    --modal-border: #3a2a5d;
+    --modal-bg: #181028;
   }
 }
 

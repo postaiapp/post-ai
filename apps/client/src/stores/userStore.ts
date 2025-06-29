@@ -8,9 +8,9 @@ const zustandStorage = createZustandStorage<UserStore>();
 
 const userStore = create<UserStore>()(
 	persist(
-		(set) => ({
+		set => ({
 			user: null,
-			setUser: (user) => set({ user }),
+			setUser: user => set({ user }),
 			logout: () => set({ user: null }),
 		}),
 		{

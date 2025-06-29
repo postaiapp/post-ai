@@ -32,7 +32,11 @@ export class AuthService {
 	}
 
 	async authenticate({ email, password }: { email: string; password: string }) {
-		const user = await this.userModel.scope('withAccounts').findOne({ where: { email } });
+		let user = await this.userModel
+			.scope('withAccounts')
+			.findOne({ where: { email }, raw: false });
+
+		user = user.toJSON();
 
 		if (user.user_platforms?.length) {
 			await this.signAvatarFiles(user.user_platforms);

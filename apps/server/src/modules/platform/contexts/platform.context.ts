@@ -1,20 +1,18 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreatePlatformDto } from '../dto/platform.dto';
 import { Platform } from '@models/platform.model';
-import { InstagramStrategy } from '../strategies/instagram.strategy';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreatePlatformDto } from '../dto/platform.dto';
+import { MetaStrategy } from '../strategies/meta.strategy';
 import { TiktokStrategy } from '../strategies/tiktok.strategy';
 
 @Injectable()
 export class PlatformContext {
-	private readonly logger = new Logger(PlatformContext.name);
-
 	constructor(
-		private readonly instagramStrategy: InstagramStrategy,
+		private readonly MetaStrategy: MetaStrategy,
 		private readonly tiktokStrategy: TiktokStrategy,
 	) {}
 
 	mappedStrategiesByPlatform = {
-		INSTAGRAM: this.instagramStrategy,
+		INSTAGRAM: this.MetaStrategy,
 		TIKTOK: this.tiktokStrategy,
 	};
 

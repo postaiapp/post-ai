@@ -10,3 +10,11 @@ export const connect = async (code: string, platformId: number) => {
 
 	return { data };
 };
+
+export const disconnect = async (userPlatformId: number) => {
+	const { data }: ClientResponse = await client.post('/platforms/disconnect', {
+		user_platform_id: userPlatformId,
+	});
+
+	return { data };
+};

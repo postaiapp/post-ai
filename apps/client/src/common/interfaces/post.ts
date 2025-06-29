@@ -1,13 +1,14 @@
+import { StaticImageData } from 'next/image';
 import { Control, UseFormHandleSubmit } from 'react-hook-form';
 
-import { InstagramAccountStore } from './instagramAccount';
 import { User } from './user';
+import { UserPlatform } from './user-platforms';
 
 export interface PostFormData {
-	username: string;
+	user_platform_id: number;
 	caption: string;
-	img: string;
-	post_date: string | null;
+	media_url: string;
+	scheduled_at: string | null;
 }
 
 export interface PostDetailsUIProps {
@@ -21,13 +22,14 @@ export interface PostDetailsUIProps {
 	selectedTime: string;
 	handleTimeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	loadingSubmit: boolean;
-	selectedAccount?: InstagramAccountStore;
-	handleAccountChange: (account: InstagramAccountStore) => void;
+	selectedAccount?: UserPlatform;
+	handleAccountChange: (account: UserPlatform) => void;
 	user: User | null;
 	caption: string;
 	image: string;
 	generateCaption: () => void;
 	loadingCaption: boolean;
+	getPlatformLogo: (platform: UserPlatform) => StaticImageData;
 }
 
 export interface PostEntity {

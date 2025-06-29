@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-import { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import { PostDetailsUIProps } from '@common/interfaces/post';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
@@ -10,8 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@components/ui/input';
 import { Separator } from '@components/ui/separator';
 import { Textarea } from '@components/ui/textarea';
-import { getUserInstagramAccounts } from '@processes/instagramAccount';
-import { useQuery } from '@tanstack/react-query';
+import { userStore } from '@stores/index';
 import dayjs from 'dayjs';
 import {
 	ArrowLeft,
@@ -42,19 +40,22 @@ export default function PostDetailsUI({
 	loadingSubmit,
 	selectedAccount,
 	handleAccountChange,
-	user,
 	caption,
 	image,
 	generateCaption,
 	loadingCaption,
+	getPlatformLogo,
 }: PostDetailsUIProps) {
 	const router = useRouter();
 	const calendarRef = useRef<HTMLDivElement>(null);
+	const { user } = userStore();
 
-	const { data: instagramAccounts, isPending } = useQuery<{ data: InstagramAccountStore[] }>({
-		queryKey: ['instagram-accounts', user?.email],
-		queryFn: () => getUserInstagramAccounts(),
-	});
+	// Lógica para selecionar automaticamente a conta se houver apenas uma
+	useEffect(() => {
+		if (user?.user_platforms && user.user_platforms.length === 1 && !selectedAccount) {
+			handleAccountChange(user.user_platforms[0]);
+		}
+	}, [user?.user_platforms, selectedAccount, handleAccountChange]);
 
 	useEffect(() => {
 		if (showCalendar && calendarRef.current) {
@@ -72,11 +73,12 @@ export default function PostDetailsUI({
 		}, 100);
 	};
 
-	const imageUrl =
-		isPending || !selectedAccount?.profilePicUrl ? '/default-profile.jpg' : selectedAccount.profilePicUrl;
+	const isLoading = !user;
+	const userPlatforms = user?.user_platforms || [];
+	const hasUserPlatforms = userPlatforms.length > 0;
+	const noAccountsSelected = !selectedAccount;
 
-	const hasInstagramAccounts = !isPending && instagramAccounts?.data && instagramAccounts.data.length > 0;
-	const noAccountsSelected = !isPending && !selectedAccount;
+	const imageUrl = selectedAccount?.avatar_url || '/default-profile.jpg';
 
 	return (
 		<div className="flex flex-col w-full h-screen bg-gray-100 overflow-hidden">
@@ -109,7 +111,7 @@ export default function PostDetailsUI({
 					<div className="flex flex-col gap-6 p-6 overflow-y-auto max-h-[calc(100vh-170px)] thin-scrollbar">
 						<div className="p-6 border-[1px] shadow-xs rounded-xl border-gray-200 flex justify-between items-center">
 							<div className="flex items-center gap-4">
-								{isPending ? (
+								{isLoading ? (
 									<div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
 								) : (
 									<Image
@@ -125,37 +127,71 @@ export default function PostDetailsUI({
 									<DropdownMenuTrigger asChild>
 										<Button
 											variant="outline"
-											className="flex items-center justify-between rounded-lg h-8"
+											className="flex items-center justify-between rounded-lg h-9 px-3 gap-2 border border-gray-200 hover:bg-gray-50"
 										>
 											<div className="flex items-center gap-2">
-												<Instagram size={18} className="text-purple-500" />
-												{!isPending && selectedAccount && (
-													<p className="font-semibold">{selectedAccount.username}</p>
+												{!isLoading && selectedAccount && (
+													<Image
+														src={getPlatformLogo(selectedAccount)}
+														alt="Platform logo"
+														width={16}
+														height={16}
+													/>
 												)}
-												{!isPending && noAccountsSelected && (
-													<p className="text-gray-500">Selecione uma conta</p>
+
+												{!isLoading && selectedAccount && (
+													<span className="text-sm text-gray-700">
+														{selectedAccount.display_name || selectedAccount.name}
+													</span>
 												)}
-												{isPending && (
+												{!isLoading && noAccountsSelected && (
+													<span className="text-sm text-gray-500">Selecione uma conta</span>
+												)}
+												{isLoading && (
 													<div className="w-28 h-4 bg-gray-200 animate-pulse rounded-md" />
 												)}
 											</div>
-											<ChevronDown size={24} className="text-black" />
+											<ChevronDown size={14} className="text-gray-400" />
 										</Button>
 									</DropdownMenuTrigger>
-									<DropdownMenuContent className="w-56 mt-2">
-										{!hasInstagramAccounts && !isPending && (
-											<DropdownMenuItem disabled>
+									<DropdownMenuContent className="w-72 p-2 shadow-lg rounded-xl">
+										{!hasUserPlatforms && !isLoading && (
+											<DropdownMenuItem disabled className="text-sm text-gray-500 px-4 py-2.5">
 												Nenhuma conta Instagram encontrada
 											</DropdownMenuItem>
 										)}
-										{hasInstagramAccounts &&
-											instagramAccounts.data.map((account) => (
+										{hasUserPlatforms &&
+											userPlatforms.map(platform => (
 												<DropdownMenuItem
-													key={account.username}
-													onClick={() => handleAccountChange(account)}
+													key={platform.id}
+													className="flex justify-between items-center px-2 rounded-lg hover:!bg-white focus:!bg-white"
+													onClick={() => handleAccountChange(platform)}
 												>
-													<Instagram size={18} className="mr-2 text-purple-500" />
-													{account.username}
+													<div className="flex items-center gap-2 w-full">
+														<Image
+															src={platform.avatar_url || ''}
+															alt="Avatar"
+															width={32}
+															height={32}
+															className="rounded-full"
+														/>
+														<div className="flex flex-col">
+															<div className="flex items-center gap-2">
+																<span className="text-sm text-gray-700 max-w-[120px] truncate">
+																	{platform.display_name || platform.name}
+																</span>
+																<Image
+																	src={getPlatformLogo(platform)}
+																	alt="Platform Logo"
+																	width={16}
+																	height={16}
+																/>
+															</div>
+															<span className="flex-1 text-xs text-gray-500">
+																@{platform.profile_data?.username}
+															</span>
+														</div>
+													</div>
 												</DropdownMenuItem>
 											))}
 									</DropdownMenuContent>
@@ -163,14 +199,14 @@ export default function PostDetailsUI({
 							</div>
 
 							<div>
-								{isPending && <div className="w-40 h-4 bg-gray-200 animate-pulse rounded-md" />}
-								{!isPending && selectedAccount && (
+								{isLoading && <div className="w-40 h-4 bg-gray-200 animate-pulse rounded-md" />}
+								{!isLoading && selectedAccount && (
 									<Badge className="bg-green-500 hover:bg-green-400 transition-all duration-500">
 										<Link size={14} className="mr-1" />
 										Conta conectada
 									</Badge>
 								)}
-								{!isPending && noAccountsSelected && (
+								{!isLoading && noAccountsSelected && (
 									<Badge className="bg-yellow-500 hover:bg-yellow-400 transition-all duration-500">
 										Selecione uma conta Instagram
 									</Badge>
@@ -183,7 +219,7 @@ export default function PostDetailsUI({
 								<p className="font-semibold text-base">Descrição</p>
 								<Button
 									type="button"
-									variant="ghost"
+									variant="tertiary"
 									onClick={generateCaption}
 									disabled={loadingCaption}
 								>
@@ -213,13 +249,13 @@ export default function PostDetailsUI({
 								disabled={showCalendar || noAccountsSelected}
 								className="w-full p-4 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
 							>
-								{noAccountsSelected ? "Selecione uma conta para postar" : "Postar agora"}
+								{noAccountsSelected ? 'Selecione uma conta para postar' : 'Postar agora'}
 								{loadingSubmit && <LoaderCircle className="animate-spin" />}
 							</Button>
 
 							<Button
 								type="button"
-								variant="outline"
+								variant="secondary"
 								className="w-full p-4 flex items-center justify-center gap-2"
 								onClick={handleToggleCalendar}
 								disabled={noAccountsSelected}
@@ -288,11 +324,13 @@ export default function PostDetailsUI({
 										src={imageUrl}
 									/>
 									<div>
-										{isPending && <div className="w-28 h-4 bg-gray-200 animate-pulse rounded-md" />}
-										{!isPending && selectedAccount && (
-											<p className="font-semibold text-base">{selectedAccount.username}</p>
+										{isLoading && <div className="w-28 h-4 bg-gray-200 animate-pulse rounded-md" />}
+										{!isLoading && selectedAccount && (
+											<p className="font-semibold text-base">
+												{selectedAccount.display_name || selectedAccount.name}
+											</p>
 										)}
-										{!isPending && noAccountsSelected && (
+										{!isLoading && noAccountsSelected && (
 											<p className="text-gray-500 text-base">Selecione uma conta</p>
 										)}
 										<p className="text-xs text-gray-500">Agora mesmo</p>
@@ -324,23 +362,25 @@ export default function PostDetailsUI({
 							</div>
 
 							<div className="text-sm min-h-[120px]">
-								{isPending && (
+								{isLoading && (
 									<div>
 										<div className="w-full h-4 bg-gray-200 animate-pulse rounded-md" />
 										<div className="w-28 h-4 mt-1 bg-gray-200 animate-pulse rounded-md" />
 									</div>
 								)}
-								{!isPending && selectedAccount && (
+								{!isLoading && selectedAccount && (
 									<div className="flex flex-col gap-1">
-										<span className="font-semibold">@{selectedAccount.username}</span>
+										<span className="font-semibold">@{selectedAccount.profile_data?.username}</span>
 										<p className="text-gray-500 whitespace-pre-wrap break-words">
 											{caption || 'Aqui vai a legenda do post.'}
 										</p>
 									</div>
 								)}
-								{!isPending && noAccountsSelected && (
+								{!isLoading && noAccountsSelected && (
 									<div className="flex flex-col gap-1">
-										<span className="font-semibold text-gray-500">Selecione uma conta Instagram</span>
+										<span className="font-semibold text-gray-500">
+											Selecione uma conta Instagram
+										</span>
 										<p className="text-gray-500 whitespace-pre-wrap break-words">
 											{caption || 'Aqui vai a legenda do post.'}
 										</p>

@@ -106,7 +106,10 @@ export class UserPlatform extends Model {
 	@BelongsTo(() => User)
 	user: User;
 
-	@BelongsTo(() => Platform)
+	@BelongsTo(() => Platform, {
+		foreignKey: 'platform_id',
+		as: 'platform',
+	})
 	platform: Platform;
 
 	@HasOne(() => AuthToken)

@@ -1,19 +1,19 @@
+import { Platform } from '@models/platform.model';
+import { UserPlatform } from '@models/user-platform.model';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from '../dto/post.dto';
-import { Platform } from '@models/platform.model';
-import { InstagramPostStrategy } from '../strategies/instagram-post.strategy';
+import { MetaPostStrategy } from '../strategies/meta-post.strategy';
 import { TiktokPostStrategy } from '../strategies/tiktok-post.strategy';
-import { UserPlatform } from '@models/user-platform.model';
 
 @Injectable()
 export class PostContext {
 	constructor(
-		private readonly instagramPostStrategy: InstagramPostStrategy,
+		private readonly MetaPostStrategy: MetaPostStrategy,
 		private readonly tiktokPostStrategy: TiktokPostStrategy,
 	) {}
 
 	mappedStrategiesByPlatform = {
-		INSTAGRAM: this.instagramPostStrategy,
+		INSTAGRAM: this.MetaPostStrategy,
 		TIKTOK: this.tiktokPostStrategy,
 	};
 
