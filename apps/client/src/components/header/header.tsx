@@ -55,7 +55,12 @@ export default function Header({
 						{hasPlatforms &&
 							accounts.map(account => (
 								<Fragment key={account.id}>
-									<DropdownMenuItem className="flex justify-between items-center px-2 rounded-lg hover:!bg-white focus:!bg-white">
+									<DropdownMenuItem
+										className="flex justify-between items-center px-2 rounded-lg hover:!bg-white focus:!bg-white"
+										onClick={e => {
+											e.stopPropagation();
+										}}
+									>
 										<div className="flex items-center gap-2 w-full">
 											<Image
 												src={account.avatar_url || ''}

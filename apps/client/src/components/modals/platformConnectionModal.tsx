@@ -67,13 +67,8 @@ export default function PlatformConnectionModal({ isOpen, onClose }: PlatformCon
 				!platformMutation.isPending &&
 				!platformMutation.isSuccess;
 
-			console.log(shouldCreatePlatform, 'shouldCreatePlatform');
-			console.log(hasReceivedCodeRef.current, 'hasReceivedCodeRef.current');
-
 			if (shouldCreatePlatform) {
-				console.log('[SHOULD CREATE PLATFORM VERDADEIRO]');
 				hasReceivedCodeRef.current = true;
-				console.log('Recebido código do Instagram:', code);
 				platformMutation.mutate({ code, platformId: PLATFORMS.INSTAGRAM });
 			}
 		},

@@ -10,7 +10,6 @@ const InstagramCallbackPage = () => {
 
 	useEffect(() => {
 		if (window.opener && code) {
-			console.log('enviando o code:', code);
 			window.opener.postMessage({ type: 'instagram-auth', code }, window.location.origin);
 			window.close();
 		}

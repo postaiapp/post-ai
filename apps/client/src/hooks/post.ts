@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation';
 
 import { errorToast, successToast } from '@/utils/toast';
 
+const errorMessages = {
+	INVALID_POST_DATE: 'A data do post não pode ser anterior à data atual.',
+};
+
 export function useCreatePost() {
 	const router = useRouter();
 
 	return useMutation({
 		mutationKey: ['create-post'],
 		mutationFn: async (data: PostFormData) => {
-			console.log(data, 'data')
 			const response = await createPost(data);
 			return response.data;
 		},
@@ -20,8 +23,11 @@ export function useCreatePost() {
 
 			router.push('/history');
 		},
-		onError: () => {
-			errorToast('Algo de errado aconteceu ao criar o post. Tente novamente.');
+		onError: (error: Error) => {
+			errorToast(
+				errorMessages[error.message as keyof typeof errorMessages] ||
+					'Algo de errado aconteceu ao criar o post. Tente novamente.'
+			);
 		},
 	});
 }

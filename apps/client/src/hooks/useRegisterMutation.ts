@@ -16,7 +16,6 @@ export function useRegisterMutation(onSuccess?: () => void) {
             onSuccess?.();
         },
         onError: (error: Error) => {
-            console.log(error, 'error')
             errorToast('Algo de errado aconteceu, tente novamente.');
         }
     });

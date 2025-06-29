@@ -14,6 +14,7 @@ import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.mod
 import { UserModule } from './modules/user/user.module';
 import { WebhooksModule } from '@modules/webhooks/webhooks.module';
 import { PlatformModule } from '@modules/platform/platform.module';
+import { CronModule } from '@crons/cron.module';
 
 @Module({
 	imports: [
@@ -36,6 +37,7 @@ import { PlatformModule } from '@modules/platform/platform.module';
 		UserModule,
 		WebhooksModule,
 		PlatformModule,
+		CronModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AuthGuard],

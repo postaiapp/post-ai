@@ -20,8 +20,6 @@ export class InstagramPostStrategy {
 
 		const containerId = containerResponse.data.id;
 
-		console.log(containerId, 'containerId');
-
 		const publishResponse = await InstagramClient({
 			method: 'POST',
 			url: `/${userPlatform.profile_data.instagram_user_id}/media_publish`,

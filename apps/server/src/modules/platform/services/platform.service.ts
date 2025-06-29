@@ -29,8 +29,6 @@ export class PlatformService {
 			},
 		});
 
-		console.log(validatedPlatform, 'validatedPlatform');
-
 		if (!validatedPlatform) {
 			throw new NotFoundException('PLATFORM_NOT_FOUND');
 		}

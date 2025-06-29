@@ -17,7 +17,6 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			console.log(data);
 			const { user, token } = data;
 
 			setUser(user);
@@ -30,7 +29,6 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 			}, 1000);
 		},
 		onError: (error) => {
-			console.log(error);
 			errorToast('Suas credenciais estão inválidas, tente novamente.');
 		},
 	});
