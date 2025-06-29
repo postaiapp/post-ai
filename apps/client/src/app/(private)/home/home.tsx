@@ -3,17 +3,15 @@ import { BarChart3, Calendar, Target, TrendingUp, Users } from 'lucide-react';
 
 import AnalyticsChart from './HomeAnalyticsChart/HomeAnalyticsChart';
 import { HomePlatformFilter } from './HomePlatformFilter/HomePlatformFilter';
-import PostsList from './HomePostList/HomePostList';
 import QuickActions from './HomeQuickActions/HomeQuickActions';
 import StatsCard from './HomeStatsCard/HomeStatsCard';
 
 interface HomeProps {
-	handleNavigateChat: () => void;
 	selectedPlatform: number;
 	setSelectedPlatform: (platform: number) => void;
 }
 
-const Home = ({ handleNavigateChat, selectedPlatform, setSelectedPlatform }: HomeProps) => {
+const Home = ({ selectedPlatform, setSelectedPlatform }: HomeProps) => {
 	type TrendType = 'up' | 'neutral' | 'down';
 
 	const stats: Array<{
@@ -147,8 +145,6 @@ const Home = ({ handleNavigateChat, selectedPlatform, setSelectedPlatform }: Hom
 						</CardContent>
 					</Card>
 				</div>
-
-				<PostsList />
 			</div>
 		</div>
 	);

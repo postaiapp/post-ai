@@ -1,15 +1,15 @@
+import { Platform } from '@models/platform.model';
+import { User } from '@models/user.model';
 import {
+	BelongsTo,
 	Column,
-	Model,
-	Table,
 	DataType,
 	ForeignKey,
-	BelongsTo,
-	Scopes,
 	HasOne,
+	Model,
+	Scopes,
+	Table,
 } from 'sequelize-typescript';
-import { User } from '@models/user.model';
-import { Platform } from '@models/platform.model';
 import { AuthToken } from './auth-token.model';
 
 @Scopes(() => ({

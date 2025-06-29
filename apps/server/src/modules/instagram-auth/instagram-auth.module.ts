@@ -1,4 +1,4 @@
-import { EmailService } from '@common/providers/email.service';
+import { EmailService } from '@common/services/email.service';
 import { DatabaseModule } from '@config/database.module';
 import { Module } from '@nestjs/common';
 import { Post, PostSchema } from '@schemas/post.schema';

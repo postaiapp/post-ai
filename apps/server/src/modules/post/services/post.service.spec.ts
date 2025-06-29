@@ -1,4 +1,4 @@
-import { EmailService } from '@common/providers/email.service';
+import { EmailService } from '@common/services/email.service';
 import { IMAGE_TEST_URL } from '@constants/post';
 import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';

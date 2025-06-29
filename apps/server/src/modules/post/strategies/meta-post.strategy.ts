@@ -1,7 +1,7 @@
+import { MetaProvider } from '@common/providers/meta.provider';
 import { UserPlatform } from '@models/user-platform.model';
 import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from '../dto/post.dto';
-import { MetaProvider } from '../providers/meta.provider';
 
 @Injectable()
 export class MetaPostStrategy extends MetaProvider {

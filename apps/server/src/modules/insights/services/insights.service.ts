@@ -1,6 +1,7 @@
 import { Platform, UserPlatform } from '@models';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ServiceBaseParamsWithFilterType } from '@type/service-base';
+import { get } from 'lodash';
 import { InsightsContext } from '../contexts/insights.context';
 import { GetDashboardDto } from '../dtos/insights.dto';
 
@@ -10,27 +11,38 @@ export class InsightsService {
 
 	async getUserPlatformInfo(
 		userId: number,
-		platformId: number,
+		userPlatformId: number,
 	): Promise<{
 		accessToken: string;
 		platform: Platform;
+		externalId: string;
 	}> {
 		const userPlatform = await UserPlatform.scope(['withPlatform', 'withAuthToken']).findOne({
 			where: {
-				platform_id: platformId,
+				id: userPlatformId,
 				user_id: userId,
 			},
 			raw: true,
 			nest: true,
+			attributes: ['profile_data'],
 		});
 
 		if (!userPlatform) {
 			throw new NotFoundException('USER_PLATFORM_NOT_FOUND');
 		}
 
+		const profileData = JSON.parse(JSON.stringify(userPlatform.profile_data));
+
+		const externalId = get(profileData, 'instagram_user_id');
+
+		if (!externalId) {
+			throw new NotFoundException('EXTERNAL_ID_NOT_FOUND');
+		}
+
 		return {
 			accessToken: userPlatform.auth_token.access_token,
 			platform: userPlatform.platform,
+			externalId,
 		};
 	}
 
@@ -38,13 +50,13 @@ export class InsightsService {
 		filter,
 		meta,
 	}: ServiceBaseParamsWithFilterType<Record<string, unknown>, GetDashboardDto>) {
-		const { accessToken, platform } = await this.getUserPlatformInfo(
+		const { accessToken, platform, externalId } = await this.getUserPlatformInfo(
 			meta.userId,
 			filter.platformId,
 		);
 
 		const strategy = this.insightsContext.getStrategy(platform as Platform);
 
-		return strategy.getDashboardSummary({ userId: meta.userId, accessToken });
+		return strategy.getDashboardSummary({ userId: externalId, accessToken });
 	}
 }
