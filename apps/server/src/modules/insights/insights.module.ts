@@ -1,6 +1,6 @@
+import { MetaProvider } from '@common/providers/meta.provider';
 import { AuthToken } from '@models/auth-token.model';
 import { UserPlatform } from '@models/user-platform.model';
-import { MetaProvider } from '@modules/post/providers/meta.provider';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';

@@ -8,7 +8,7 @@ export class MetaProvider {
 
 	constructor() {
 		this.api = axios.create({
-			baseURL: 'https://graph.instagram.com',
+			baseURL: 'https://graph.instagram.com/v21.0',
 			headers: { 'Content-Type': 'application/json' },
 		});
 
@@ -112,7 +112,7 @@ export class MetaProvider {
 	}
 
 	// --- Get User Insights (Alcance, Engajamento, etc.) ---
-	// https://developers.facebook.com/docs/instagram-platform/reference/instagram-user/insights
+	// https://developers.facebook.com/docs/instagram-platform/api-reference/instagram-user/insights
 	async getMetaUserInsights({
 		params,
 		userId,
