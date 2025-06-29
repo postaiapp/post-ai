@@ -1,14 +1,14 @@
+import { PLATFORM_STATUS } from '@constants/platforms';
+import { AuthToken } from '@models/auth-token.model';
+import { Platform } from '@models/platform.model';
+import { UserPlatform } from '@models/user-platform.model';
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AuthToken } from '@models/auth-token.model';
-import { UserPlatform } from '@models/user-platform.model';
-import * as dayjs from 'dayjs';
-import { CreatePlatformDto, DisconnectPlatformDto } from '../dto/platform.dto';
-import { Platform } from '@models/platform.model';
-import { PlatformContext } from '../contexts/platform.context';
-import PlatformUtils from '@utils/platform';
-import { PLATFORM_STATUS } from '@constants/platforms';
 import { Uploader } from '@type/storage';
+import PlatformUtils from '@utils/platform';
+import * as dayjs from 'dayjs';
+import { PlatformContext } from '../contexts/platform.context';
+import { CreatePlatformDto, DisconnectPlatformDto } from '../dto/platform.dto';
 
 @Injectable()
 export class PlatformService {

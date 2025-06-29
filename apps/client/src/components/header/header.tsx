@@ -9,7 +9,7 @@ import InstagramLogo from '@public/instagram-logo.png';
 import TiktokLogo from '@public/tiktok-logo.png';
 import { userStore } from '@stores/index';
 import { getColorByInitials, getInitials } from '@utils/avatar';
-import { LogOut, ChevronDown, Settings, SquareArrowOutUpRight, Link, Trash, LoaderCircle } from 'lucide-react';
+import { ChevronDown, Link, LoaderCircle, LogOut, Settings, SquareArrowOutUpRight, Trash } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Header({

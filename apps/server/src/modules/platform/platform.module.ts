@@ -1,18 +1,18 @@
+import { AuthToken } from '@models/auth-token.model';
+import { UserPlatform } from '@models/user-platform.model';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PlatformController } from './controllers/platform.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UserPlatform } from '@models/user-platform.model';
-import { AuthToken } from '@models/auth-token.model';
-import { PlatformService } from './services/platform.service';
 import { PlatformContext } from './contexts/platform.context';
-import { InstagramStrategy } from './strategies/instagram.strategy';
+import { PlatformController } from './controllers/platform.controller';
+import { PlatformService } from './services/platform.service';
+import { MetaStrategy } from './strategies/meta.strategy';
 import { TiktokStrategy } from './strategies/tiktok.strategy';
 
 @Module({
 	imports: [ConfigModule, SequelizeModule.forFeature([UserPlatform, AuthToken])],
 	controllers: [PlatformController],
-	providers: [PlatformService, PlatformContext, InstagramStrategy, TiktokStrategy],
-	exports: [PlatformService, PlatformContext, InstagramStrategy, TiktokStrategy],
+	providers: [PlatformService, PlatformContext, MetaStrategy, TiktokStrategy],
+	exports: [PlatformService, PlatformContext, MetaStrategy, TiktokStrategy],
 })
 export class PlatformModule {}

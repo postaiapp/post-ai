@@ -1,17 +1,19 @@
-import { Button } from '@components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
-import { BarChart3, Calendar, MessageSquare, Target, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, Calendar, Target, TrendingUp, Users } from 'lucide-react';
 
 import AnalyticsChart from './HomeAnalyticsChart/HomeAnalyticsChart';
+import { HomePlatformFilter } from './HomePlatformFilter/HomePlatformFilter';
 import PostsList from './HomePostList/HomePostList';
 import QuickActions from './HomeQuickActions/HomeQuickActions';
 import StatsCard from './HomeStatsCard/HomeStatsCard';
 
 interface HomeProps {
 	handleNavigateChat: () => void;
+	selectedPlatform: number;
+	setSelectedPlatform: (platform: number) => void;
 }
 
-const Home = ({ handleNavigateChat }: HomeProps) => {
+const Home = ({ handleNavigateChat, selectedPlatform, setSelectedPlatform }: HomeProps) => {
 	type TrendType = 'up' | 'neutral' | 'down';
 
 	const stats: Array<{
@@ -73,13 +75,11 @@ const Home = ({ handleNavigateChat }: HomeProps) => {
 							</div>
 						</div>
 
-						<Button
-							className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
-							onClick={handleNavigateChat}
-						>
-							<MessageSquare className="h-5 w-5 mr-2" />
-							Criar Post com IA
-						</Button>
+						<HomePlatformFilter
+							selectedPlatform={selectedPlatform}
+							onPlatformChange={setSelectedPlatform}
+							isLoading={false}
+						/>
 					</div>
 				</div>
 			</div>

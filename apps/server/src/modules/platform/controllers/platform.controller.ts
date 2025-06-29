@@ -1,11 +1,11 @@
-import { Controller, Post, Body, UseGuards, Response } from '@nestjs/common';
+import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
+import { Body, Controller, Post, Response, UseGuards } from '@nestjs/common';
+import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
-import { PlatformService } from '../services/platform.service';
-import { Meta } from '@decorators/meta.decorator';
-import { Meta as MetaType } from '@type/meta';
 import { CreatePlatformDto, DisconnectPlatformDto } from '../dto/platform.dto';
+import { PlatformService } from '../services/platform.service';
 
 @Controller('platforms')
 @UseGuards(AuthGuard)

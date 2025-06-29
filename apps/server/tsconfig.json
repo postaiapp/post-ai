@@ -23,6 +23,7 @@
       "@schemas/*": ["./src/schemas/*"],
       "@modules/*": ["src/modules/*"],
       "@models/*": ["src/models/*"],
+      "@shared/*": ["src/shared/*"],
     }
   }
 }
