@@ -11,13 +11,17 @@ import {
 	Table,
 } from 'sequelize-typescript';
 import { AuthToken } from './auth-token.model';
+import { Op } from 'sequelize';
+import * as dayjs from 'dayjs';
 
 @Scopes(() => ({
 	withAuthToken: {
 		include: {
 			model: AuthToken,
 			where: {
-				is_deleted: false,
+				expires_at: {
+					[Op.gt]: dayjs().toDate(),
+				},
 			},
 		},
 	},

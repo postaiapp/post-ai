@@ -31,7 +31,7 @@ export class InsightsService {
 			throw new NotFoundException('USER_PLATFORM_NOT_FOUND');
 		}
 
-		const profileData = JSON.parse(JSON.stringify(userPlatform.profile_data));
+		const profileData = userPlatform.profile_data;
 
 		const externalId = get(profileData, 'instagram_user_id');
 
@@ -52,7 +52,7 @@ export class InsightsService {
 	}: ServiceBaseParamsWithFilterType<Record<string, unknown>, GetDashboardDto>) {
 		const { accessToken, platform, externalId } = await this.getUserPlatformInfo(
 			meta.userId,
-			filter.platformId,
+			filter.userPlatformId,
 		);
 
 		const strategy = this.insightsContext.getStrategy(platform as Platform);
