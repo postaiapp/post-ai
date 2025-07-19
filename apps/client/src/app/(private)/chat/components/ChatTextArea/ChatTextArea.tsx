@@ -84,7 +84,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 						onChange={handleChange}
 						onFocus={() => setIsFocused(true)}
 						onBlur={() => setIsFocused(false)}
-						maxLength={maxLength}
 						rows={numberOfLines}
 						{...props}
 					/>

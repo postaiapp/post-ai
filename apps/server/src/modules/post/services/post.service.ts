@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, BadRequestException } from '@nes
 import { InjectModel } from '@nestjs/sequelize';
 import { Post } from '@models/post.model';
 import { UserPlatform } from '@models/user-platform.model';
-import { CreatePostDto } from '../dto/post.dto';
+import { CreatePostDto, ListPostsDto } from '../dto/post.dto';
 import { PostContext } from '../contexts/post.context';
 import { Uploader } from '@type/storage';
 import { EmailService } from '@common/providers/email.service';
@@ -10,6 +10,8 @@ import { getHtmlPath } from '@utils/email';
 import * as dayjs from 'dayjs';
 import FileUtils from '@utils/file';
 import { Meta } from '@type/meta';
+import { Op, WhereOptions } from 'sequelize';
+import PaginationUtils from '@utils/pagination';
 
 @Injectable()
 export class PostService {
@@ -23,21 +25,28 @@ export class PostService {
 		private readonly emailService: EmailService,
 	) {}
 
-	async create(data: CreatePostDto, meta: Meta) {
-		const userPlatform = await this.userPlatformModel
-			.scope(['withPlatform', 'withAuthToken'])
-			.findOne({
-				where: {
-					id: data.user_platform_id,
-					user_id: meta.userId,
-				},
-				raw: true,
-				nest: true,
-			});
+	findUserPlatform(userPlatformId: number, userId: number, scope: string[] = []) {
+		const userPlatform = this.userPlatformModel.scope(scope).findOne({
+			where: {
+				id: userPlatformId,
+				user_id: userId,
+			},
+			raw: true,
+			nest: true,
+		});
 
 		if (!userPlatform) {
 			throw new NotFoundException('USER_PLATFORM_NOT_FOUND');
 		}
+
+		return userPlatform;
+	}
+
+	async create(data: CreatePostDto, meta: Meta) {
+		const userPlatform = await this.findUserPlatform(data.user_platform_id, meta.userId, [
+			'withPlatform',
+			'withAuthToken',
+		]);
 
 		if (data.scheduled_at) {
 			return this.schedulePost(data, meta, userPlatform);
@@ -125,6 +134,54 @@ export class PostService {
 		}
 
 		return createdPost;
+	}
+
+	async list(meta: Meta, filter: ListPostsDto) {
+		if (filter.user_platform_id) {
+			await this.findUserPlatform(filter.user_platform_id, meta.userId);
+		}
+
+		const Pagination = PaginationUtils.config({
+			page: filter.page,
+			items_per_page: filter.items_per_page,
+		});
+
+		const whereCondition: WhereOptions<Post> = {
+			creatorId: meta.userId,
+		};
+
+		if (filter.searchText) {
+			whereCondition.caption = {
+				[Op.iLike]: `%${filter.searchText}%`,
+			};
+		}
+
+		if (filter.user_platform_id) {
+			whereCondition.accountId = filter.user_platform_id;
+		}
+
+		const promises: any = [
+			this.postModel.findAll({
+				where: whereCondition,
+				...Pagination.getQueryParams(),
+				order: [['createdAt', 'DESC']],
+			}),
+		];
+
+		if (Pagination.getPage() === 1) {
+			promises.push(
+				this.postModel.count({
+					where: whereCondition,
+				}),
+			);
+		}
+
+		const [posts, totalItems] = await Promise.all(promises);
+
+		return {
+			posts,
+			...Pagination.mount(totalItems),
+		};
 	}
 
 	async sendEmailToUser({

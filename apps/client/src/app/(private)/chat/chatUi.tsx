@@ -141,7 +141,6 @@ export const ChatUi = ({ chatId, sendMessage, regenerate, data, prompt, setPromp
 					}}
 					disabled={(!!chatId && isPendingInteractions) || isPendingSendMessage || isPendingRegenerateMessage}
 					showCount
-					maxLength={200}
 				/>
 			</div>
 		</div>

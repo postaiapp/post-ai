@@ -1,3 +1,4 @@
+import { Sanitize } from '@decorators/sanitize.decorator';
 import { IsNotEmpty, IsOptional, IsString, ValidateIf, IsNumber } from 'class-validator';
 
 export class CreatePostDto {
@@ -33,4 +34,25 @@ export class GetAllPostsQueryDto {
 	@IsOptional()
 	@IsNumber()
 	limit: number;
+}
+
+export class ListPostsDto {
+	@IsOptional()
+	@IsString()
+	@Sanitize()
+	searchText: string;
+
+	@IsNumber()
+	@IsOptional()
+	user_platform_id: number;
+
+	@IsOptional()
+	@IsNumber()
+	@IsNotEmpty()
+	page: number;
+
+	@IsOptional()
+	@IsNumber()
+	@IsNotEmpty()
+	items_per_page: number;
 }
