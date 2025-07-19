@@ -11,7 +11,7 @@ export const createPost = async (filter: PostFormData) => {
 	});
 
 	return {
-		data
+		data,
 	};
 };
 

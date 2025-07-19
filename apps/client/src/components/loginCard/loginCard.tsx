@@ -39,7 +39,7 @@ export default function LoginCard({
 
                 <Button
                     type="submit"
-                    variant="default"
+                    variant="primary"
                     disabled={loading}
                     className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500"
                 >

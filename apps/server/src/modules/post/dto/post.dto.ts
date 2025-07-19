@@ -1,36 +1,22 @@
 import { Sanitize } from '@decorators/sanitize.decorator';
-import FileUtils from '@utils/file';
-import { Transform } from 'class-transformer';
-import {
-	IsDate,
-	IsNotEmpty,
-	IsOptional,
-	IsString,
-	IsUrl,
-	ValidateIf,
-	IsNumber,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateIf, IsNumber } from 'class-validator';
 
 export class CreatePostDto {
+	@IsNumber()
 	@IsNotEmpty()
-	@IsString()
-	username: string;
+	user_platform_id: number;
 
-	@IsNotEmpty()
 	@IsString()
-	@Sanitize()
+	@IsNotEmpty()
 	caption: string;
 
-	@IsOptional()
 	@IsString()
-	@Transform(obj => obj.value && FileUtils.getUnsignedUrl(obj.value))
-	@IsUrl()
-	img: string;
+	@IsNotEmpty()
+	media_url: string;
 
+	@IsString()
 	@IsOptional()
-	@IsDate()
-	@Transform(obj => obj.value && new Date(obj.value))
-	post_date: Date;
+	scheduled_at?: string;
 }
 
 export class CancelPostQueryDto {
@@ -48,4 +34,25 @@ export class GetAllPostsQueryDto {
 	@IsOptional()
 	@IsNumber()
 	limit: number;
+}
+
+export class ListPostsDto {
+	@IsOptional()
+	@IsString()
+	@Sanitize()
+	searchText: string;
+
+	@IsNumber()
+	@IsOptional()
+	user_platform_id: number;
+
+	@IsOptional()
+	@IsNumber()
+	@IsNotEmpty()
+	page: number;
+
+	@IsOptional()
+	@IsNumber()
+	@IsNotEmpty()
+	items_per_page: number;
 }

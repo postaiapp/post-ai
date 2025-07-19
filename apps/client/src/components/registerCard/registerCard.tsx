@@ -47,12 +47,12 @@ export default function RegisterCard({
 
                 <Button
                     type="submit"
-                    variant="default"
+                    variant="secondary"
+                    loading={loading}
                     disabled={loading}
-                    className="w-full mt-2 text-base bg-purple-500 hover:bg-fuchsia-500"
+                    className="w-full mt-2"
                 >
                     Criar conta
-                    {loading && <LoaderCircle className="animate-spin" />}
                     {!loading && <LogIn size={20} />}
                 </Button>
             </form>

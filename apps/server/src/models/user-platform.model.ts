@@ -1,7 +1,33 @@
-import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+	Column,
+	Model,
+	Table,
+	DataType,
+	ForeignKey,
+	BelongsTo,
+	Scopes,
+	HasOne,
+} from 'sequelize-typescript';
 import { User } from '@models/user.model';
 import { Platform } from '@models/platform.model';
+import { AuthToken } from './auth-token.model';
 
+@Scopes(() => ({
+	withAuthToken: {
+		include: {
+			model: AuthToken,
+			where: {
+				is_deleted: false,
+			},
+		},
+	},
+	withPlatform: {
+		include: {
+			model: Platform,
+			required: true,
+		},
+	},
+}))
 @Table({
 	tableName: 'user_platforms',
 	timestamps: true,
@@ -80,6 +106,12 @@ export class UserPlatform extends Model {
 	@BelongsTo(() => User)
 	user: User;
 
-	@BelongsTo(() => Platform)
+	@BelongsTo(() => Platform, {
+		foreignKey: 'platform_id',
+		as: 'platform',
+	})
 	platform: Platform;
+
+	@HasOne(() => AuthToken)
+	auth_token: AuthToken;
 }

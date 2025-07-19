@@ -1,8 +1,11 @@
-import { CronModule } from '@crons/cron.module';
 import { DatabaseModule } from '@config/database.module';
+import { CronModule } from '@crons/cron.module';
 import { AuthGuard } from '@guards/auth.guard';
 import { AuthModule } from '@modules/auth/auth.module';
+import { InsightsModule } from '@modules/insights/insights.module';
+import { PlatformModule } from '@modules/platform/platform.module';
 import { PostModule } from '@modules/post/post.module';
+import { WebhooksModule } from '@modules/webhooks/webhooks.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -20,7 +23,6 @@ import { UserModule } from './modules/user/user.module';
 		ScheduleModule.forRoot(),
 		StorageModule,
 		AuthModule,
-		CronModule,
 		JwtModule.registerAsync({
 			imports: [ConfigModule],
 			useFactory: async (configService: ConfigService) => ({
@@ -34,6 +36,10 @@ import { UserModule } from './modules/user/user.module';
 		InstagramAuthModule,
 		ChatsModule,
 		UserModule,
+		WebhooksModule,
+		PlatformModule,
+		CronModule,
+		InsightsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AuthGuard],

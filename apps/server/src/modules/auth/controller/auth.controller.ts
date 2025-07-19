@@ -31,7 +31,7 @@ export class AuthController extends BaseController {
 	})
 	async create(@Body() createAuthDto: LoginDto, @Res() res: Response) {
 		try {
-			const response = await this.authService.authenticate({ ...createAuthDto });
+			const response = await this.authService.authenticate(createAuthDto);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {

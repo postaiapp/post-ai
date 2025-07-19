@@ -2,15 +2,19 @@
 import type React from 'react';
 import { useState } from 'react';
 
-import type { InstagramAccountStore } from '@common/interfaces/instagramAccount';
 import type { PostFormData } from '@common/interfaces/post';
+import type { UserPlatform } from '@common/interfaces/user-platforms';
 import { useCreatePost } from '@hooks/post';
 import { generateCaption as generateCaptionProcess } from '@processes/chat';
+import InstagramLogo from '@public/instagram-logo.png';
+import TiktokLogo from '@public/tiktok-logo.png';
 import userStore from '@stores/userStore';
-import { errorToast, successToast, warningToast } from '@utils/toast';
+import { warningToast } from '@utils/toast';
 import dayjs from 'dayjs';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+
+import { PLATFORMS } from '@/common/constants/platforms';
 
 import PostDetailsUI from './postDetailsUi';
 
@@ -20,16 +24,14 @@ export default function PostDetailsContainer() {
 	const searchParams = useSearchParams();
 	const image = decodeURIComponent(searchParams.get('image') || '');
 	const chatId = searchParams.get('chatId') || '';
-	const user = userStore((state) => state.user);
-	const [selectedAccount, setSelectedAccount] = useState<InstagramAccountStore | undefined>(undefined);
-	const { createPost, isLoading, isError } = useCreatePost();
-	const router = useRouter();
+	const { user } = userStore();
+	const [selectedAccount, setSelectedAccount] = useState<UserPlatform | undefined>(undefined);
+	const { mutateAsync: createPost, isPending: isLoading } = useCreatePost();
 	const { control, handleSubmit, setValue, watch } = useForm<PostFormData>({
 		defaultValues: {
-			username: '',
 			caption: '',
-			img: image || '',
-			post_date: null,
+			media_url: image || '',
+			scheduled_at: null,
 		},
 	});
 
@@ -51,18 +53,18 @@ export default function PostDetailsContainer() {
 
 	const handleDateChange = (date: Date | undefined) => {
 		setSelectedDate(date);
-		setValue('post_date', generateISODate(date, selectedTime));
+		setValue('scheduled_at', generateISODate(date, selectedTime));
 	};
 
 	const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const time = e.target.value;
 		setSelectedTime(time);
-		setValue('post_date', generateISODate(selectedDate, time));
+		setValue('scheduled_at', generateISODate(selectedDate, time));
 	};
 
-	const handleAccountChange = (account: InstagramAccountStore) => {
+	const handleAccountChange = (account: UserPlatform) => {
 		setSelectedAccount(account);
-		setValue('username', account.username);
+		setValue('user_platform_id', account.id);
 	};
 
 	const handleCreatePost = async (data: PostFormData) => {
@@ -73,19 +75,10 @@ export default function PostDetailsContainer() {
 
 		const formattedData = {
 			...data,
-			post_date: data.post_date === '' ? null : data.post_date,
+			scheduled_at: data.scheduled_at === '' ? null : data.scheduled_at,
 		};
 
 		await createPost(formattedData);
-
-		if (isError) {
-			errorToast('Algo de errado aconteceu ao criar o post. Tente novamente.');
-			return;
-		}
-
-		successToast('Post criado com sucesso.');
-
-		router.push('/history');
 	};
 
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
@@ -98,6 +91,18 @@ export default function PostDetailsContainer() {
 		setValue('caption', data.data.caption);
 
 		setLoadingCaption(false);
+	};
+
+	const getPlatformLogo = (platform: UserPlatform) => {
+		if (platform.platform_id === PLATFORMS.INSTAGRAM) {
+			return InstagramLogo;
+		}
+
+		if (platform.platform_id === PLATFORMS.TIKTOK) {
+			return TiktokLogo;
+		}
+
+		return InstagramLogo;
 	};
 
 	return (
@@ -119,6 +124,7 @@ export default function PostDetailsContainer() {
 			image={image}
 			generateCaption={generateCaption}
 			loadingCaption={loadingCaption}
+			getPlatformLogo={getPlatformLogo}
 		/>
 	);
 }

@@ -17,15 +17,18 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			setUser(data.user);
-			localStorageSet('token', data.token);
+			const { user, token } = data;
+
+			setUser(user);
+
+			localStorageSet('token', token);
 
 			setTimeout(() => {
-				router.push('/chat');
+				router.push('/home');
 				successToast('Login efetuado com sucesso!');
 			}, 1000);
 		},
-		onError: () => {
+		onError: (error) => {
 			errorToast('Suas credenciais estão inválidas, tente novamente.');
 		},
 	});

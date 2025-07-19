@@ -62,12 +62,7 @@ module.exports = {
 			},
 		});
 
-		await queryInterface.addIndex('user_platforms', ['user_id', 'platform_id'], {
-			unique: true,
-			where: {
-				deleted_at: null,
-			},
-		});
+		await queryInterface.addIndex('user_platforms', ['user_id', 'platform_id', 'deleted_at']);
 	},
 
 	async down(queryInterface) {

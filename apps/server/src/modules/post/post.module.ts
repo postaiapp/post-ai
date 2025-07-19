@@ -1,22 +1,34 @@
 import { EmailService } from '@common/providers/email.service';
-import { DatabaseModule } from '@config/database.module';
-import { InstagramAuthService } from '@modules/instagram-auth/services/instagram-auth.service';
+import { AuthToken } from '@models/auth-token.model';
+import { Post } from '@models/post.model';
+import { UserPlatform } from '@models/user-platform.model';
 import { Module } from '@nestjs/common';
-import { Post, PostSchema } from '@schemas/post.schema';
-import { User, UserSchema } from '@schemas/user.schema';
-import { R2Storage } from '@storages/r2-storage';
-import { IgApiClient } from 'instagram-private-api';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { PostContext } from './contexts/post.context';
 import { PostController } from './controller/post.controller';
+import { MetaProvider } from './providers/meta.provider';
 import { PostService } from './services/post.service';
+import { MetaPostStrategy } from './strategies/meta-post.strategy';
+import { TiktokPostStrategy } from './strategies/tiktok-post.strategy';
 
 @Module({
-	imports: [
-		DatabaseModule.forFeature([
-			{ name: User.name, schema: UserSchema },
-			{ name: Post.name, schema: PostSchema },
-		]),
-	],
+	imports: [SequelizeModule.forFeature([Post, UserPlatform, AuthToken])],
 	controllers: [PostController],
-	providers: [PostService, IgApiClient, InstagramAuthService, R2Storage, EmailService],
+	providers: [
+		PostService,
+		PostContext,
+		MetaPostStrategy,
+		TiktokPostStrategy,
+		EmailService,
+		MetaProvider,
+	],
+	exports: [
+		PostService,
+		PostContext,
+		MetaPostStrategy,
+		TiktokPostStrategy,
+		EmailService,
+		MetaProvider,
+	],
 })
 export class PostModule {}

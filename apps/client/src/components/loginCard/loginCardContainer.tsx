@@ -22,7 +22,11 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 	const { mutate: loginUser, isPending } = useLoginMutation(router);
 
 	const onSubmit = (data: AuthLoginType) => {
-		loginUser(data);
+		try {
+			loginUser(data);
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (

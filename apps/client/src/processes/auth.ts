@@ -11,7 +11,7 @@ export const login = async (filter: AuthLoginType) => {
 	});
 
 	return {
-		data,
+		data: data.data,
 		error,
 	};
 };
@@ -31,14 +31,6 @@ export const register = async (filter: AuthRegisterType) => {
 
 export const refreshToken = async () => {
 	const { data }: ClientResponse = await client.patch('/auth/refresh');
-
-	return {
-		data,
-	};
-};
-
-export const logout = async () => {
-	const { data }: ClientResponse = await client.delete('/auth/logout');
 
 	return {
 		data,
