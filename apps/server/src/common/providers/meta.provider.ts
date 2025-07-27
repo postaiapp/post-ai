@@ -94,6 +94,8 @@ export class MetaProvider {
 			},
 		});
 
+		console.log(JSON.stringify(res.data, null, 4), 'RES DATA MEDIA INSIGHTS');
+
 		return res.data;
 	}
 
@@ -108,6 +110,8 @@ export class MetaProvider {
 	}) {
 		const res = await this.api.get(`/${userId}/media`, { params });
 
+		console.log(JSON.stringify(res.data, null, 4), 'RES DATA USER MEDIA');
+
 		return res.data;
 	}
 
@@ -121,6 +125,8 @@ export class MetaProvider {
 		userId: string;
 	}) {
 		const res = await this.api.get(`/${userId}/insights`, { params });
+
+		console.log(JSON.stringify(res.data, null, 4), 'RES DATA USER INSIGHTS');
 
 		return res.data;
 	}

@@ -1,7 +1,7 @@
 import HistoryContainer from './historyContainer';
 
 const History = () => {
-	return <HistoryContainer />
+	return <HistoryContainer />;
 };
 
 export default History;

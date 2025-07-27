@@ -8,20 +8,13 @@ export interface DashboardInsights {
 	totalPosts: number;
 	currentMonthPosts: number;
 	scheduledPosts: number;
+	publishedPosts: number;
 	reach: number;
 	accountsEngaged: number;
 	views: number;
+	profileViews: number;
 	engagementRate: number;
 	viewsPerReach: number;
-	reachGrowth: number;
-	engagementGrowth: number;
-	performanceData: Array<{
-		date: string;
-		reach: number;
-		accountsEngaged: number;
-		views: number;
-		profileViews: number;
-	}>;
 }
 
 export interface DashboardResponse {

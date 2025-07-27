@@ -6,7 +6,7 @@ import { UserPlatform } from '@models/user-platform.model';
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { PostContext } from './contexts/post.context';
-import { PostController } from './controller/post.controller';
+import { PostController } from './controllers/post.controller';
 import { PostService } from './services/post.service';
 import { MetaPostStrategy } from './strategies/meta-post.strategy';
 import { TiktokPostStrategy } from './strategies/tiktok-post.strategy';

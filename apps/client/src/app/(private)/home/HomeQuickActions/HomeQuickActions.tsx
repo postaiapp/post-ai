@@ -1,6 +1,6 @@
 import { Button } from '@components/ui/button';
 import { Card, CardContent } from '@components/ui/card';
-import { BarChart3, Calendar, Settings, Sparkles, Zap } from 'lucide-react';
+import { Calendar, Settings, Sparkles, Zap, History } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 const QuickActions = () => {
@@ -18,11 +18,10 @@ const QuickActions = () => {
 			action: () => console.log('Agendar posts'),
 		},
 		{
-			title: 'Analytics',
-			description: 'Veja relatórios detalhados',
-			icon: BarChart3,
-			disabled: true, // Temporarily disabled, can be enabled later
-			action: () => console.log('Ver analytics'),
+			title: 'Histórico de Posts',
+			description: 'Veja todos os seus posts',
+			icon: History,
+			action: () => redirect('/history'),
 		},
 		{
 			title: 'Configurações',
@@ -43,7 +42,6 @@ const QuickActions = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 					{actions.map((action, index) => (
 						<Button
-							disabled={action.disabled}
 							key={index}
 							variant="ghost"
 							className="h-auto p-4 flex flex-col items-center space-y-2 hover:bg-purple-50 transition-all duration-300 group"
@@ -57,7 +55,6 @@ const QuickActions = () => {
 							<div className="text-center">
 								<p className="font-medium text-gray-900">{action.title}</p>
 								<p className="text-sm text-gray-500 pb-2">{action.description}</p>
-								{action.disabled && <p className="text-xs text-purple-500">Em breve!</p>}
 							</div>
 						</Button>
 					))}
