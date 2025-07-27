@@ -22,7 +22,7 @@ export class DatabaseConfig implements SequelizeOptionsFactory {
 			dialectOptions: {
 				application_name: 'post-ai-api',
 				statement_timeout: dbConfig.statement_timeout,
-				ssl: dbConfig.ssl,
+				// ssl: dbConfig.ssl,
 			},
 			pool: {
 				max: dbConfig.pool.max,

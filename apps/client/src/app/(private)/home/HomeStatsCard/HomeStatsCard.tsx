@@ -7,10 +7,9 @@ interface StatsCardProps {
 	change: string;
 	icon: LucideIcon;
 	trend: 'up' | 'down' | 'neutral';
-	color: string;
 }
 
-const StatsCard = ({ title, value, change, icon: Icon, trend, color }: StatsCardProps) => {
+const StatsCard = ({ title, value, change, icon: Icon, trend }: StatsCardProps) => {
 	const getTrendIcon = () => {
 		switch (trend) {
 			case 'up':
@@ -27,9 +26,9 @@ const StatsCard = ({ title, value, change, icon: Icon, trend, color }: StatsCard
 			<CardContent className="p-6">
 				<div className="flex items-center justify-between mb-4">
 					<div
-						className={`w-12 h-12 bg-gradient-to-r ${color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+						className="w-12 h-12 bg-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md border border-gray-100"
 					>
-						<Icon className="h-6 w-6 text-white" />
+						<Icon className="h-6 w-6 text-purple-500" />
 					</div>
 					{getTrendIcon()}
 				</div>

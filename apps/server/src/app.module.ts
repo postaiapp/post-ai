@@ -1,5 +1,5 @@
 import { DatabaseModule } from '@config/database.module';
-import { CronModule } from '@crons/cron.module';
+// import { CronModule } from '@crons/cron.module';
 import { AuthGuard } from '@guards/auth.guard';
 import { AuthModule } from '@modules/auth/auth.module';
 import { InsightsModule } from '@modules/insights/insights.module';
@@ -38,7 +38,7 @@ import { UserModule } from './modules/user/user.module';
 		UserModule,
 		WebhooksModule,
 		PlatformModule,
-		CronModule,
+		// CronModule,
 		InsightsModule,
 	],
 	controllers: [AppController],

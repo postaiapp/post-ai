@@ -57,6 +57,11 @@ export class InsightsService {
 
 		const strategy = this.insightsContext.getStrategy(platform as Platform);
 
-		return strategy.getDashboardSummary({ userId: externalId, accessToken });
+		return strategy.getDashboardSummary({ 
+			userId: externalId, 
+			accessToken,
+			dbUserId: meta.userId,
+			dbUserPlatformId: filter.userPlatformId,
+		});
 	}
 }

@@ -9,14 +9,12 @@ const QuickActions = () => {
 			title: 'Criar com IA',
 			description: 'Use IA para gerar posts incríveis',
 			icon: Sparkles,
-			color: 'from-purple-500 to-pink-500',
 			action: () => redirect('/chat'),
 		},
 		{
 			title: 'Agendar Posts',
 			description: 'Programe seus posts para o momento ideal',
 			icon: Calendar,
-			color: 'from-blue-500 to-cyan-500',
 			action: () => console.log('Agendar posts'),
 		},
 		{
@@ -24,14 +22,12 @@ const QuickActions = () => {
 			description: 'Veja relatórios detalhados',
 			icon: BarChart3,
 			disabled: true, // Temporarily disabled, can be enabled later
-			color: 'from-green-500 to-emerald-500',
 			action: () => console.log('Ver analytics'),
 		},
 		{
 			title: 'Configurações',
 			description: 'Personalize suas preferências',
 			icon: Settings,
-			color: 'from-orange-500 to-red-500',
 			action: () => redirect('/settings'),
 		},
 	];
@@ -40,7 +36,7 @@ const QuickActions = () => {
 		<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
 			<CardContent className="p-6">
 				<div className="flex items-center space-x-2 mb-6">
-					<Zap className="h-5 w-5 text-yellow-500" />
+					<Zap className="h-5 w-5 text-purple-500" />
 					<h3 className="text-lg font-semibold text-gray-900">Ações Rápidas</h3>
 				</div>
 
@@ -54,9 +50,9 @@ const QuickActions = () => {
 							onClick={action.action}
 						>
 							<div
-								className={`w-12 h-12 bg-gradient-to-r ${action.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+								className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md border border-gray-100`}
 							>
-								<action.icon className="h-6 w-6 text-white" />
+								<action.icon className="h-6 w-6 text-purple-500" />
 							</div>
 							<div className="text-center">
 								<p className="font-medium text-gray-900">{action.title}</p>

@@ -19,7 +19,7 @@ interface PlatformConnectionModalProps {
 }
 
 const INSTAGRAM_OAUTH_URL =
-	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://0701-2804-351c-dd01-a1e0-51ad-6d86-c169-68c6.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
+	'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=4336613326583916&redirect_uri=https://e3d910dd9c42.ngrok-free.app/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights';
 
 const platforms = [
 	{
