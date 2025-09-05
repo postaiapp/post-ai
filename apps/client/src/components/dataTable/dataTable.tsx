@@ -21,9 +21,8 @@ import {
 	TableRow,
 } from "@components/ui/table"
 import { useState } from "react"
-import { Input } from "@components/ui/input"
 import { Button } from "@components/ui/button"
-import { ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Instagram, Calendar, User, FileText } from "lucide-react"
+import { ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { Separator } from "@components/ui/separator"
 import { getInitials, getColorByInitials } from "@utils/avatar"
 
@@ -49,16 +48,7 @@ interface DataTableProps<TData, TValue> {
 	onPreviousPage: () => void;
 }
 
-const getIconByHeader = (header: string) => {
-	const iconMap = {
-		'Conta': <Instagram size={16} className="text-gray-500" />,
-		'Data': <Calendar size={16} className="text-gray-500" />,
-		'Legenda': <FileText size={16} className="text-gray-500" />,
-		'Usuário': <User size={16} className="text-gray-500" />,
-	};
 
-	return iconMap[header as keyof typeof iconMap] || null;
-};
 
 export function DataTable<TData, TValue>({
 	isPending,
@@ -71,12 +61,19 @@ export function DataTable<TData, TValue>({
 	columnFilters,
 	setColumnFilters,
 	setSorting,
-	onPageChange
+	onPageChange,
+	currentPage: externalCurrentPage,
+	totalPages: externalTotalPages,
+	hasNextPage,
+	hasPreviousPage,
+	onFirstPage,
+	onLastPage,
+	onNextPage,
+	onPreviousPage
 }: DataTableProps<TData, TValue>) {
-	const [currentPage, setCurrentPage] = useState(0);
 	const [isChangingPage, setIsChangingPage] = useState(false);
 
-	const totalPages = Math.ceil(totalItems / pageSize);
+
 
 	const table = useReactTable({
 		data,
@@ -85,9 +82,6 @@ export function DataTable<TData, TValue>({
 		onSortingChange: setSorting,
 		getSortedRowModel: getSortedRowModel(),
 		onColumnFiltersChange: (value) => { 
-			if (currentPage !== 0) { 
-				setCurrentPage(0);
-			}
 			setColumnFilters?.(value);
 		},
 		getFilteredRowModel: getFilteredRowModel(),
@@ -96,26 +90,12 @@ export function DataTable<TData, TValue>({
 			sorting,
 			columnFilters,
 			pagination: {
-				pageIndex: currentPage,
+				pageIndex: externalCurrentPage - 1, // Convert to 0-based index
 				pageSize,
 			},
 		},
-		pageCount: totalPages,
+		pageCount: externalTotalPages,
 	});
-
-	const handlePageChange = async (newPage: number) => {
-		if (newPage < 0 || newPage >= totalPages) return;
-
-		setIsChangingPage(true);
-
-		try {
-			setCurrentPage(newPage);
-
-			await onPageChange?.(newPage + 1);
-		} finally {
-			setIsChangingPage(false);
-		}
-	};
 
 	const isLoading = isPending || isChangingPage;
 
@@ -125,29 +105,6 @@ export function DataTable<TData, TValue>({
 				<div className="text-sm text-gray-600">
 					Total de posts: {totalItems}
 					{isLoading && " (Carregando...)"}
-				</div>
-
-				<div className="flex items-center gap-6">
-					{table.getAllColumns().map((column) => {
-						const header = column.columnDef.header as string;
-						const icon = getIconByHeader(header);
-
-						if (column.getCanFilter()) {
-							return (
-								<Input
-									key={column.id}
-									placeholder={`Filtrar ${header.toLowerCase()}`}
-									value={(column.getFilterValue() ?? '') as string}
-									onChange={(event) =>
-										column.setFilterValue(event.target.value)
-									}
-									className="max-w-sm"
-									icon={icon}
-									disabled={isLoading}
-								/>
-							)
-						}
-					})}
 				</div>
 			</div>
 
@@ -222,8 +179,8 @@ export function DataTable<TData, TValue>({
 				<Button
 					variant="ghost"
 					size="sm"
-					onClick={() => handlePageChange(0)}
-					disabled={!table.getCanPreviousPage() || isLoading}
+					onClick={onFirstPage}
+					disabled={!hasPreviousPage || isLoading}
 					className="hover:bg-gray-100 disabled:opacity-40"
 				>
 					<ChevronsLeft className="h-4 w-4" />
@@ -231,8 +188,8 @@ export function DataTable<TData, TValue>({
 				<Button
 					variant="ghost"
 					size="sm"
-					onClick={() => handlePageChange(currentPage - 1)}
-					disabled={!table.getCanPreviousPage() || isLoading}
+					onClick={onPreviousPage}
+					disabled={!hasPreviousPage || isLoading}
 					className="hover:bg-gray-100 disabled:opacity-40"
 				>
 					<ChevronLeft className="h-4 w-4" />
@@ -243,19 +200,19 @@ export function DataTable<TData, TValue>({
 						<div className="h-4 w-6 bg-gray-200 animate-pulse rounded" />
 					) : (
 						<strong className="font-medium">
-							{currentPage + 1}
+							{externalCurrentPage}
 						</strong>
 					)}
 					<div className="text-muted-foreground">de</div>
 					<strong className="font-medium">
-						{totalPages}
+						{externalTotalPages}
 					</strong>
 				</span>
 				<Button
 					variant="ghost"
 					size="sm"
-					onClick={() => handlePageChange(currentPage + 1)}
-					disabled={!table.getCanNextPage() || isLoading}
+					onClick={onNextPage}
+					disabled={!hasNextPage || isLoading}
 					className="hover:bg-gray-100 disabled:opacity-40"
 				>
 					<ChevronRight className="h-4 w-4" />
@@ -263,8 +220,8 @@ export function DataTable<TData, TValue>({
 				<Button
 					variant="ghost"
 					size="sm"
-					onClick={() => handlePageChange(totalPages - 1)}
-					disabled={!table.getCanNextPage() || isLoading}
+					onClick={onLastPage}
+					disabled={!hasNextPage || isLoading}
 					className="hover:bg-gray-100 disabled:opacity-40"
 				>
 					<ChevronsRight className="h-4 w-4" />

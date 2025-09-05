@@ -1,12 +1,11 @@
-import { Calendar, Settings, Sparkles, Zap, History } from 'lucide-react';
-import { redirect } from 'next/navigation';
-
-import { Button } from '@components/ui/button';
-import { Card, CardContent } from '@components/ui/card';
 import { DataTable } from '@components/dataTable/dataTable';
 import { ColumnFiltersState, OnChangeFn, SortingState } from '@tanstack/react-table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import { Button } from '@components/ui/button';
+import { X } from 'lucide-react';
 
 import { PostEntityWithDetails } from '@common/interfaces/post';
+import { UserPlatform } from '@common/interfaces/user-platforms';
 
 import { columns } from './historyTable/columns';
 
@@ -30,68 +29,12 @@ interface HistoryUiProps {
   onLastPage: () => void;
   onNextPage: () => void;
   onPreviousPage: () => void;
+  userPlatforms: UserPlatform[];
+  selectedUserPlatformId: number | null;
+  onUserPlatformChange: (userPlatformId: number | null) => void;
 }
 
-const QuickActions = () => {
-	const actions = [
-		{
-			title: 'Criar com IA',
-			description: 'Use IA para gerar posts incríveis',
-			icon: Sparkles,
-			action: () => redirect('/chat'),
-		},
-		{
-			title: 'Agendar Posts',
-			description: 'Programe seus posts para o momento ideal',
-			icon: Calendar,
-			action: () => console.log('Agendar posts'),
-		},
-		{
-			title: 'Histórico de Posts',
-			description: 'Veja todos os seus posts',
-			icon: History,
-			action: () => console.log('Histórico de Posts'),
-		},
-		{
-			title: 'Configurações',
-			description: 'Personalize suas preferências',
-			icon: Settings,
-			action: () => redirect('/settings'),
-		},
-	];
 
-	return (
-		<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-			<CardContent className="p-6">
-				<div className="flex items-center space-x-2 mb-6">
-					<Zap className="h-5 w-5 text-purple-500" />
-					<h3 className="text-lg font-semibold text-gray-900">Ações Rápidas</h3>
-				</div>
-
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-					{actions.map((action, index) => (
-						<Button
-							key={index}
-							variant="ghost"
-							className="h-auto p-4 flex flex-col items-center space-y-2 hover:bg-purple-50 transition-all duration-300 group min-w-0"
-							onClick={action.action}
-						>
-							<div
-								className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md border border-gray-100 flex-shrink-0`}
-							>
-								<action.icon className="h-6 w-6 text-purple-500" />
-							</div>
-							<div className="text-center w-full min-w-0">
-								<p className="font-medium text-gray-900 text-xs leading-tight">{action.title}</p>
-								<p className="text-xs text-gray-500 pb-2 leading-tight">{action.description}</p>
-							</div>
-						</Button>
-					))}
-				</div>
-			</CardContent>
-		</Card>
-	);
-};
 
 export const HistoryUi = ({
   totalItems,
@@ -112,13 +55,54 @@ export const HistoryUi = ({
   onFirstPage,
   onLastPage,
   onNextPage,
-  onPreviousPage
+  onPreviousPage,
+  userPlatforms,
+  selectedUserPlatformId,
+  onUserPlatformChange
 }: HistoryUiProps) => {
   return (
     <div className='p-6 h-full bg-gray-100'>
       <div className="mb-8">
         <h1 className='text-2xl font-bold mb-6'>Histórico de Posts</h1>
-        <QuickActions />
+        
+        {/* Filtro de Conta */}
+        <div className="flex items-center gap-4 mb-6 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Filtrar por conta:
+            </label>
+            <div className="flex items-center gap-2">
+              <Select value={selectedUserPlatformId?.toString() || "all"} onValueChange={(value) => onUserPlatformChange(value === "all" ? null : parseInt(value))}>
+                <SelectTrigger className="w-72">
+                  <SelectValue placeholder="Selecione uma conta" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as contas</SelectItem>
+                  {userPlatforms.map((platform) => (
+                    <SelectItem key={platform.id} value={platform.id.toString()}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-medium">
+                          {platform.display_name?.charAt(0) || platform.name?.charAt(0) || '?'}
+                        </div>
+                        <span>{platform.display_name || platform.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedUserPlatformId && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUserPlatformChange(null)}
+                  className="h-9 px-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
       
       {isError ? (

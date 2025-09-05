@@ -15,23 +15,30 @@ export const createPost = async (filter: PostFormData) => {
 	};
 };
 
-export const getUserPostsWithDetails = async ({ page, limit } : { page?: number, limit?: number }	) => {
-	const { data }: ClientResponse = await client.get(`/posts`, {
+export const getUserPostsWithDetails = async ({ page, limit, userPlatformId }: { page?: number; limit?: number; userPlatformId?: number }) => {
+	const response: ClientResponse = await client.get(`/posts`, {
 		params: {
 			page,
-			perPage: limit
+			items_per_page: limit,
+			userPlatformId,
 		},
 	});
 
-	return {
-		data
-	};
+	return response;
 };
 
 export const cancelPost = async ({ postId }: { postId: string }) => {
-  const { data }: ClientResponse = await client.post(`/posts/cancel/${postId}`);
+	const { data }: ClientResponse = await client.post(`/posts/cancel/${postId}`);
 
 	return {
-		data
+		data,
+	};
+};
+
+export const getUserPlatforms = async () => {
+	const { data }: ClientResponse = await client.get(`/platforms/user-platforms`);
+
+	return {
+		data,
 	};
 };

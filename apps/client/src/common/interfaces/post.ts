@@ -33,49 +33,59 @@ export interface PostDetailsUIProps {
 }
 
 export interface PostEntity {
-	_id: string;
+	id: number;
 	caption: string;
 	imageUrl: string;
-	userId: string;
-	accountId: string;
-	publishedAt: Date;
-	scheduledAt: Date;
-	canceledAt?: Date;
-	jobId?: string;
+	creatorId: number;
+	accountId: number;
+	publishedAt: string | null;
+	scheduledAt: string | null;
+	canceledAt: string | null;
+	externalId: string;
+	code: string;
+	failedToPost: boolean | null;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
 }
 
 export interface PostEntityWithDetails extends PostEntity {
-	code: string; // for redirect to post
-	createdAt: string;
-	user: {
-		name: string;
-		email: string;
-		profilePicUrl?: string;
-	};
 	account: {
-		username: string;
-		profilePicUrl?: string;
-		fullName?: string;
-		isPrivate?: boolean;
-		isVerified?: boolean;
+		id: number;
+		name: string;
+		user_id: number;
+		platform_id: number;
+		display_name: string;
+		avatar_url: string;
+		profile_data: {
+			username: string;
+			media_count: number;
+			follows_count: number;
+			followers_count: number;
+			instagram_user_id: number;
+		};
+		created_at: string;
+		updated_at: string;
+		deleted_at: string | null;
+		createdAt: string;
+		updatedAt: string;
+		deletedAt: string | null;
 	};
-	engagement?: {
-		hasLiked: boolean;
-		likes: number;
-		comments: number;
-	};
-	comments?: {
-		recent: Array<{
-			text: string;
-			user: {
-				username: string;
-				profile_pic_url: string;
-				verified: boolean;
-			};
-			created_at: string;
-			like_count: number;
-			reply_count: number;
-		}>;
-		has_more: boolean;
+}
+
+// Interface mais simples para debug
+export interface SimplePost {
+	id: number;
+	caption: string;
+	imageUrl: string;
+	publishedAt: string | null;
+	scheduledAt: string | null;
+	canceledAt: string | null;
+	account: {
+		profile_data: {
+			username: string;
+		};
+		display_name: string;
+		avatar_url: string;
 	};
 }

@@ -32,5 +32,9 @@ export class GetAllPostsQueryDto {
 
 	@IsOptional()
 	@IsNumber()
-	limit: number;
+	items_per_page: number;
+
+	@IsOptional()
+	@IsNumber()
+	userPlatformId: number;
 }

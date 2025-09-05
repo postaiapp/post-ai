@@ -8,7 +8,7 @@ export class UpdateUserDto extends OmitType(RegisterDto, ['password']) {
 	@IsOptional()
 	@Transform(({ value }) => (value === '' ? null : value))
 	@IsPhoneNumber('BR')
-	phone?: string;
+	phone_number?: string;
 
 	@IsOptional()
 	@IsString()

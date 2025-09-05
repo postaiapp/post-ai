@@ -91,4 +91,35 @@ export class PlatformService {
 
 		return true;
 	}
+
+	async getUserPlatforms(userId: number) {
+		const userPlatforms = await this.userPlatformModel.findAll({
+			where: {
+				user_id: userId,
+				deleted_at: null,
+			},
+			include: [
+				{
+					model: Platform,
+					as: 'platform',
+				},
+			],
+			raw: true,
+			nest: true,
+			order: [['created_at', 'DESC']],
+		});
+
+		const signedUserPlatforms = await Promise.all(
+			userPlatforms.map(async userPlatform => {
+				if (userPlatform.avatar_url) {
+					userPlatform.avatar_url = await this.storageService.getSignedImageUrl(
+						userPlatform.avatar_url,
+					);
+				}
+				return userPlatform;
+			}),
+		);
+
+		return signedUserPlatforms;
+	}
 }

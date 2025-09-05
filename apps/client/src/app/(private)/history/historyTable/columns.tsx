@@ -2,7 +2,6 @@
 
 import { PostEntityWithDetails } from "@common/interfaces/post"
 import { ColumnDef } from "@tanstack/react-table"
-import { SimpleUserAvatar } from "../../../../components/simpleUserAvatar/SimpleUserAvatar"
 import { ActionsDropdown } from "./components/ActionsDropdown/ActionsDropdown"
 import { StatusBadge } from "./components/StatusBadge/StatusBadge"
 import { AccountCardCore } from "@components/accountCard/accountCard"
@@ -10,7 +9,7 @@ import { AccountCardCore } from "@components/accountCard/accountCard"
 
 export const columns: ColumnDef<PostEntityWithDetails>[] = [
   {
-    accessorKey: "account.username",
+    accessorKey: "account.profile_data.username",
     header: "Conta",
     enableSorting: true,
     enableColumnFilter: true,
@@ -18,41 +17,23 @@ export const columns: ColumnDef<PostEntityWithDetails>[] = [
       const accountA = rowA.original.account
       const accountB = rowB.original.account
 
-      if (!accountA?.username || !accountB?.username) return 0
-      return accountA.username.localeCompare(accountB.username)
+      if (!accountA?.profile_data?.username || !accountB?.profile_data?.username) return 0
+      return accountA.profile_data.username.localeCompare(accountB.profile_data.username)
     },
     filterFn: "arrIncludes",
-    cell: ({ row }) => <AccountCardCore fullName={row.original.account?.fullName} isPrivate={row.original.account?.isPrivate} isVerified={row.original.account?.isVerified} profilePicUrl={row.original.account?.profilePicUrl} username={row.original.account?.username ?? "Desconhecido"} />
-
-  },
-  {
-    accessorKey: "user.name",
-    header: "Usuário",
-    enableSorting: true,
-    enableColumnFilter: true,
-    sortingFn: (rowA, rowB) => {
-      const userA = rowA.original.user
-      const userB = rowB.original.user
-
-      if (!userA?.name || !userB?.name) return 0
-      return userA.name.localeCompare(userB.name)
-    },
-    filterFn: "arrIncludes",
-    cell: ({ row }) => (
-      <div className="min-w-[180px] max-w-[200px]">
-        <SimpleUserAvatar
-          image={row.original?.user?.profilePicUrl}
-          username={row.original?.user?.name ?? "Desconhecido"}
-        />
-      </div>
-    )
+    cell: ({ row }) => <AccountCardCore 
+      fullName={row.original.account?.display_name} 
+      isPrivate={false} 
+      isVerified={false} 
+      profilePicUrl={row.original.account?.avatar_url} 
+      username={row.original.account?.profile_data?.username ?? "Desconhecido"} 
+    />
   },
   {
     accessorKey: "caption",
     header: "Legenda",
     enableSorting: true,
-    enableColumnFilter: true,
-    filterFn: "arrIncludes",
+    enableColumnFilter: false,
   },
   {
     accessorKey: "scheduledAt",

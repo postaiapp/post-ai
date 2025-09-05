@@ -59,11 +59,11 @@ export class Post extends Model {
 	creatorId: number;
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.INTEGER,
 		allowNull: false,
 		field: 'account_id',
 	})
-	accountId: string;
+	accountId: number;
 
 	@Column({
 		type: DataType.STRING,

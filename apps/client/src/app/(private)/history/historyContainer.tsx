@@ -1,38 +1,60 @@
-"use client";
+'use client';
+import { useState } from 'react';
+
 import { PostEntityWithDetails } from '@common/interfaces/post';
-import { getUserPostsWithDetails } from '@processes/post';
+import { getUserPostsWithDetails, getUserPlatforms } from '@processes/post';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import { useState } from 'react';
+
 import { HistoryUi } from './historyUi';
 
 const HistoryContainer = () => {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [selectedUserPlatformId, setSelectedUserPlatformId] = useState<number | null>(null);
 	const pageSize = 10;
 	const queryClient = useQueryClient();
 
-	const queryKey = ['history', currentPage, columnFilters, sorting];
+	const queryKey = ['history', currentPage, columnFilters, sorting, selectedUserPlatformId];
 
-	const { data, isError, isPending } = useQuery<{ data: { data: PostEntityWithDetails[], meta: { limit: number, page: number, total: number } } }>({
+	const { data, isError, isPending } = useQuery<{
+		data: {
+			data: PostEntityWithDetails[];
+			items_per_page: number;
+			total_items: number;
+			total_pages: number;
+		};
+	}>({
 		queryKey,
-		queryFn: () => getUserPostsWithDetails({
-			page: currentPage,
-			limit: pageSize
-		}),
+		queryFn: () =>
+			getUserPostsWithDetails({
+				page: currentPage,
+				limit: pageSize,
+				userPlatformId: selectedUserPlatformId || undefined,
+			}),
 		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
-		placeholderData: (previousData) => previousData,
+		placeholderData: previousData => previousData,
 	});
+
+	// Buscar user platforms para o filtro
+	const { data: userPlatformsData } = useQuery({
+		queryKey: ['user-platforms'],
+		queryFn: getUserPlatforms,
+		staleTime: 5 * 60 * 1000,
+	});
+
+	console.log('🔍 DEBUG: data structure:', userPlatformsData);
 
 	const prefetchNextPage = async (page: number) => {
 		await queryClient.prefetchQuery({
 			queryKey: ['history', page, columnFilters, sorting],
-			queryFn: () => getUserPostsWithDetails({
-				page,
-				limit: pageSize
-			}),
+			queryFn: () =>
+				getUserPostsWithDetails({
+					page,
+					limit: pageSize,
+				}),
 			staleTime: 5 * 60 * 1000,
 		});
 	};
@@ -40,15 +62,16 @@ const HistoryContainer = () => {
 	const prefetchPreviousPage = async (page: number) => {
 		await queryClient.prefetchQuery({
 			queryKey: ['history', page, columnFilters, sorting],
-			queryFn: () => getUserPostsWithDetails({
-				page,
-				limit: pageSize
-			}),
+			queryFn: () =>
+				getUserPostsWithDetails({
+					page,
+					limit: pageSize,
+				}),
 			staleTime: 5 * 60 * 1000,
 		});
 	};
 
-	const totalPages = data ? Math.ceil(data?.data?.meta?.total / pageSize) : 0;
+	const totalPages = data?.data?.total_pages || 0;
 	const hasNextPage = currentPage < totalPages;
 	const hasPreviousPage = currentPage > 1;
 
@@ -70,13 +93,15 @@ const HistoryContainer = () => {
 	const handleNextPage = () => handlePageChange(currentPage + 1);
 	const handlePreviousPage = () => handlePageChange(currentPage - 1);
 
+	const postsData = data?.data?.data ?? [];
+
 	return (
 		<HistoryUi
-			totalItems={data?.data?.meta?.total ?? 0}
+			totalItems={data?.data?.total_items ?? 0}
 			isError={isError}
 			isPending={isPending}
 			allPagesLoaded={!hasNextPage}
-			allPagesData={data?.data?.data ?? []}
+			allPagesData={postsData}
 			pageSize={pageSize}
 			sorting={sorting}
 			columnFilters={columnFilters}
@@ -91,8 +116,11 @@ const HistoryContainer = () => {
 			onPreviousPage={handlePreviousPage}
 			hasNextPage={hasNextPage}
 			hasPreviousPage={hasPreviousPage}
+			userPlatforms={userPlatformsData?.data?.data || []}
+			selectedUserPlatformId={selectedUserPlatformId}
+			onUserPlatformChange={setSelectedUserPlatformId}
 		/>
 	);
-}
+};
 
 export default HistoryContainer;

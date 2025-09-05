@@ -1,9 +1,9 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Post, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Response, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Meta as MetaType } from '@type/meta';
-import { CreatePostDto } from '../dto/post.dto';
+import { CreatePostDto, GetAllPostsQueryDto } from '../dto/post.dto';
 import { PostService } from '../services/post.service';
 import { Response as ExpressResponse } from 'express';
 import BaseController from '@utils/base-controller';
@@ -25,6 +25,21 @@ export class PostController extends BaseController {
 	) {
 		try {
 			const response = await this.postService.create(data, meta);
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Get()
+	async findAll(
+		@Query() query: GetAllPostsQueryDto,
+		@Meta() meta: MetaType,
+		@Response() res: ExpressResponse,
+	) {
+		try {
+			const response = await this.postService.findAll(query, meta);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {

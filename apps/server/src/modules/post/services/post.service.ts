@@ -8,8 +8,11 @@ import { Uploader } from '@type/storage';
 import { getHtmlPath } from '@utils/email';
 import FileUtils from '@utils/file';
 import * as dayjs from 'dayjs';
+
+import PaginationUtils from '@utils/pagination';
 import { PostContext } from '../contexts/post.context';
-import { CreatePostDto } from '../dto/post.dto';
+import { CreatePostDto, GetAllPostsQueryDto } from '../dto/post.dto';
+import { WhereOptions } from 'sequelize';
 
 @Injectable()
 export class PostService {
@@ -145,5 +148,50 @@ export class PostService {
 			subject,
 			html,
 		});
+	}
+
+	async findAll(filter: GetAllPostsQueryDto, meta: Meta) {
+		const Pagination = PaginationUtils.config({
+			page: filter.page || 1,
+			items_per_page: filter.items_per_page || 10,
+		});
+
+		const whereClause: WhereOptions = {
+			creatorId: meta.userId,
+			deletedAt: null,
+		};
+
+		// Filtra por userPlatformId se fornecido
+		if (filter.userPlatformId) {
+			whereClause.accountId = filter.userPlatformId;
+		}
+
+		const result = await this.postModel.findAndCountAll({
+			where: whereClause,
+			include: [
+				{
+					model: UserPlatform,
+					as: 'account',
+				},
+			],
+			order: [['createdAt', 'DESC']],
+			raw: true,
+			nest: true,
+			...Pagination.getQueryParams(),
+		});
+
+		const signedPosts = await Promise.all(
+			result.rows.map(async (post: any) => {
+				if (post.imageUrl) {
+					post.imageUrl = await this.storageService.getSignedImageUrl(post.imageUrl);
+				}
+				return post;
+			}),
+		);
+
+		return {
+			data: signedPosts,
+			...Pagination.mount(result.count),
+		};
 	}
 }

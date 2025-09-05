@@ -1,51 +1,38 @@
-import { Fragment } from 'react';
-
-import { Button } from '@components/ui/button';
+import PlatformSelect from '@components/PlatformSelect/PlatformSelectContainer';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@components/ui/dropdown-menu';
-import { Separator } from '@components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@components/ui/tooltip';
 import { POST_CREATION_TIMES, ENGAGEMENT_METRICS } from '@constants/home';
-import { PLATFORMS } from '@constants/platforms';
 import { useInsights } from '@hooks/useInsights';
-import InstagramLogo from '@public/instagram-logo.png';
-import TiktokLogo from '@public/tiktok-logo.png';
+import {
+	calculateEngagementRate,
+	calculateAverageReachPerPost,
+	calculatePotentialReach,
+	calculateGrowthScore,
+	calculatePlatformROI,
+} from '@utils/insights';
 import { formatTimeFromMinutes, formatLargeNumber } from '@utils/time';
-import { calculateEngagementRate, calculateAverageReachPerPost, calculatePotentialReach, calculateGrowthScore, calculatePlatformROI } from '@utils/insights';
-import { getColorByInitials, getInitials } from '@utils/avatar';
-import { 
-	BarChart3, 
-	Calendar, 
-	ChevronDown, 
-	Link, 
-	LoaderCircle, 
-	LogOut, 
-	Settings, 
-	SquareArrowOutUpRight, 
-	Trash, 
-	TrendingUp, 
-	Users, 
-	LucideIcon 
-} from 'lucide-react';
-import Image from 'next/image';
+import { BarChart3, Users } from 'lucide-react';
+
+import { UserPlatform } from '@/common/interfaces/user-platforms';
 
 import QuickActions from './HomeQuickActions/HomeQuickActions';
 
 interface HomeProps {
 	selectedPlatform: number;
 	setSelectedPlatform: (platform: number) => void;
-	accounts?: any[];
-	handleDisconnectPlatform?: (account: any) => void;
-	openPlatformModal?: () => void;
 }
 
-const Home = ({ selectedPlatform, setSelectedPlatform, accounts, handleDisconnectPlatform, openPlatformModal }: HomeProps) => {
-	const { data: insightsData, isLoading, error } = useInsights({
+const Home = ({ selectedPlatform, setSelectedPlatform }: HomeProps) => {
+	const {
+		data: insightsData,
+		isLoading,
+		error,
+	} = useInsights({
 		userPlatformId: selectedPlatform,
 	});
 
-	// Usa APENAS dados reais da API, sem fallbacks fake
 	const apiData = insightsData?.data;
+
 	const data = apiData || {
 		totalPosts: 0,
 		currentMonthPosts: 0,
@@ -58,8 +45,10 @@ const Home = ({ selectedPlatform, setSelectedPlatform, accounts, handleDisconnec
 		engagementRate: 0,
 		viewsPerReach: 0,
 	};
-	
 
+	const onSelectPlatform = (userPlatform: UserPlatform) => {
+		setSelectedPlatform(userPlatform.id);
+	};
 
 	const renderLoadingState = () => (
 		<div className="h-screen bg-gray-100 flex items-center justify-center">
@@ -85,9 +74,7 @@ const Home = ({ selectedPlatform, setSelectedPlatform, accounts, handleDisconnec
 		</div>
 	);
 
-	// Se não há plataforma selecionada ou está carregando, mostra dados de fallback
 	if (!selectedPlatform || selectedPlatform === 0) {
-		// Continua para mostrar dados de fallback
 	} else if (isLoading && selectedPlatform > 0) {
 		return renderLoadingState();
 	} else if (error && selectedPlatform > 0) {
@@ -97,279 +84,192 @@ const Home = ({ selectedPlatform, setSelectedPlatform, accounts, handleDisconnec
 	return (
 		<TooltipProvider>
 			<div className="h-screen bg-gray-100">
-			<div className="bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-				<div className="mx-auto px-6 py-4">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center space-x-4">
-							<div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-								<BarChart3 className="h-6 w-6 text-white" />
+				<div className="bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+					<div className="mx-auto px-6 py-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center space-x-4">
+								<div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+									<BarChart3 className="h-6 w-6 text-white" />
+								</div>
+								<div>
+									<h1 className="text-3xl font-bold text-purple-500">Dashboard</h1>
+									<p className="text-gray-600">Gerencie seus posts e crie conteúdo incrível</p>
+								</div>
 							</div>
-							<div>
-								<h1 className="text-3xl font-bold text-purple-500">
-									Dashboard
-								</h1>
-								<p className="text-gray-600">Gerencie seus posts e crie conteúdo incrível</p>
-							</div>
+
+							<PlatformSelect onSelectPlatform={onSelectPlatform} />
 						</div>
+					</div>
+				</div>
 
-						{/* Dropdown de plataformas */}
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="outline"
-									className="flex items-center justify-between rounded-lg h-9 px-3 gap-2 border border-gray-200 hover:bg-gray-50"
-								>
-									<div className="flex items-center gap-2">
-										<Link size={16} className="text-purple-500" />
-										<span className="text-sm text-gray-500">Ver plataformas</span>
-									</div>
+				<div className="mx-auto px-6 py-8 space-y-8 bg-gray-100">
+					<QuickActions />
 
-									<ChevronDown size={14} className="text-gray-400" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent className="w-72 p-2 shadow-lg rounded-xl">
-								{!accounts || accounts.length === 0 ? (
-									<DropdownMenuItem disabled className="text-sm text-gray-500 px-4 py-2.5">
-										Nenhuma plataforma encontrada
-									</DropdownMenuItem>
-								) : (
-									accounts.map(account => (
-										<Fragment key={account.id}>
-											<DropdownMenuItem
-												className="flex justify-between items-center px-2 rounded-lg hover:!bg-white focus:!bg-white"
-												onClick={e => {
-													e.stopPropagation();
-												}}
-											>
-												<div className="flex items-center gap-2 w-full">
-													<Image
-														src={account.avatar_url || ''}
-														alt="Avatar"
-														width={32}
-														height={32}
-														className="rounded-full"
-													/>
-													<div className="flex flex-col">
-														<div className="flex items-center gap-2">
-															<span className="text-sm text-gray-700 max-w-[120px] truncate">
-																{account.display_name}
-															</span>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-gray-600">
+											Total de Posts
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="text-2xl font-bold">{data.totalPosts}</div>
+										<p className="text-xs text-gray-500">{data.currentMonthPosts} este mês</p>
+									</CardContent>
+								</Card>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Número total de posts publicados na conta</p>
+							</TooltipContent>
+						</Tooltip>
 
-															{account?.platform_id === PLATFORMS.INSTAGRAM && (
-																<Image
-																	src={InstagramLogo.src}
-																	alt="Instagram Logo"
-																	width={16}
-																	height={16}
-																/>
-															)}
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-gray-600">
+											Alcance Total
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="text-2xl font-bold">{formatLargeNumber(data.reach)}</div>
+										<p className="text-xs text-gray-500">contas alcançadas</p>
+									</CardContent>
+								</Card>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Número total de contas únicas que viram seu conteúdo</p>
+							</TooltipContent>
+						</Tooltip>
 
-															{account?.platform_id === PLATFORMS.TIKTOK && (
-																<Image
-																	src={TiktokLogo.src}
-																	alt="Tiktok Logo"
-																	width={18}
-																	height={18}
-																/>
-															)}
-														</div>
-														<span className="flex-1 text-xs text-gray-500">
-															@{account.profile_data?.username}
-														</span>
-													</div>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-gray-600">
+											Posts Agendados
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="text-2xl font-bold">{data.scheduledPosts}</div>
+										<p className="text-xs text-gray-500">próximos 7 dias</p>
+									</CardContent>
+								</Card>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Posts programados para publicação nos próximos 7 dias</p>
+							</TooltipContent>
+						</Tooltip>
+
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-gray-600">
+											Taxa de Engajamento
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="text-2xl font-bold">{data.engagementRate.toFixed(1)}%</div>
+										<p className="text-xs text-gray-500">média geral</p>
+									</CardContent>
+								</Card>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Porcentagem de contas que interagiram com seu conteúdo</p>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+
+					{/* Cards de métricas detalhadas */}
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+						<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+							<CardHeader>
+								<CardTitle className="flex items-center space-x-2">
+									<Users className="h-5 w-5 text-purple-500" />
+									<span>Métricas de Engajamento</span>
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="grid grid-cols-2 gap-4">
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="text-center p-4 bg-purple-50 rounded-lg">
+												<div className="text-2xl font-bold text-purple-600">
+													{data.accountsEngaged}
 												</div>
+												<div className="text-sm text-gray-600">Contas Engajadas</div>
+											</div>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Número de contas que interagiram com seu conteúdo</p>
+										</TooltipContent>
+									</Tooltip>
 
-												{handleDisconnectPlatform && (
-													<Button
-														variant="tertiary"
-														disabled={account.loading}
-														size="sm"
-														onClick={e => {
-															e.stopPropagation();
-															handleDisconnectPlatform(account);
-														}}
-													>
-														{account.loading && <LoaderCircle size={16} className="animate-spin" />}
-														{!account.loading && <Trash size={16} className="text-red-500" />}
-													</Button>
-												)}
-											</DropdownMenuItem>
-										</Fragment>
-									))
-								)}
-								<Separator className="my-2" />
-								{openPlatformModal && (
-									<DropdownMenuItem
-										className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer rounded-lg"
-										onClick={openPlatformModal}
-									>
-										<div className="flex items-center gap-2 text-purple-600">
-											<SquareArrowOutUpRight size={18} />
-											<span className="text-sm font-medium">Adicionar nova plataforma</span>
-										</div>
-									</DropdownMenuItem>
-								)}
-							</DropdownMenuContent>
-						</DropdownMenu>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="text-center p-4 bg-blue-50 rounded-lg">
+												<div className="text-2xl font-bold text-blue-600">
+													{formatLargeNumber(data.views)}
+												</div>
+												<div className="text-sm text-gray-600">Visualizações</div>
+											</div>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Número total de visualizações do seu conteúdo</p>
+										</TooltipContent>
+									</Tooltip>
+
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="text-center p-4 bg-green-50 rounded-lg">
+												<div className="text-2xl font-bold text-green-600">
+													{data.profileViews}
+												</div>
+												<div className="text-sm text-gray-600">Visitas ao Perfil</div>
+											</div>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Número de vezes que seu perfil foi acessado</p>
+										</TooltipContent>
+									</Tooltip>
+
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="text-center p-4 bg-orange-50 rounded-lg">
+												<div className="text-2xl font-bold text-orange-600">
+													{data.viewsPerReach.toFixed(1)}x
+												</div>
+												<div className="text-sm text-gray-600">Views por Alcance</div>
+											</div>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Relação entre visualizações e alcance</p>
+										</TooltipContent>
+									</Tooltip>
+								</div>
+							</CardContent>
+						</Card>
+
+						<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+							<CardHeader>
+								<CardTitle className="flex items-center space-x-2">
+									<BarChart3 className="h-5 w-5 text-purple-500" />
+									<span>Análise de Posts</span>
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<PostsAnalysisCard data={data} />
+							</CardContent>
+						</Card>
 					</div>
 				</div>
 			</div>
-
-			<div className="mx-auto px-6 py-8 space-y-8 bg-gray-100">
-				<QuickActions />
-
-				{/* Cards principais de estatísticas */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-								<CardHeader className="pb-2">
-									<CardTitle className="text-sm font-medium text-gray-600">Total de Posts</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="text-2xl font-bold">{data.totalPosts}</div>
-									<p className="text-xs text-gray-500">{data.currentMonthPosts} este mês</p>
-								</CardContent>
-							</Card>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Número total de posts publicados na conta</p>
-						</TooltipContent>
-					</Tooltip>
-
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-								<CardHeader className="pb-2">
-									<CardTitle className="text-sm font-medium text-gray-600">Alcance Total</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="text-2xl font-bold">{formatLargeNumber(data.reach)}</div>
-									<p className="text-xs text-gray-500">contas alcançadas</p>
-								</CardContent>
-							</Card>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Número total de contas únicas que viram seu conteúdo</p>
-						</TooltipContent>
-					</Tooltip>
-
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-								<CardHeader className="pb-2">
-									<CardTitle className="text-sm font-medium text-gray-600">Posts Agendados</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="text-2xl font-bold">{data.scheduledPosts}</div>
-									<p className="text-xs text-gray-500">próximos 7 dias</p>
-								</CardContent>
-							</Card>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Posts programados para publicação nos próximos 7 dias</p>
-						</TooltipContent>
-					</Tooltip>
-
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-								<CardHeader className="pb-2">
-									<CardTitle className="text-sm font-medium text-gray-600">Taxa de Engajamento</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="text-2xl font-bold">{data.engagementRate.toFixed(1)}%</div>
-									<p className="text-xs text-gray-500">média geral</p>
-								</CardContent>
-							</Card>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Porcentagem de contas que interagiram com seu conteúdo</p>
-						</TooltipContent>
-					</Tooltip>
-				</div>
-
-				{/* Cards de métricas detalhadas */}
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-					<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-						<CardHeader>
-							<CardTitle className="flex items-center space-x-2">
-								<Users className="h-5 w-5 text-purple-500" />
-								<span>Métricas de Engajamento</span>
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-2 gap-4">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div className="text-center p-4 bg-purple-50 rounded-lg">
-											<div className="text-2xl font-bold text-purple-600">{data.accountsEngaged}</div>
-											<div className="text-sm text-gray-600">Contas Engajadas</div>
-										</div>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Número de contas que interagiram com seu conteúdo</p>
-									</TooltipContent>
-								</Tooltip>
-
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div className="text-center p-4 bg-blue-50 rounded-lg">
-											<div className="text-2xl font-bold text-blue-600">{formatLargeNumber(data.views)}</div>
-											<div className="text-sm text-gray-600">Visualizações</div>
-										</div>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Número total de visualizações do seu conteúdo</p>
-									</TooltipContent>
-								</Tooltip>
-
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div className="text-center p-4 bg-green-50 rounded-lg">
-											<div className="text-2xl font-bold text-green-600">{data.profileViews}</div>
-											<div className="text-sm text-gray-600">Visitas ao Perfil</div>
-										</div>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Número de vezes que seu perfil foi acessado</p>
-									</TooltipContent>
-								</Tooltip>
-
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div className="text-center p-4 bg-orange-50 rounded-lg">
-											<div className="text-2xl font-bold text-orange-600">{data.viewsPerReach.toFixed(1)}x</div>
-											<div className="text-sm text-gray-600">Views por Alcance</div>
-										</div>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Relação entre visualizações e alcance</p>
-									</TooltipContent>
-								</Tooltip>
-							</div>
-						</CardContent>
-					</Card>
-
-					<Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
-						<CardHeader>
-							<CardTitle className="flex items-center space-x-2">
-								<BarChart3 className="h-5 w-5 text-purple-500" />
-								<span>Análise de Posts</span>
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<PostsAnalysisCard data={data} />
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-		</div>
 		</TooltipProvider>
 	);
 };
-
-
 
 const PostsAnalysisCard = ({ data }: { data: any }) => {
 	const totalPosts = data.totalPosts || 0;
@@ -378,11 +278,11 @@ const PostsAnalysisCard = ({ data }: { data: any }) => {
 	const publishedPosts = data.publishedPosts || 0;
 	const reach = data.reach || ENGAGEMENT_METRICS.AVERAGE_REACH_PER_POST;
 	const accountsEngaged = data.accountsEngaged || 0;
-	
+
 	// Calcula tempo economizado primeiro
 	const timeSaved = totalPosts * POST_CREATION_TIMES.TIME_SAVED_PER_POST;
 	const avgTimePerPost = POST_CREATION_TIMES.MANUAL_CREATION_TIME;
-	
+
 	// Calcula métricas usando funções utilitárias
 	// Usa a taxa de engajamento real do backend se disponível, senão calcula
 	const engagementRate = data.engagementRate || calculateEngagementRate(accountsEngaged, reach);
@@ -390,44 +290,44 @@ const PostsAnalysisCard = ({ data }: { data: any }) => {
 	const potentialReach = calculatePotentialReach(scheduledPosts, avgReachPerPost);
 	const growthScore = calculateGrowthScore(currentMonthPosts, totalPosts, engagementRate);
 	const platformROI = calculatePlatformROI(timeSaved, totalPosts, engagementRate);
-	
+
 	return (
 		<div className="space-y-6">
-							<div className="grid grid-cols-2 gap-4">
-					<div className="text-center p-4 bg-purple-50 rounded-lg group relative">
-						<div className="text-2xl font-bold text-purple-500">
-							{formatTimeFromMinutes(timeSaved)}
-						</div>
-						<div className="text-sm text-gray-600">Tempo Economizado</div>
-						<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-							Tempo que você economizou<br />
-							usando nossa plataforma<br />
-							({POST_CREATION_TIMES.TIME_SAVED_PER_POST}min por post)
-							<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-						</div>
-					</div>
-					<div className="text-center p-4 bg-purple-50 rounded-lg group relative">
-						<div className="text-2xl font-bold text-purple-400">
-							{formatLargeNumber(potentialReach)}
-						</div>
-						<div className="text-sm text-gray-600">Alcance Potencial</div>
-						<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-							Pessoas que podem ver<br />
-							seus posts agendados<br />
-							({scheduledPosts} posts × {Math.round(avgReachPerPost)} alcance × {ENGAGEMENT_METRICS.SCHEDULED_POST_MULTIPLIER}x boost)
-							<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-						</div>
+			<div className="grid grid-cols-2 gap-4">
+				<div className="text-center p-4 bg-purple-50 rounded-lg group relative">
+					<div className="text-2xl font-bold text-purple-500">{formatTimeFromMinutes(timeSaved)}</div>
+					<div className="text-sm text-gray-600">Tempo Economizado</div>
+					<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+						Tempo que você economizou
+						<br />
+						usando nossa plataforma
+						<br />({POST_CREATION_TIMES.TIME_SAVED_PER_POST}min por post)
+						<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
 					</div>
 				</div>
-			
+				<div className="text-center p-4 bg-purple-50 rounded-lg group relative">
+					<div className="text-2xl font-bold text-purple-400">{formatLargeNumber(potentialReach)}</div>
+					<div className="text-sm text-gray-600">Alcance Potencial</div>
+					<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+						Pessoas que podem ver
+						<br />
+						seus posts agendados
+						<br />({scheduledPosts} posts × {Math.round(avgReachPerPost)} alcance ×{' '}
+						{ENGAGEMENT_METRICS.SCHEDULED_POST_MULTIPLIER}x boost)
+						<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+					</div>
+				</div>
+			</div>
+
 			<div className="space-y-3">
 				<div className="flex justify-between items-center group relative">
 					<span className="text-sm text-gray-600">Taxa de Engajamento</span>
 					<span className="text-sm font-medium">{engagementRate.toFixed(1)}%</span>
 					<div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-						Porcentagem de pessoas que<br />
-						interagiram com seus posts<br />
-						({accountsEngaged} engajamentos / {reach} alcance)
+						Porcentagem de pessoas que
+						<br />
+						interagiram com seus posts
+						<br />({accountsEngaged} engajamentos / {reach} alcance)
 						<div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
 					</div>
 				</div>
@@ -440,16 +340,19 @@ const PostsAnalysisCard = ({ data }: { data: any }) => {
 					></div>
 				</div>
 			</div>
-			
+
 			<div className="space-y-3">
 				<div className="flex justify-between items-center group relative">
 					<span className="text-sm text-gray-600">ROI da Plataforma</span>
 					<span className="text-sm font-medium">
-						{platformROI > 0 ? '+' : ''}{platformROI}%
+						{platformROI > 0 ? '+' : ''}
+						{platformROI}%
 					</span>
 					<div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-						Retorno sobre investimento<br />
-						da nossa plataforma<br />
+						Retorno sobre investimento
+						<br />
+						da nossa plataforma
+						<br />
 						(Tempo + Engajamento - Custo)
 						<div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
 					</div>
@@ -463,18 +366,18 @@ const PostsAnalysisCard = ({ data }: { data: any }) => {
 					></div>
 				</div>
 			</div>
-			
+
 			<div className="space-y-3">
 				<div className="flex justify-between items-center group relative">
 					<span className="text-sm text-gray-600">Score de Crescimento</span>
-					<span className="text-sm font-medium">
-						{growthScore}/100
-					</span>
+					<span className="text-sm font-medium">{growthScore}/100</span>
 					<div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-						Score baseado em:<br />
-						• Consistência (30%)<br />
-						• Engajamento (40%)<br />
-						• Crescimento (30%)
+						Score baseado em:
+						<br />
+						• Consistência (30%)
+						<br />
+						• Engajamento (40%)
+						<br />• Crescimento (30%)
 						<div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
 					</div>
 				</div>
@@ -487,24 +390,25 @@ const PostsAnalysisCard = ({ data }: { data: any }) => {
 					></div>
 				</div>
 			</div>
-			
+
 			<div className="text-center p-3 bg-purple-50 rounded-lg group relative">
 				<div className="text-sm font-medium text-purple-600">
 					✨ {scheduledPosts > 0 ? `${scheduledPosts} posts agendados` : 'Comece a agendar posts!'}
 				</div>
 				<div className="text-xs text-gray-600 mt-1">
-					{scheduledPosts > 0 
-						? `Economize ${formatTimeFromMinutes(scheduledPosts * POST_CREATION_TIMES.TIME_SAVED_PER_POST)} criando posts!` 
-						: growthScore >= 70 
-							? 'Excelente! Continue assim!' 
-							: growthScore >= 40 
-								? 'Bom progresso! Agende mais posts!' 
-								: 'Automatize sua presença online'
-					}
+					{scheduledPosts > 0
+						? `Economize ${formatTimeFromMinutes(scheduledPosts * POST_CREATION_TIMES.TIME_SAVED_PER_POST)} criando posts!`
+						: growthScore >= 70
+							? 'Excelente! Continue assim!'
+							: growthScore >= 40
+								? 'Bom progresso! Agende mais posts!'
+								: 'Automatize sua presença online'}
 				</div>
 				<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-					Tempo médio para produzir<br />
-					um post manualmente: {avgTimePerPost}min<br />
+					Tempo médio para produzir
+					<br />
+					um post manualmente: {avgTimePerPost}min
+					<br />
 					Com nossa plataforma: {POST_CREATION_TIMES.PLATFORM_CREATION_TIME}min
 					<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
 				</div>

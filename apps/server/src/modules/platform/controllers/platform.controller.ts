@@ -1,6 +1,6 @@
 import { Meta } from '@decorators/meta.decorator';
 import { AuthGuard } from '@guards/auth.guard';
-import { Body, Controller, Post, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, UseGuards } from '@nestjs/common';
 import { Meta as MetaType } from '@type/meta';
 import BaseController from '@utils/base-controller';
 import { Response as ExpressResponse } from 'express';
@@ -33,6 +33,17 @@ export class PlatformController extends BaseController {
 	async disconnect(@Body() data: DisconnectPlatformDto, @Response() res: ExpressResponse) {
 		try {
 			const response = await this.platformService.disconnect(data);
+
+			return this.sendSuccess({ data: response, res });
+		} catch (error) {
+			return this.sendError({ error, res });
+		}
+	}
+
+	@Get('user-platforms')
+	async getUserPlatforms(@Meta() meta: MetaType, @Response() res: ExpressResponse) {
+		try {
+			const response = await this.platformService.getUserPlatforms(meta.userId);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
