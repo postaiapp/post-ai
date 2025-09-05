@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,7 +10,7 @@ import PlatformSelectUI from './PlatformSelectUI';
 import PlatformConnectionModal from '@/components/modals/platformConnectionModal';
 import { getUserPlatforms } from '@/processes/post';
 
-const PlatformSelect = ({ onSelectPlatform }: { onSelectPlatform: (userPlatform: UserPlatform) => void }) => {
+const PlatformSelect = ({ onSelectPlatform }: { onSelectPlatform: (userPlatform: UserPlatform | null) => void }) => {
 	const [isPlatformModalOpen, setIsPlatformModalOpen] = useState(false);
 	const [selectedPlatform, setSelectedPlatform] = useState<UserPlatform | null>(null);
 
@@ -22,17 +22,23 @@ const PlatformSelect = ({ onSelectPlatform }: { onSelectPlatform: (userPlatform:
 		disconnectPlatformMutation.mutate(userPlatform.id);
 	};
 
+	const handlePlatformSelected = (userPlatform: UserPlatform | null) => {
+		onSelectPlatform(userPlatform);
+
+		setSelectedPlatform(userPlatform);
+	};
+
 	const { data: userPlatforms } = useQuery({
 		queryKey: ['user-platforms'],
 		queryFn: getUserPlatforms,
 		staleTime: 5 * 60 * 1000,
 	});
 
-	const handlePlatformSelected = (userPlatform: UserPlatform) => {
-		onSelectPlatform(userPlatform);
-
-		setSelectedPlatform(userPlatform);
-	};
+	useEffect(() => {
+		if (userPlatforms?.data?.data?.length && !selectedPlatform) {
+			handlePlatformSelected(userPlatforms.data.data[0]);
+		}
+	}, [userPlatforms?.data?.data, selectedPlatform]);
 
 	return (
 		<>

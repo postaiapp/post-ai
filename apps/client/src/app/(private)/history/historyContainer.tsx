@@ -6,17 +6,19 @@ import { getUserPostsWithDetails, getUserPlatforms } from '@processes/post';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 
+import { UserPlatform } from '@/common/interfaces/user-platforms';
+
 import { HistoryUi } from './historyUi';
 
 const HistoryContainer = () => {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [currentPage, setCurrentPage] = useState(1);
-	const [selectedUserPlatformId, setSelectedUserPlatformId] = useState<number | null>(null);
+	const [selectedUserPlatform, setSelectedUserPlatform] = useState<UserPlatform | null>(null);
 	const pageSize = 10;
 	const queryClient = useQueryClient();
 
-	const queryKey = ['history', currentPage, columnFilters, sorting, selectedUserPlatformId];
+	const queryKey = ['history', currentPage, columnFilters, sorting, selectedUserPlatform];
 
 	const { data, isError, isPending } = useQuery<{
 		data: {
@@ -31,21 +33,18 @@ const HistoryContainer = () => {
 			getUserPostsWithDetails({
 				page: currentPage,
 				limit: pageSize,
-				userPlatformId: selectedUserPlatformId || undefined,
+				userPlatformId: selectedUserPlatform?.id,
 			}),
 		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
 		placeholderData: previousData => previousData,
 	});
 
-	// Buscar user platforms para o filtro
 	const { data: userPlatformsData } = useQuery({
 		queryKey: ['user-platforms'],
 		queryFn: getUserPlatforms,
 		staleTime: 5 * 60 * 1000,
 	});
-
-	console.log('🔍 DEBUG: data structure:', userPlatformsData);
 
 	const prefetchNextPage = async (page: number) => {
 		await queryClient.prefetchQuery({
@@ -117,8 +116,7 @@ const HistoryContainer = () => {
 			hasNextPage={hasNextPage}
 			hasPreviousPage={hasPreviousPage}
 			userPlatforms={userPlatformsData?.data?.data || []}
-			selectedUserPlatformId={selectedUserPlatformId}
-			onUserPlatformChange={setSelectedUserPlatformId}
+			onSelectPlatform={setSelectedUserPlatform}
 		/>
 	);
 };
