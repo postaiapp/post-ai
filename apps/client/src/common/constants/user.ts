@@ -1,4 +1,4 @@
-import { Trash, UserCheck2 } from "lucide-react";
+import { Sparkles, Trash, UserCheck2 } from "lucide-react";
 
 export interface ItemSideBarUserSettings {
     title: string;
@@ -12,6 +12,11 @@ const itemsSideBarUserSettings = [
 		title: 'Perfil',
 		value: 'profile',
 		icon: UserCheck2,
+	},
+	{
+		title: 'Personalização',
+		value: 'ai-training',
+		icon: Sparkles,
 	},
 	{
 		title: 'Deletar conta',

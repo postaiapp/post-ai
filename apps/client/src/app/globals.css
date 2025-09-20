@@ -141,7 +141,7 @@ body {
 }
 
 .thin-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .thin-scrollbar::-webkit-scrollbar-track {
@@ -149,16 +149,17 @@ body {
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #98929a;
-  border-radius: 10px;
+  background-color: #c4b5fd;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #98929a;
+  background-color: #a78bfa;
 }
 
 /* Para Firefox */
 .thin-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #98929a transparent;
+  scrollbar-color: #c4b5fd transparent;
 }
