@@ -6,7 +6,7 @@ import { DeleteModal } from "@components/dataTable/deleteModal";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import { cn } from "@lib/utils";
-import { JSX, useMemo } from "react";
+import { JSX, useMemo, useRef } from "react";
 import UserDetailsContainer from "./components/userDetails";
 import AITrainingContainer from "./components/aiTrainingContainer";
 
@@ -24,13 +24,14 @@ export default function UserSettingsUi({
 	const renderContent = useMemo(() => {
 		const contentMap: Record<string, JSX.Element> = {
 			profile: <UserDetailsContainer user={user} />,
-			'ai-training': <AITrainingContainer />,
+			'ai-training': <AITrainingContainer user={user} />,
 			security: <div>Security Settings</div>,
 			delete: <div>Delete Account Confirmation</div>,
 		};
 
 		return contentMap[activeItem] || <UserDetailsContainer user={user} />;
-	}, [activeItem]);
+	}, [activeItem, user]);
+
 
 	const itemSideBar = useMemo(() => (item: ItemSideBarUserSettings) => (
 		item.value === "delete" ? (
@@ -80,7 +81,7 @@ export default function UserSettingsUi({
 					<p className="text-xl font-semibold text-gray-900">Configurações da Conta</p>
 				</div>
 
-				<div className="bg-white shadow-md rounded-lg py-6 flex w-full h-[80%] justify-around items-start relative">
+				<div className="bg-white shadow-md rounded-lg py-6 flex w-full h-[92%] justify-around items-start relative">
 					<div className="flex flex-col h-full w-1/5 p-4 gap-3">
 						{itemsSideBarUserSettings.map((item) => itemSideBar(item))}
 					</div>
@@ -90,15 +91,6 @@ export default function UserSettingsUi({
 					<div className="flex flex-col h-full w-4/5 bg-white p-6 relative">
 						<div className="flex-1 overflow-hidden">
 							{renderContent}
-						</div>
-						
-						{/* Botão de salvar fixo na parte inferior */}
-						<div className="mt-4 pt-4 border-t border-gray-200">
-							<Button
-								className="w-full px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
-							>
-								Salvar Configurações
-							</Button>
 						</div>
 					</div>
 				</div>

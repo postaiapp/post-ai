@@ -9,8 +9,12 @@ export type User = {
 	phone_number?: string;
 	phone_country_code?: string;
 	phone_dial_code?: string;
+	cpf?: string;
 	city?: string;
 	country?: string;
+	company_description?: string;
+	company_logo_url?: string;
+	brand_color?: string;
 	created_at: Date;
 	updated_at: Date;
 	deleted_at?: Date | null;
@@ -18,12 +22,4 @@ export type User = {
 	selected_platform?: UserPlatform;
 };
 
-export type UpdateUserData = {
-	name: string;
-	email: string;
-	phone_number?: string;
-	phone_country_code?: string;
-	phone_dial_code?: string;
-	city?: string;
-	country?: string;
-};
+// UpdateUserData é definido no schema de validação

@@ -22,13 +22,22 @@ export class UserService {
 	}
 
 	async update({ filter, data }: ServiceBaseParamsWithFilterType<UpdateUserDto>) {
-		const user = await this.userModel.update(data, {
+		await this.userModel.update(data, {
 			where: {
 				id: filter.id,
 			},
 		});
 
-		return user;
+		// Retornar o usuário atualizado
+		const updatedUser = await this.userModel.findOne({ 
+			where: { id: filter.id } 
+		});
+
+		if (!updatedUser) {
+			throw new NotFoundException('USER_NOT_FOUND');
+		}
+
+		return updatedUser;
 	}
 
 	async remove({ filter }: ServiceBaseParamsWithFilterType) {

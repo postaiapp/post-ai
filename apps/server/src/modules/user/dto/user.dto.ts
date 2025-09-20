@@ -1,10 +1,10 @@
 import { RegisterDto } from '@modules/auth/dto/auth.dto';
-import { OmitType } from '@nestjs/swagger';
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { TransformCPF, ValidateCPF } from '@utils/validate-cpf';
 import { Transform } from 'class-transformer';
 import { IsOptional, IsPhoneNumber, IsString, Length } from 'class-validator';
 
-export class UpdateUserDto extends OmitType(RegisterDto, ['password']) {
+export class UpdateUserDto extends PartialType(OmitType(RegisterDto, ['password'])) {
 	@IsOptional()
 	@Transform(({ value }) => (value === '' ? null : value))
 	@IsPhoneNumber('BR')
@@ -24,4 +24,16 @@ export class UpdateUserDto extends OmitType(RegisterDto, ['password']) {
 	@ValidateCPF()
 	@TransformCPF()
 	cpf?: string;
+
+	@IsOptional()
+	@IsString()
+	company_description?: string;
+
+	@IsOptional()
+	@IsString()
+	company_logo_url?: string;
+
+	@IsOptional()
+	@IsString()
+	brand_color?: string;
 }

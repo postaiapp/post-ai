@@ -26,7 +26,7 @@ const EditUser = ({
 
   return (
     <form onSubmit={onSubmit} className="h-full flex flex-col w-full">
-      <div className="pt-4">
+      <div className="pt-4 flex-1 overflow-y-auto thin-scrollbar pr-2">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="name" className="text-sm text-gray-500" required>
@@ -124,75 +124,74 @@ const EditUser = ({
             )}
           </div>
         </div>
+
+        <div className="border-t border-gray-200 pt-4 mt-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Endereço</h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="country" className="text-sm text-gray-500">
+                País
+              </Label>
+              <Controller
+                name="country"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    disabled={isLoading}
+                    id="country"
+                    placeholder="Brasil"
+                    {...field}
+                    className="my-1"
+                  />
+                )}
+              />
+              {errors?.country && (
+                <span className="text-red-500 text-sm">{errors.country.message}</span>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="city" className="text-sm text-gray-500">
+                Cidade / Estado
+              </Label>
+              <Controller
+                name="city"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    disabled={isLoading}
+                    id="city"
+                    placeholder="Recife/PE"
+                    {...field}
+                    className="my-1"
+                  />
+                )}
+              />
+              {errors?.city && (
+                <span className="text-red-500 text-sm">{errors.city.message}</span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-4 mt-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Endereço</h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="country" className="text-sm text-gray-500">
-              País
-            </Label>
-            <Controller
-              name="country"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  disabled={isLoading}
-                  id="country"
-                  placeholder="Brasil"
-                  {...field}
-                  className="my-1"
-                />
-              )}
-            />
-            {errors?.country && (
-              <span className="text-red-500 text-sm">{errors.country.message}</span>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="city" className="text-sm text-gray-500">
-              Cidade / Estado
-            </Label>
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  disabled={isLoading}
-                  id="city"
-                  placeholder="Recife/PE"
-                  {...field}
-                  className="my-1"
-                />
-              )}
-            />
-            {errors?.city && (
-              <span className="text-red-500 text-sm">{errors.city.message}</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end mt-auto gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => handleCancel()}
-          disabled={isLoading}
-          className="border-gray-300 text-gray-700 hover:bg-gray-100"
-        >
-          Cancelar
-        </Button>
+      {/* Botão de salvar dentro do container */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
         <Button
           type="submit"
-          className="bg-purple-500 hover:bg-purple-600"
           disabled={isLoading}
+          className="w-full px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-400 hover:to-purple-500 transition-all duration-500"
         >
-          Salvar
+          {isLoading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              Salvando...
+            </>
+          ) : (
+            'Salvar Configurações'
+          )}
         </Button>
       </div>
     </form>

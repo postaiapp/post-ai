@@ -79,6 +79,24 @@ export class User extends Model {
 	country?: string;
 
 	@Column({
+		type: DataType.TEXT,
+		allowNull: true,
+	})
+	company_description?: string;
+
+	@Column({
+		type: DataType.STRING,
+		allowNull: true,
+	})
+	company_logo_url?: string;
+
+	@Column({
+		type: DataType.STRING,
+		allowNull: true,
+	})
+	brand_color?: string;
+
+	@Column({
 		type: DataType.DATE,
 		allowNull: false,
 		defaultValue: DataType.NOW,
