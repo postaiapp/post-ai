@@ -1,11 +1,18 @@
-import { Column, Model, Table, DataType, HasMany, Scopes } from 'sequelize-typescript';
+import { Column, Model, Table, DataType, HasMany, Scopes, ForeignKey } from 'sequelize-typescript';
 import { UserPlatform } from '@models/user-platform.model';
+import { File } from '@models';
 
 @Scopes(() => ({
 	withAccounts: {
 		include: {
 			model: UserPlatform,
 			as: 'user_platforms',
+		},
+	},
+	withFile: {
+		include: {
+			model: File,
+			as: 'company_file',
 		},
 	},
 }))
@@ -84,11 +91,12 @@ export class User extends Model {
 	})
 	company_description?: string;
 
+	@ForeignKey(() => File)
 	@Column({
-		type: DataType.STRING,
+		type: DataType.INTEGER,
 		allowNull: true,
 	})
-	company_logo_url?: string;
+	company_file_id?: number;
 
 	@Column({
 		type: DataType.STRING,

@@ -16,7 +16,7 @@ export const updateUserSchema = z.object({
   city: z.string().optional().or(z.literal("")),
   country: z.string().optional().or(z.literal("")),
   company_description: z.string().optional(),
-  company_logo_url: z.string().optional(),
+  company_file_id: z.number().optional(),
   brand_color: z.string().optional(),
 }).partial();
 

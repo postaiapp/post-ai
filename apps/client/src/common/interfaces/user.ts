@@ -13,7 +13,8 @@ export type User = {
 	city?: string;
 	country?: string;
 	company_description?: string;
-	company_logo_url?: string;
+	company_file_id?: number;
+	company_logo_url?: string; // Para exibição da imagem
 	brand_color?: string;
 	created_at: Date;
 	updated_at: Date;

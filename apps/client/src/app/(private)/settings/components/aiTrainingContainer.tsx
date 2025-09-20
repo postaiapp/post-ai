@@ -10,6 +10,7 @@ import { Upload, Sparkles, Palette, Building2, Save } from 'lucide-react';
 import Image from 'next/image';
 import { ChromePicker } from 'react-color';
 import { useAITrainingMutation } from '@hooks/useAITraining';
+import { useFileUploadMutation } from '@hooks/useFileUpload';
 import { User } from '@common/interfaces/user';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,27 +22,31 @@ interface AITrainingContainerProps {
 
 export default function AITrainingContainer({ user }: AITrainingContainerProps) {
 	const aiTrainingMutation = useAITrainingMutation();
+	const fileUploadMutation = useFileUploadMutation();
 
 	const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
 		resolver: zodResolver(updateUserSchema),
 		defaultValues: {
 			company_description: user?.company_description || '',
-			company_logo_url: user?.company_logo_url || '',
+			company_file_id: user?.company_file_id || undefined,
 			brand_color: user?.brand_color || '#8B5CF6',
 		},
 	});
 
 	const watchedValues = watch();
 
-	const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				const result = e.target?.result as string;
-				setValue('company_logo_url', result);
-			};
-			reader.readAsDataURL(file);
+			try {
+				const uploadResult = await fileUploadMutation.mutateAsync(file);
+
+				// Salvar o ID do arquivo para envio ao backend
+				setValue('company_file_id', uploadResult.data.id);
+				// Manter a URL para exibição (será atualizada quando o usuário for salvo)
+			} catch (error) {
+				console.error('Erro ao fazer upload do logo:', error);
+			}
 		}
 	};
 
@@ -49,11 +54,10 @@ export default function AITrainingContainer({ user }: AITrainingContainerProps) 
 		await aiTrainingMutation.mutateAsync(data);
 	};
 
-	// Atualizar os valores quando o usuário mudar
 	useEffect(() => {
 		setValue('company_description', user?.company_description || '');
 		setValue('brand_color', user?.brand_color || '#8B5CF6');
-		setValue('company_logo_url', user?.company_logo_url || '');
+		setValue('company_file_id', user?.company_file_id || undefined);
 	}, [user, setValue]);
 
 	return (
@@ -108,9 +112,9 @@ export default function AITrainingContainer({ user }: AITrainingContainerProps) 
 					<div className="space-y-4">
 						<div className="flex items-center gap-4">
 							<div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white">
-								{watchedValues.company_logo_url ? (
+								{user?.company_logo_url ? (
 									<Image
-										src={watchedValues.company_logo_url}
+										src={user.company_logo_url}
 										alt="Logo preview"
 										width={64}
 										height={64}
@@ -122,9 +126,15 @@ export default function AITrainingContainer({ user }: AITrainingContainerProps) 
 							</div>
 							<div className="flex-1">
 								<Label htmlFor="logo-upload" className="cursor-pointer">
-									<div className="flex items-center gap-2 p-3 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors">
-										<Upload size={16} />
-										<span className="text-sm font-medium">Escolher arquivo</span>
+									<div className={`flex items-center gap-2 p-3 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors ${fileUploadMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}>
+										{fileUploadMutation.isPending ? (
+											<div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+										) : (
+											<Upload size={16} />
+										)}
+										<span className="text-sm font-medium">
+											{fileUploadMutation.isPending ? 'Enviando...' : 'Escolher arquivo'}
+										</span>
 									</div>
 								</Label>
 								<input
@@ -132,6 +142,7 @@ export default function AITrainingContainer({ user }: AITrainingContainerProps) 
 									type="file"
 									accept="image/*"
 									onChange={handleLogoUpload}
+									disabled={fileUploadMutation.isPending}
 									className="hidden"
 								/>
 								<p className="text-xs text-gray-500 mt-1">

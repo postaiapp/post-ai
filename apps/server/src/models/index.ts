@@ -3,4 +3,4 @@ export * from './platform.model';
 export * from './post.model';
 export * from './user-platform.model';
 export * from './user.model';
-
+export * from './file.model';

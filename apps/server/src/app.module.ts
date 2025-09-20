@@ -14,6 +14,7 @@ import { StorageModule } from '@storages/storage.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatsModule } from './modules/chats/chats.module';
+import { FileModule } from './modules/file/file.module';
 import { InstagramAuthModule } from './modules/instagram-auth/instagram-auth.module';
 import { UserModule } from './modules/user/user.module';
 
@@ -36,6 +37,7 @@ import { UserModule } from './modules/user/user.module';
 		InstagramAuthModule,
 		ChatsModule,
 		UserModule,
+		FileModule,
 		WebhooksModule,
 		PlatformModule,
 		// CronModule,
