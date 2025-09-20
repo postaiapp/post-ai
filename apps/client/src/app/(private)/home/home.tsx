@@ -11,7 +11,7 @@ import {
 	calculatePlatformROI,
 } from '@utils/insights';
 import { formatTimeFromMinutes, formatLargeNumber } from '@utils/time';
-import { BarChart3, Users } from 'lucide-react';
+import { BarChart3, Users, AlertTriangle } from 'lucide-react';
 
 import { UserPlatform } from '@/common/interfaces/user-platforms';
 
@@ -62,14 +62,9 @@ const Home = ({ selectedPlatform, setSelectedPlatform }: HomeProps) => {
 	const renderErrorState = () => (
 		<div className="h-screen bg-gray-100 flex items-center justify-center">
 			<div className="text-center">
-				<p className="text-red-600">Erro ao carregar dados: {error?.message}</p>
-				<p className="text-gray-500 mt-2">Verifique se você tem uma conta Instagram conectada</p>
-				<button
-					onClick={() => window.location.reload()}
-					className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg"
-				>
-					Tentar novamente
-				</button>
+				<AlertTriangle size={64} className="text-purple-500 mx-auto mb-4" />
+				<p className="text-gray-700 text-lg font-medium">Nenhuma plataforma conectada</p>
+				<p className="text-gray-500 mt-2">Conecte uma plataforma para começar a criar posts</p>
 			</div>
 		</div>
 	);

@@ -161,7 +161,6 @@ export class PostService {
 			deletedAt: null,
 		};
 
-		// Filtra por userPlatformId se fornecido
 		if (filter.userPlatformId) {
 			whereClause.accountId = filter.userPlatformId;
 		}
@@ -180,6 +179,8 @@ export class PostService {
 			...Pagination.getQueryParams(),
 		});
 
+		console.log(result, 'result')
+
 		const signedPosts = await Promise.all(
 			result.rows.map(async (post: any) => {
 				if (post.imageUrl) {
@@ -190,7 +191,7 @@ export class PostService {
 		);
 
 		return {
-			data: signedPosts,
+			posts: signedPosts,
 			...Pagination.mount(result.count),
 		};
 	}

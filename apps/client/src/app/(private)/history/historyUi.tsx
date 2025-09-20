@@ -27,7 +27,6 @@ interface HistoryUiProps {
 	onLastPage: () => void;
 	onNextPage: () => void;
 	onPreviousPage: () => void;
-	userPlatforms: UserPlatform[];
 	onSelectPlatform: (userPlatform: UserPlatform) => void;
 }
 

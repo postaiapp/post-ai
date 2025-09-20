@@ -15,7 +15,15 @@ export const createPost = async (filter: PostFormData) => {
 	};
 };
 
-export const getUserPostsWithDetails = async ({ page, limit, userPlatformId }: { page?: number; limit?: number; userPlatformId?: number }) => {
+export const getUserPostsWithDetails = async ({
+	page,
+	limit,
+	userPlatformId,
+}: {
+	page?: number;
+	limit?: number;
+	userPlatformId?: number;
+}) => {
 	const response: ClientResponse = await client.get(`/posts`, {
 		params: {
 			page,
