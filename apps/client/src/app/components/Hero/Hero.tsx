@@ -8,7 +8,10 @@ import './styles.css';
 
 const Hero = () => {
 	return (
-		<section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full" id="home">
+		<section
+			className="relative min-h-screen flex items-center justify-center overflow-hidden w-full pb-20"
+			id="home"
+		>
 			{/* Background Elements */}
 			<div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-25 to-purple-10 w-full"></div>
 			<div className="absolute inset-0 bg-gradient-to-t from-white via-purple-5 to-transparent w-full"></div>

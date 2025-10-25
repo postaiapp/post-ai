@@ -11,7 +11,8 @@ import {
 import { UserPlatform } from '@models/user-platform.model';
 import { File } from '@models';
 import { Subscription } from '@models/subscription.model';
-
+import { Op } from 'sequelize';
+import { SUBSCRIPTION_STATUS } from '@constants/stripe';
 @Scopes(() => ({
 	withAccounts: {
 		include: {
@@ -30,9 +31,6 @@ import { Subscription } from '@models/subscription.model';
 			model: Subscription,
 			as: 'subscription',
 			required: false,
-			where: {
-				status: 'active',
-			},
 		},
 	},
 }))

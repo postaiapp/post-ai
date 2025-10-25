@@ -9,6 +9,7 @@ import { UserPlatform } from '@models/user-platform.model';
 import { Uploader } from '@type/storage';
 import { User } from '@models/user.model';
 import { StripeService } from '../../stripe/services/stripe.service';
+import { SUBSCRIPTION_STATUS } from '@constants/stripe';
 
 @Injectable()
 export class AuthService {
@@ -143,7 +144,9 @@ export class AuthService {
 	}
 
 	hasActiveSubscription(user: User): boolean {
-		return user.subscription?.status === 'active';
+		return [SUBSCRIPTION_STATUS.ACTIVE, SUBSCRIPTION_STATUS.TRIALING].includes(
+			user.subscription?.status,
+		);
 	}
 
 	generateToken({ user, expiresIn }) {
