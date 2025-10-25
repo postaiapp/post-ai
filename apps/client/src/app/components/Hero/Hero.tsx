@@ -1,66 +1,73 @@
-"use client";
-import React, { useRef } from "react";
+'use client';
+import React from 'react';
 
-import { Button } from "@components/ui/button";
-import { motion, useInView } from "motion/react";
-import Image from "next/image";
-import "./styles.css";
+import { Button } from '@components/ui/button';
+import { motion } from 'motion/react';
+import Image from 'next/image';
+import './styles.css';
 
 const Hero = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref);
+	return (
+		<section className="relative min-h-screen flex items-center justify-center overflow-hidden" id="home">
+			{/* Background Elements */}
+			<div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-25 to-white"></div>
+			<div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
+			<div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+			<div className="absolute top-40 right-10 w-72 h-72 bg-fuchsia-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+			<div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
 
-  return (
-    <section className="py-16" id="home">
-      <div className="flex justify-center flex-col items-center w-full  space-y-10">
-        <div className="text-center space-y-4">
-          <h1 className="text-[80px] font-extrabold text-blue-dark leading-tight h-fit">
-            Transforme sua <span className="highlight">marca</span>
-            <br /> com{" "}
-            <span className="highlight !delay-1000">posts criados por IA</span>
-          </h1>
+			<div className="relative z-10 flex justify-center flex-col items-center w-full space-y-12 pt-32">
+				<motion.div
+					className="text-center space-y-6"
+					initial={{ opacity: 0, y: 30 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8 }}
+				>
+					<h1 className="text-6xl md:text-8xl font-extrabold leading-tight">
+						<span className="gradient-text">Nunca foi tão</span>
+						<br />
+						<span className="gradient-text italic">tranquilo</span>
+						<br />
+						<span className="text-gray-800">automatizar posts</span>
+					</h1>
 
-          <p className="text-[20px] font-medium">
-            Conecte suas contas, gere conteúdos incríveis e agende suas
-            postagens com facilidade.
-          </p>
-          <div className="space-x-4 pt-6">
-            <Button>Testar gratuitamente</Button>
-            <Button variant={"outline"}>Entre em contato</Button>
-          </div>
-        </div>
+					<p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+						<strong>Economize horas por semana</strong> criando posts profissionais sem saber design.
+						<strong> Gere conteúdo</strong> que vende enquanto você foca no que importa: seu negócio.
+					</p>
 
-        <Image
-          src="/lp/platform-preview.svg"
-          width={1200}
-          height={500}
-          alt="Hero"
-        />
-      </div>
-      <div className="w-full py-8 bg-purple-light ">
-        <div className="w-fit mx-auto">
-          <motion.p
-            ref={ref}
-            className="text-purple-dark font-bold tracking-[0.1em]"
-            initial={{ width: 0 }}
-            animate={{ width: isInView ? "100%" : 0 }}
-            transition={{
-              duration: 3,
-              ease: "easeInOut"
-            }}
-            style={{
-              display: "inline-block",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              borderRight: "4px solid #9b4dca"
-            }}
-          >
-            Impulsionando Negócios. Hoje e Amanhã.
-          </motion.p>
-        </div>
-      </div>
-    </section>
-  );
+					<div className="flex flex-col sm:flex-row gap-4 pt-8 justify-center">
+						<Button className="glass-button rounded-button text-white font-semibold px-8 py-4 text-lg hover:scale-105 transform transition-all duration-200 shadow-glow">
+							Começar Grátis
+						</Button>
+						<Button
+							variant="outline"
+							className="glass rounded-button border-purple-200 text-purple-700 font-semibold px-8 py-4 text-lg hover:scale-105 transform transition-all duration-200"
+						>
+							Ver Demonstração
+						</Button>
+					</div>
+				</motion.div>
+
+				<motion.div
+					className="relative"
+					initial={{ opacity: 0, scale: 0.8 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ duration: 1, delay: 0.5 }}
+				>
+					<div className="glass-card p-8 rounded-modern shadow-glass">
+						<Image
+							src="/lp/platform-preview.svg"
+							width={1200}
+							height={500}
+							alt="Plataforma Post AI"
+							className="rounded-card"
+						/>
+					</div>
+				</motion.div>
+			</div>
+		</section>
+	);
 };
 
 export default Hero;

@@ -2,30 +2,47 @@ import React from 'react';
 
 import { itemsHome } from '@common/constants/home';
 import { Button } from '@components/ui/button';
-import { cn } from '@lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { wrapper } from '../wrapper';
-
 const Header = () => (
-	<header className={cn('flex justify-between py-4 items-center', wrapper)}>
-		<div className="flex items-center gap-2">
-			<Image src={'/logo.png'} width={40} height={40} alt="Logo" />
-			<h2 className="text-xl text-purple-950 font-bold">Post AI</h2>
+	<header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-6xl">
+		<div className="glass-card rounded-modern shadow-glass border border-white/20 backdrop-blur-xl">
+			<div className="flex justify-between py-4 px-6 items-center">
+				<div className="flex items-center gap-3">
+					<div className="relative">
+						<Image src={'/logo.png'} width={40} height={40} alt="Logo" className="rounded-full" />
+						<div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full blur opacity-30"></div>
+					</div>
+					<h2 className="text-xl font-bold gradient-text">Post AI</h2>
+				</div>
+
+				<nav className="hidden md:flex gap-8 items-center">
+					{itemsHome.map(item => (
+						<Link
+							href={item.href}
+							key={item.label}
+							className="text-gray-700 hover:text-purple-600 font-medium transition-colors duration-200 hover:scale-105 transform"
+						>
+							{item.label}
+						</Link>
+					))}
+				</nav>
+
+				<div className="flex items-center gap-4">
+					<Link href="/auth" className="hidden sm:block">
+						<Button variant="ghost" className="text-gray-700 hover:text-purple-600 font-medium">
+							Entrar
+						</Button>
+					</Link>
+					<Link href="/auth">
+						<Button className="glass-button rounded-button text-white font-semibold px-6 py-2 hover:scale-105 transform transition-all duration-200">
+							Começar Grátis
+						</Button>
+					</Link>
+				</div>
+			</div>
 		</div>
-
-		<nav className="flex gap-16 items-center">
-			{itemsHome.map((item) => (
-				<Link href={item.href} key={item.label} className="hover:underline font-semibold">
-					{item.label}
-				</Link>
-			))}
-		</nav>
-
-		<Link href="/auth">
-			<Button>Log In</Button>
-		</Link>
 	</header>
 );
 

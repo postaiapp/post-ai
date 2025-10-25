@@ -99,6 +99,104 @@ body {
   }
 }
 
+/* Glass Morphism Styles */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.15);
+  border-radius: 16px;
+}
+
+.glass-button {
+  background: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  box-shadow: 0 4px 16px 0 rgba(168, 85, 247, 0.2);
+  color: white;
+}
+
+.glass-button:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  box-shadow: 0 8px 24px 0 rgba(168, 85, 247, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Gradient Backgrounds */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);
+}
+
+/* Custom Purple Shades for Smooth Transitions */
+.from-purple-25 {
+  --tw-gradient-from: #fefcff;
+  --tw-gradient-to: rgba(254, 252, 255, 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modern Blur Effects */
+.blur-bg {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.blur-soft {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Rounded Corners */
+.rounded-modern {
+  border-radius: 20px;
+}
+
+.rounded-card {
+  border-radius: 16px;
+}
+
+.rounded-button {
+  border-radius: 12px;
+}
+
+/* Shadow Effects */
+.shadow-glass {
+  box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.25);
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
 ::selection {
   background-color: #c084fc;
   color: #ffffff;
