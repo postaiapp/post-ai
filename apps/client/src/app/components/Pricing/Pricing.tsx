@@ -76,7 +76,7 @@ const pricingPlans = [
 ];
 
 const Pricing = () => (
-	<section id="pricing" className="py-20 bg-gradient-to-b from-white to-purple-10">
+	<section id="pricing" className="py-20">
 		<div className={cn('space-y-16', wrapper)}>
 			<motion.div
 				className="text-center space-y-4"
@@ -190,7 +190,7 @@ const Pricing = () => (
 				<h3 className="text-3xl font-bold text-gray-800">Pronto para começar?</h3>
 				<p className="text-xl text-gray-600">Transforme sua presença nas redes sociais hoje mesmo.</p>
 				<div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-					<Button 
+					<Button
 						className="glass-button rounded-button text-white font-semibold px-8 py-4 hover:scale-105 transform transition-all duration-200"
 						onClick={() => {
 							localStorage.setItem('selectedPlan', 'pro');

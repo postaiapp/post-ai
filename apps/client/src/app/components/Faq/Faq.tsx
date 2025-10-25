@@ -11,7 +11,7 @@ import TypingAnimation from '../TypingAnimation/TypingAnimation';
 import { wrapper } from '../wrapper';
 
 const Faq = () => (
-	<section id="faq" className="py-20 bg-gradient-to-b from-white via-purple-10 to-purple-50/30">
+	<section id="faq" className="py-20">
 		<div className={cn('flex flex-col gap-y-12 justify-center items-center', wrapper)}>
 			<motion.div
 				className="relative space-y-4 text-center"

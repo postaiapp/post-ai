@@ -285,3 +285,9 @@ body {
   --tw-gradient-to: rgba(253, 250, 255, 0);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
+
+.to-purple-10 {
+  --tw-gradient-from: rgba(253, 250, 255, 0);
+  --tw-gradient-to: #fdfaff;
+  --tw-gradient-stops: var(--tw-gradient-to), var(--tw-gradient-from);
+}
