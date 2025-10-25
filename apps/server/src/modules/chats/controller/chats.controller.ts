@@ -43,11 +43,14 @@ export class ChatsController extends BaseController {
 			meta,
 		};
 
+		console.log(options, 'options');
+
 		try {
 			const response = await this.chatService.sendMessage(options);
 
 			return this.sendSuccess({ data: response, res });
 		} catch (error) {
+			console.log(error, 'error');
 			return this.sendError({ error, res });
 		}
 	}

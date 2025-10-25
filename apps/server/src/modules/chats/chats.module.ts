@@ -6,6 +6,7 @@ import { StorageModule } from '@storages/storage.module';
 import { ImageGenerationModule } from '../image-generation/image-generation.module';
 import { ChatsController } from './controller/chats.controller';
 import { ChatsService } from './services/chats.service';
+import { UserModule } from '@modules/user/user.module';
 
 @Module({
 	imports: [
@@ -13,6 +14,7 @@ import { ChatsService } from './services/chats.service';
 		ImageGenerationModule,
 		TextGenerationModule,
 		StorageModule,
+		UserModule,
 	],
 	controllers: [ChatsController],
 	providers: [ChatsService],

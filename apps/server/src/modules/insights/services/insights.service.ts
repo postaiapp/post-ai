@@ -25,6 +25,8 @@ export class InsightsService {
 		platform: Platform;
 		externalId: string;
 	}> {
+		console.log('getUserPlatformInfo', userId, userPlatformId);
+
 		const userPlatform = await UserPlatform.scope(['withPlatform', 'withAuthToken']).findOne({
 			where: {
 				id: userPlatformId,

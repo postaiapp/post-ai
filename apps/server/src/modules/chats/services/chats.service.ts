@@ -16,11 +16,13 @@ import { Model } from 'mongoose';
 import { Uploader } from '@type/storage';
 import { Inject } from '@nestjs/common';
 import { TextGenerationService } from '@modules/text-generation/service/text-generation.service';
+import { UserService } from '@modules/user/service/user.service';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
+		private readonly userService: UserService,
 		private readonly imageGenerationService: ImageGenerationService,
 		private readonly textGenerationService: TextGenerationService,
 		@Inject(Uploader) private readonly storageService: Uploader,
@@ -53,16 +55,24 @@ export class ChatsService {
 	async sendMessage({ data, meta }: SendMessageData) {
 		const { chatId, message } = data;
 
-		const chat: ChatDocument = await this.findOrCreateChat({
-			userId: meta.userId.toString(),
-			message,
-			chatId,
-		});
+		const [chat, user] = await Promise.all([
+			this.findOrCreateChat({
+				userId: meta.userId.toString(),
+				message,
+				chatId,
+			}),
+			this.userService.findOne(meta.userId),
+		]);
+
+		console.log(user, 'user');
 
 		const context = await this.getChatContext(chat.interactions);
 
 		const { url } = await this.imageGenerationService.generateImage({
 			prompt: `${data.message}\n\nContext: ${context}`,
+			logoUrl: user.company_file?.url,
+			brandColor: user.brand_color,
+			companyDescription: user.company_description,
 		});
 
 		if (!url) {

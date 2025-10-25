@@ -1,4 +1,13 @@
-import { Column, Model, Table, DataType, HasMany, Scopes, ForeignKey } from 'sequelize-typescript';
+import {
+	Column,
+	Model,
+	Table,
+	DataType,
+	HasMany,
+	HasOne,
+	Scopes,
+	ForeignKey,
+} from 'sequelize-typescript';
 import { UserPlatform } from '@models/user-platform.model';
 import { File } from '@models';
 
@@ -129,4 +138,11 @@ export class User extends Model {
 
 	@HasMany(() => UserPlatform)
 	user_platforms: UserPlatform[];
+
+	@HasOne(() => File, {
+		foreignKey: 'id',
+		sourceKey: 'company_file_id',
+		as: 'company_file',
+	})
+	company_file: File;
 }

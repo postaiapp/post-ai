@@ -16,14 +16,8 @@ export class UserController extends BaseController {
 
 	@Get()
 	async findOne(@Res() res: Response, @Meta() meta: MetaType) {
-		const options = {
-			filter: {
-				id: meta.userId,
-			},
-		};
-
 		try {
-			const response = await this.userService.findOne(options);
+			const response = await this.userService.findOne(meta.userId);
 
 			this.sendSuccess({
 				res,

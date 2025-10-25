@@ -38,6 +38,9 @@ type VerifyPostPublishProps = {
 
 type GenerateImageOptions = {
 	prompt: string;
+	logoUrl?: string;
+	brandColor?: string;
+	companyDescription?: string;
 	n?: number;
 	size?: string;
 	style?: string;
