@@ -8,6 +8,31 @@ type AuthLoginWithPlanType = AuthLoginType & {
 	planKey: string | null;
 };
 
+interface AuthResponse {
+	user: {
+		id: number;
+		name: string;
+		email: string;
+		avatar_url?: string;
+		phone_number?: string;
+		phone_country_code?: string;
+		phone_dial_code?: string;
+		city?: string;
+		country?: string;
+		company_description?: string;
+		company_file_id?: number;
+		brand_color?: string;
+		created_at: string;
+		updated_at: string;
+		deleted_at?: string;
+		user_platforms?: unknown[];
+		subscription?: unknown;
+	};
+	token: string | null;
+	hasActiveSubscription: boolean;
+	checkoutUrl: string | null;
+}
+
 type AuthRegisterType = z.infer<typeof RegisterSchema>;
 
 interface AuthCardProps {
@@ -35,6 +60,8 @@ interface RegisterCardProps {
 	onSubmit: SubmitHandler<AuthRegisterType>;
 	toggleAuthMode: () => void;
 }
+
+export type { AuthResponse };
 
 export type {
 	AuthContainerProps,

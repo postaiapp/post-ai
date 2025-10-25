@@ -1,4 +1,5 @@
-import { AuthLoginWithPlanType } from '@common/interfaces/auth';
+import { AuthLoginWithPlanType, AuthResponse } from '@common/interfaces/auth';
+import { User } from '@common/interfaces/user';
 import { login } from '@processes/auth';
 import { userStore } from '@stores/index';
 import { useMutation } from '@tanstack/react-query';
@@ -12,23 +13,32 @@ export function useLoginMutation(router: ReturnType<typeof useRouter>) {
 	return useMutation({
 		mutationKey: ['login'],
 		mutationFn: async (data: AuthLoginWithPlanType) => {
-
 			console.log(data, 'data');
 			const response = await login(data);
 
 			return response.data;
 		},
-		onSuccess: data => {
-			const { user, token } = data;
+		onSuccess: (data: AuthResponse) => {
+			const { user, token, hasActiveSubscription, checkoutUrl } = data;
 
-			setUser(user);
+			setUser(user as unknown as User);
 
-			localStorageSet('token', token);
+			if (!hasActiveSubscription && checkoutUrl) {
+				successToast('Redirecionando para pagamento...');
 
-			setTimeout(() => {
-				router.push('/home');
-				successToast('Login efetuado com sucesso!');
-			}, 1000);
+				setTimeout(() => {
+					window.location.href = checkoutUrl;
+				}, 1000);
+				return;
+			}
+
+			if (hasActiveSubscription && token) {
+				localStorageSet('token', token);
+				setTimeout(() => {
+					router.push('/home');
+					successToast('Login efetuado com sucesso!');
+				}, 1000);
+			}
 		},
 		onError: () => {
 			errorToast('Suas credenciais estão inválidas, tente novamente.');
