@@ -4,3 +4,6 @@ export * from './post.model';
 export * from './user-platform.model';
 export * from './user.model';
 export * from './file.model';
+export * from './plan.model';
+export * from './plan-price.model';
+export * from './subscription.model';

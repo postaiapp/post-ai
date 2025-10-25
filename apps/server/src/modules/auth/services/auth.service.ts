@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { UserPlatform } from '@models/user-platform.model';
 import { Uploader } from '@type/storage';
 import { User } from '@models/user.model';
+import { StripeService } from '../../stripe/stripe.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 		private readonly config: ConfigService,
 		@Inject(Uploader) private readonly storageService: Uploader,
+		private readonly stripeService: StripeService,
 	) {}
 
 	async signAvatarFiles(user_platforms: UserPlatform[]) {
@@ -31,16 +33,20 @@ export class AuthService {
 		);
 	}
 
-	async authenticate({ email, password }: { email: string; password: string }) {
+	async authenticate({
+		email,
+		password,
+		planKey,
+	}: {
+		email: string;
+		password: string;
+		planKey?: string;
+	}) {
 		let user = await this.userModel
-			.scope('withAccounts')
+			.scope(['withAccounts', 'withSubscription'])
 			.findOne({ where: { email }, raw: false });
 
-		user = user.toJSON();
-
-		if (user.user_platforms?.length) {
-			await this.signAvatarFiles(user.user_platforms);
-		}
+		console.log(user);
 
 		if (!user) {
 			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
@@ -50,20 +56,65 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
+		user = user.toJSON();
+
+		if (user.user_platforms?.length) {
+			await this.signAvatarFiles(user.user_platforms);
+		}
+
 		const isValidPassword = await bcrypt.compare(password, user.password);
 
 		if (!isValidPassword) {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
+		const hasActiveSubscription = this.hasActiveSubscription(user);
+
+		console.log(hasActiveSubscription, 'hasActiveSubscription');
+
+		console.log(planKey, 'planKey');
+
+		if (!hasActiveSubscription && planKey) {
+			const priceId = await this.stripeService.getPriceId(planKey);
+
+			console.log(priceId, 'priceId');
+
+			const checkoutSession = await this.stripeService.createCheckoutSession({
+				userEmail: user.email,
+				userId: user.id,
+				planKey,
+				priceId,
+			});
+
+			return {
+				hasActiveSubscription: false,
+				checkoutUrl: checkoutSession.url,
+				token: null,
+				user: {
+					...omit(user, 'password'),
+					id: user.id,
+				},
+			};
+		}
+
+		if (!hasActiveSubscription && !planKey) {
+			const FAKE_PASSWORD = '$2a$12$4NNIgYdnWkr4B30pT5i3feDEzWivfxyOK.oNSxk7G3GzGAVfB6vEC';
+
+			await bcrypt.compare(password, FAKE_PASSWORD);
+
+			throw new UnauthorizedException('Invalid credentials');
+		}
+
 		const accessToken = await this.generateToken({ user, expiresIn: '1d' });
 
 		return {
+			hasActiveSubscription: true,
+			checkoutUrl: null,
+			token: accessToken,
 			user: {
 				...omit(user, 'password'),
 				id: user.id,
 			},
-			token: accessToken,
 		};
 	}
 
@@ -89,6 +140,10 @@ export class AuthService {
 				email: newUser.email,
 			},
 		};
+	}
+
+	hasActiveSubscription(user: User): boolean {
+		return user.subscription?.status === 'active';
 	}
 
 	generateToken({ user, expiresIn }) {

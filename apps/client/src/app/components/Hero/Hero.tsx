@@ -37,7 +37,15 @@ const Hero = () => {
 					</p>
 
 					<div className="flex flex-col sm:flex-row gap-4 pt-8 justify-center">
-						<Button className="glass-button rounded-button text-white font-semibold px-8 py-4 text-lg hover:scale-105 transform transition-all duration-200 shadow-glow">
+						<Button 
+							className="glass-button rounded-button text-white font-semibold px-8 py-4 text-lg hover:scale-105 transform transition-all duration-200 shadow-glow"
+							onClick={() => {
+								// Armazenar o planKey do Pro (mais popular) no localStorage
+								localStorage.setItem('selectedPlan', 'pro');
+								// Redirecionar para a página de login
+								window.location.href = '/auth';
+							}}
+						>
 							Começar Grátis
 						</Button>
 						<Button

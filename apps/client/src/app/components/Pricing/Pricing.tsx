@@ -28,6 +28,7 @@ const pricingPlans = [
 		limitations: ['Sem criação de Reels e carrosséis', 'Sem biblioteca de vídeos', 'Sem geração em massa de posts'],
 		popular: false,
 		gradient: 'from-blue-500 to-cyan-500',
+		planKey: 'starter',
 	},
 	{
 		name: 'Post AI Pro',
@@ -48,6 +49,7 @@ const pricingPlans = [
 		limitations: ['Sem biblioteca de vídeos', 'Sem relatórios automáticos via WhatsApp'],
 		popular: true,
 		gradient: 'from-purple-500 to-fuchsia-500',
+		planKey: 'pro',
 	},
 	{
 		name: 'Post AI Premium',
@@ -69,6 +71,7 @@ const pricingPlans = [
 		limitations: [],
 		popular: false,
 		gradient: 'from-amber-500 to-orange-500',
+		planKey: 'premium',
 	},
 ];
 
@@ -162,6 +165,11 @@ const Pricing = () => (
 												? 'glass-button text-white hover:scale-105 transform'
 												: 'glass-button text-white hover:scale-105 transform'
 										)}
+										onClick={() => {
+											localStorage.setItem('selectedPlan', plan.planKey);
+
+											window.location.href = '/auth';
+										}}
 									>
 										{plan.popular ? 'Começar Agora' : 'Escolher Plano'}
 									</Button>
@@ -182,7 +190,14 @@ const Pricing = () => (
 				<h3 className="text-3xl font-bold text-gray-800">Pronto para começar?</h3>
 				<p className="text-xl text-gray-600">Transforme sua presença nas redes sociais hoje mesmo.</p>
 				<div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-					<Button className="glass-button rounded-button text-white font-semibold px-8 py-4 hover:scale-105 transform transition-all duration-200">
+					<Button 
+						className="glass-button rounded-button text-white font-semibold px-8 py-4 hover:scale-105 transform transition-all duration-200"
+						onClick={() => {
+							localStorage.setItem('selectedPlan', 'pro');
+
+							window.location.href = '/auth';
+						}}
+					>
 						Começar Teste Grátis
 					</Button>
 					<Button

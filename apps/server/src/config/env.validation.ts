@@ -108,6 +108,26 @@ class EnvironmentVariables {
 	@Max(65535)
 	@IsOptional()
 	POSTGRES_PORT: number = 5432;
+
+	@IsString()
+	@IsNotEmpty()
+	STRIPE_SECRET_KEY: string;
+
+	@IsString()
+	@IsNotEmpty()
+	STRIPE_STARTER_PRICE_ID: string;
+
+	@IsString()
+	@IsNotEmpty()
+	STRIPE_PRO_PRICE_ID: string;
+
+	@IsString()
+	@IsNotEmpty()
+	STRIPE_PREMIUM_PRICE_ID: string;
+
+	@IsString()
+	@IsNotEmpty()
+	APP_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

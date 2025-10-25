@@ -37,6 +37,7 @@
     "@nestjs/sequelize": "^11.0.0",
     "@nestjs/swagger": "^8.1.0",
     "@types/mongodb": "^4.0.7",
+    "@types/stripe": "^8.0.417",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.0",
     "class-sanitizer": "^1.0.1",

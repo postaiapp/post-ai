@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 import { UserPlatform } from '@models/user-platform.model';
 import { File } from '@models';
+import { Subscription } from '@models/subscription.model';
 
 @Scopes(() => ({
 	withAccounts: {
@@ -22,6 +23,16 @@ import { File } from '@models';
 		include: {
 			model: File,
 			as: 'company_file',
+		},
+	},
+	withSubscription: {
+		include: {
+			model: Subscription,
+			as: 'subscription',
+			required: false,
+			where: {
+				status: 'active',
+			},
 		},
 	},
 }))
@@ -145,4 +156,11 @@ export class User extends Model {
 		as: 'company_file',
 	})
 	company_file: File;
+
+	@HasOne(() => Subscription, {
+		foreignKey: 'user_id',
+		sourceKey: 'id',
+		as: 'subscription',
+	})
+	subscription: Subscription;
 }

@@ -1,5 +1,13 @@
 import { Sanitize } from '@decorators/sanitize.decorator';
-import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+	IsEmail,
+	IsNotEmpty,
+	IsString,
+	MaxLength,
+	MinLength,
+	IsOptional,
+	IsIn,
+} from 'class-validator';
 
 export class LoginDto {
 	@IsString()
@@ -14,6 +22,12 @@ export class LoginDto {
 	@IsEmail()
 	@Sanitize()
 	email: string;
+
+	@IsString()
+	@IsOptional()
+	@Sanitize()
+	@IsIn(['starter', 'pro', 'premium'])
+	planKey?: string;
 }
 
 export class RegisterDto {

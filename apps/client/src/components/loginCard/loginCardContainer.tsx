@@ -23,7 +23,7 @@ const LoginCardContainer = ({ toggleAuthMode }: AuthCardProps) => {
 
 	const onSubmit = (data: AuthLoginType) => {
 		try {
-			loginUser(data);
+			loginUser({ ...data, planKey: localStorage.getItem('selectedPlan') });
 		} catch (error) {
 			console.error(error);
 		}

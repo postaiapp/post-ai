@@ -26,6 +26,7 @@ export class AuthController extends BaseController {
 			example: {
 				email: 'user@example.com',
 				password: 'yourpassword',
+				planKey: 'pro',
 			},
 		},
 	})
