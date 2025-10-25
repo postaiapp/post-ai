@@ -8,10 +8,10 @@ import './styles.css';
 
 const Hero = () => {
 	return (
-		<section className="relative min-h-screen flex items-center justify-center overflow-hidden" id="home">
+		<section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full" id="home">
 			{/* Background Elements */}
-			<div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-25 to-white"></div>
-			<div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
+			<div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-purple-25 to-purple-10 w-full"></div>
+			<div className="absolute inset-0 bg-gradient-to-t from-white via-purple-5 to-transparent w-full"></div>
 			<div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
 			<div className="absolute top-40 right-10 w-72 h-72 bg-fuchsia-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
 			<div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>

@@ -23,12 +23,15 @@ export class StripeService {
 		planKey: string;
 		priceId: string;
 	}) {
-		console.log({
-			userEmail,
-			userId,
-			planKey,
-			priceId,
-		}, 'createCheckoutSession');
+		console.log(
+			{
+				userEmail,
+				userId,
+				planKey,
+				priceId,
+			},
+			'createCheckoutSession',
+		);
 		const APP_URL = this.configService.get('APP_URL');
 
 		console.log(APP_URL, 'APP_URL');
@@ -42,7 +45,10 @@ export class StripeService {
 			success_url: `${APP_URL}/auth`,
 			cancel_url: `${APP_URL}/auth`,
 			locale: 'pt-BR',
-			metadata: { userId, planKey },
+			metadata: {
+				userId,
+				planKey,
+			},
 		});
 
 		console.log(session, 'session');
@@ -56,7 +62,7 @@ export class StripeService {
 			pro: this.configService.get('STRIPE_PRO_PRICE_ID'),
 			premium: this.configService.get('STRIPE_PREMIUM_PRICE_ID'),
 		};
-		
+
 		console.log(priceMap, 'priceMap');
 
 		const priceId = priceMap[planKey];

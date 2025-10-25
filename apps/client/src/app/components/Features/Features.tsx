@@ -53,7 +53,7 @@ const features = [
 
 const Features = () => (
 	<motion.section
-		className={cn('py-20 bg-gradient-to-b from-purple-50/30 to-white', wrapper)}
+		className={cn('py-20 bg-gradient-to-b from-purple-10 to-white', wrapper)}
 		initial={{ opacity: 0 }}
 		animate={{ opacity: 1 }}
 		transition={{ duration: 0.5 }}

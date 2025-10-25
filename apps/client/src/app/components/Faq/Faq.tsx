@@ -6,12 +6,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { cn } from '@lib/utils';
 import { HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import Image from 'next/image';
 
+import TypingAnimation from '../TypingAnimation/TypingAnimation';
 import { wrapper } from '../wrapper';
 
 const Faq = () => (
-	<section id="faq" className="py-20 bg-gradient-to-b from-white via-purple-50/50 to-purple-200/30">
+	<section id="faq" className="py-20 bg-gradient-to-b from-white via-purple-10 to-purple-50/30">
 		<div className={cn('flex flex-col gap-y-12 justify-center items-center', wrapper)}>
 			<motion.div
 				className="relative space-y-4 text-center"
@@ -20,34 +20,25 @@ const Faq = () => (
 				viewport={{ once: true }}
 				transition={{ duration: 0.8 }}
 			>
-				<div className="relative inline-block">
-					<Image
-						className="absolute -top-4 -right-8 rotate-[40deg]"
-						src="/lp/highlight-vector.svg"
-						width={70}
-						height={70}
-						alt="Ícone de highlight"
-					/>
-					<div className="glass-card p-6 rounded-modern shadow-glass">
-						<div className="flex items-center gap-3 mb-4">
-							<div className="p-3 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500">
-								<HelpCircle className="w-6 h-6 text-white" />
-							</div>
-							<h3 className="font-bold text-4xl md:text-5xl gradient-text">Perguntas Frequentes</h3>
-						</div>
-						<motion.p
-							initial={{ opacity: 0, y: -20 }}
-							whileInView={{ opacity: 1, y: 0, transition: { delay: 0.8 } }}
-							className="text-gray-600 text-lg"
-						>
-							Não encontrou a resposta aqui?{' '}
-							<span className="text-purple-600 font-semibold underline cursor-pointer hover:text-purple-700 transition-colors">
-								Entre em contato
-							</span>
-							.
-						</motion.p>
+				<div className="flex items-center justify-center gap-3 mb-8">
+					<div className="p-3 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500">
+						<HelpCircle className="w-6 h-6 text-white" />
 					</div>
+					<h3 className="font-bold text-4xl md:text-5xl gradient-text">
+						<TypingAnimation text="Perguntas Frequentes" speed={100} className="gradient-text" />
+					</h3>
 				</div>
+				<motion.p
+					initial={{ opacity: 0, y: -20 }}
+					whileInView={{ opacity: 1, y: 0, transition: { delay: 1.5 } }}
+					className="text-gray-600 text-lg"
+				>
+					Não encontrou a resposta aqui?{' '}
+					<span className="text-purple-600 font-semibold underline cursor-pointer hover:text-purple-700 transition-colors">
+						Entre em contato
+					</span>
+					.
+				</motion.p>
 			</motion.div>
 
 			<motion.div

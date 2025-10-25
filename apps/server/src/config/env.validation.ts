@@ -128,6 +128,10 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	APP_URL: string;
+
+	@IsString()
+	@IsNotEmpty()
+	STRIPE_WEBHOOK_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {

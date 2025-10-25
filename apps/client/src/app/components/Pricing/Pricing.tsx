@@ -76,7 +76,7 @@ const pricingPlans = [
 ];
 
 const Pricing = () => (
-	<section id="pricing" className="py-20 bg-gradient-to-b from-white to-purple-50/30">
+	<section id="pricing" className="py-20 bg-gradient-to-b from-white to-purple-10">
 		<div className={cn('space-y-16', wrapper)}>
 			<motion.div
 				className="text-center space-y-4"

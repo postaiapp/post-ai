@@ -7,8 +7,8 @@ import Link from 'next/link';
 
 const Header = () => (
 	<header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-6xl">
-		<div className="glass-card rounded-modern shadow-glass border border-white/20 backdrop-blur-xl">
-			<div className="flex justify-between py-4 px-6 items-center">
+		<div className="glass-card-rounded-full shadow-glass border border-white/20 backdrop-blur-xl">
+			<div className="flex justify-between p-4 items-center">
 				<div className="flex items-center gap-3">
 					<div className="relative">
 						<Image src={'/logo.png'} width={40} height={40} alt="Logo" className="rounded-full" />
@@ -31,12 +31,15 @@ const Header = () => (
 
 				<div className="flex items-center gap-4">
 					<Link href="/auth" className="hidden sm:block">
-						<Button variant="ghost" className="text-gray-700 hover:text-purple-600 font-medium">
+						<Button
+							variant="ghost"
+							className="text-gray-700 hover:text-purple-600 font-medium rounded-full"
+						>
 							Entrar
 						</Button>
 					</Link>
 					<Link href="/auth">
-						<Button className="glass-button rounded-button text-white font-semibold px-6 py-2 hover:scale-105 transform transition-all duration-200">
+						<Button className="glass-button text-white font-semibold px-6 py-2 hover:scale-105 transform transition-all duration-200 rounded-full">
 							Começar Grátis
 						</Button>
 					</Link>

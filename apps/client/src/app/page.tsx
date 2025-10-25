@@ -7,7 +7,7 @@ import Pricing from './components/Pricing/Pricing';
 
 const LandingPage = () => {
 	return (
-		<main className="relative">
+		<main className="relative w-full">
 			<Header />
 			<Hero />
 			<Features />

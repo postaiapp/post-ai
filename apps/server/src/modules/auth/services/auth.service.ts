@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { UserPlatform } from '@models/user-platform.model';
 import { Uploader } from '@type/storage';
 import { User } from '@models/user.model';
-import { StripeService } from '../../stripe/stripe.service';
+import { StripeService } from '../../stripe/services/stripe.service';
 
 @Injectable()
 export class AuthService {
