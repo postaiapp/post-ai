@@ -38,33 +38,20 @@ export class OpenAIRepository implements ImageGenerationService {
 
 		console.log(mountedPrompt, 'mountedPrompt');
 
-		// const response = await this.openai.images.generate({
-		// 	model: 'gpt-image-1',
-		// 	prompt: mountedPrompt,
-		// 	n: options.n || 1,
-		// 	quality: 'medium',
-		// 	size: '1024x1024',
-		// 	output_format: 'jpeg'
-		// });
-
-		const response = await this.openai.responses.create({
-			model: 'gpt-4.1',
-			input: mountedPrompt,
-			tools: [{ type: 'image_generation' }],
-			// prompt: mountedPrompt,
-			// n: options.n || 1,
-			// quality: 'medium',
-			// size: '1024x1024',
-			// output_format: 'jpeg'
+		const response = await this.openai.images.generate({
+			model: 'gpt-image-1',
+			prompt: mountedPrompt,
+			n: options.n || 1,
+			quality: 'medium',
+			size: '1024x1024',
+			output_format: 'jpeg',
 		});
 
 		console.log(response, 'response');
 
-		const imageData = response.output
-			.filter(output => output.type === 'image_generation_call')
-			.map(output => output.result);
+		const base64 = response.data[0].b64_json;
 
-		const image = Buffer.from(imageData[0], 'base64');
+		const image = Buffer.from(base64, 'base64');
 
 		const { key } = await this.storageService.upload({
 			fileName: 'image.png',
@@ -73,26 +60,9 @@ export class OpenAIRepository implements ImageGenerationService {
 		});
 
 		const signedUrl = await this.storageService.getSignedImageUrlByPath(key);
-		console.log(signedUrl, 'signedUrl');
 
 		return {
-			url: 'sdf',
+			url: signedUrl,
 		};
-
-		// const base64 = response.output[0].b64_json;
-
-		// const image = Buffer.from(base64, 'base64');
-
-		// const { key } = await this.storageService.upload({
-		// 	fileName: 'image.png',
-		// 	fileType: 'image/png',
-		// 	body: image,
-		// });
-
-		// const signedUrl = await this.storageService.getSignedImageUrlByPath(key);
-
-		// return {
-		// 	url: signedUrl,
-		// };
 	}
 }
